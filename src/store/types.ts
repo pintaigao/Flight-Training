@@ -1,14 +1,13 @@
 import type { Feature, LineString } from 'geojson'
 
-export type User = {
+export type AuthUser = {
   id: string
   email: string
-  passwordHash: string
-  createdAtISO: string
 }
 
 export type AuthState = {
-  userId: string | null
+  user: AuthUser | null
+  status: 'unknown' | 'authed' | 'anon'
 }
 
 export type FlightComments = {
@@ -40,8 +39,6 @@ export type UIState = {
 }
 
 export type AppState = {
-  usersById: Record<string, User>
-  userIds: string[]
   auth: AuthState
   flightsById: Record<string, Flight>
   flightIds: string[]
@@ -51,8 +48,8 @@ export type AppState = {
 }
 
 export type Action =
-  | { type: 'ADD_USER'; user: User }
-  | { type: 'SET_AUTH'; userId: string | null }
+  | { type: 'SET_AUTH_USER'; user: AuthUser | null }
+  | { type: 'SET_AUTH_STATUS'; status: AuthState['status'] }
   | { type: 'SELECT_FLIGHT'; id: string | null }
   | { type: 'SET_FILTERS'; filters: Partial<Filters> }
   | { type: 'UPSERT_FLIGHT'; flight: Flight }

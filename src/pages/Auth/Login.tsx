@@ -1,11 +1,10 @@
 import { useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '@/store/store'
-import { findUserByEmail, normalizeEmail } from '@/lib/auth/user'
-import { verifyPassword } from '@/lib/auth/password'
+import { login } from '@/lib/api/auth'
 
 export default function Login() {
-  const { state, dispatch } = useStore()
+  const { dispatch } = useStore()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -24,18 +23,11 @@ export default function Login() {
     setError(null)
     setLoading(true)
     try {
-      const u = findUserByEmail(state, email)
-      if (!u) {
-        setError('No account found for that email. Create one first.')
-        return
-      }
-      const ok = await verifyPassword(password, u.passwordHash)
-      if (!ok) {
-        setError('Incorrect password.')
-        return
-      }
-      dispatch({ type: 'SET_AUTH', userId: u.id })
+      const me = await login({ email: email.trim().toLowerCase(), password })
+      dispatch({ type: 'SET_AUTH_USER', user: me })
       navigate(from, { replace: true })
+    } catch (err: any) {
+      setError(err?.body?.message ?? 'Login failed.')
     } finally {
       setLoading(false)
     }
@@ -55,7 +47,7 @@ export default function Login() {
               className="input"
               placeholder="Email"
               value={email}
-              onChange={(e) => setEmail(normalizeEmail(e.target.value))}
+              onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
             />
             <input

@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useStore } from '@/store/store'
+import { logout as apiLogout } from '@/lib/api/auth'
 
 const nav = [
   { to: '/', label: 'Dashboard' },
@@ -10,10 +11,15 @@ const nav = [
 export default function Sidebar() {
   const { state, dispatch } = useStore()
   const navigate = useNavigate()
-  const user = state.auth.userId ? state.usersById[state.auth.userId] : null
+  const user = state.auth.user
 
-  function logout() {
-    dispatch({ type: 'SET_AUTH', userId: null })
+  async function logout() {
+    try {
+      await apiLogout()
+    } catch {
+      // ignore
+    }
+    dispatch({ type: 'SET_AUTH_USER', user: null })
     navigate('/login', { replace: true })
   }
 

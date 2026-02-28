@@ -18,13 +18,11 @@ function loadInitialState(): AppState {
     if (!raw) return makeDemoState()
     const parsed = JSON.parse(raw) as AppState
     if (!parsed || !parsed.flightsById || !parsed.flightIds) return makeDemoState()
-    // lightweight migration for older stored state
+    // lightweight migration + do not trust persisted auth
     return {
       ...makeDemoState(),
       ...parsed,
-      usersById: (parsed as any).usersById ?? {},
-      userIds: (parsed as any).userIds ?? [],
-      auth: (parsed as any).auth ?? { userId: null }
+      auth: { user: null, status: 'unknown' }
     }
   } catch {
     return makeDemoState()
@@ -36,7 +34,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+      // Persist app data, but NOT auth (session is managed by HttpOnly cookies).
+      const toPersist: AppState = { ...state, auth: { user: null, status: 'unknown' } }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toPersist))
     } catch {
       // ignore
     }

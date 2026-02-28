@@ -1,12 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useStore } from '@/store/store'
-import { findUserByEmail, makeUserId, normalizeEmail } from '@/lib/auth/user'
-import { hashPassword } from '@/lib/auth/password'
-import type { User } from '@/store/types'
+import { register } from '@/lib/api/auth'
 
 export default function Register() {
-  const { state, dispatch } = useStore()
+  const { dispatch } = useStore()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
@@ -20,7 +18,7 @@ export default function Register() {
     setError(null)
     setLoading(true)
     try {
-      const normalized = normalizeEmail(email)
+      const normalized = email.trim().toLowerCase()
       if (!normalized.includes('@')) {
         setError('Please enter a valid email.')
         return
@@ -33,21 +31,11 @@ export default function Register() {
         setError('Passwords do not match.')
         return
       }
-      if (findUserByEmail(state, normalized)) {
-        setError('An account with that email already exists. Try logging in.')
-        return
-      }
-
-      const passwordHash = await hashPassword(password)
-      const user: User = {
-        id: makeUserId(normalized),
-        email: normalized,
-        passwordHash,
-        createdAtISO: new Date().toISOString()
-      }
-      dispatch({ type: 'ADD_USER', user })
-      dispatch({ type: 'SET_AUTH', userId: user.id })
+      const me = await register({ email: normalized, password })
+      dispatch({ type: 'SET_AUTH_USER', user: me })
       navigate('/', { replace: true })
+    } catch (err: any) {
+      setError(err?.body?.message ?? 'Registration failed.')
     } finally {
       setLoading(false)
     }
@@ -58,7 +46,7 @@ export default function Register() {
       <div className="card authCard">
         <div className="cardTitle">Create account</div>
         <div className="muted" style={{ marginBottom: 12 }}>
-          This is a local-only demo login (saved in your browser).
+          Create an account to sync your flights across devices.
         </div>
 
         <form onSubmit={onSubmit}>
@@ -67,7 +55,7 @@ export default function Register() {
               className="input"
               placeholder="Email"
               value={email}
-              onChange={(e) => setEmail(normalizeEmail(e.target.value))}
+              onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
             />
             <input
