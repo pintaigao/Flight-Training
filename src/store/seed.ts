@@ -93,6 +93,9 @@ export function makeDemoState(): AppState {
   const flightsById = Object.fromEntries(flights.map((f) => [f.id, f]))
   const flightIds = flights.map((f) => f.id)
   return {
+    usersById: {},
+    userIds: [],
+    auth: { userId: null },
     flightsById,
     flightIds,
     selectedFlightId: flights[0]?.id ?? null,

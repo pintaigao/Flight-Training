@@ -18,7 +18,14 @@ function loadInitialState(): AppState {
     if (!raw) return makeDemoState()
     const parsed = JSON.parse(raw) as AppState
     if (!parsed || !parsed.flightsById || !parsed.flightIds) return makeDemoState()
-    return parsed
+    // lightweight migration for older stored state
+    return {
+      ...makeDemoState(),
+      ...parsed,
+      usersById: (parsed as any).usersById ?? {},
+      userIds: (parsed as any).userIds ?? [],
+      auth: (parsed as any).auth ?? { userId: null }
+    }
   } catch {
     return makeDemoState()
   }

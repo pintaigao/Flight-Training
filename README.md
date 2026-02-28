@@ -3,6 +3,7 @@
 React + useReducer flight logbook with a map (Leaflet) and per-flight comments.
 
 ## Features
+- Simple local demo login (Register / Login / Logout)
 - Dashboard: stats + recent flights + mini map preview
 - Flights list: search + filter
 - Flight detail: map + 3-part debrief (Well / Improve / Notes) + GPX import
@@ -32,3 +33,6 @@ Open http://localhost:5173
 Open a flight detail page and click **Import GPX Track**.
 
 The app stores state in `localStorage` (so your notes persist).
+
+## Login (demo)
+Go to `/register` to create an account (saved locally in your browser), then you can access the app.

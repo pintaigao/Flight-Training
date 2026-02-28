@@ -3,6 +3,15 @@ import { makeDemoState } from './seed'
 
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
+    case 'ADD_USER': {
+      const u = action.user
+      const usersById = { ...state.usersById, [u.id]: u }
+      const userIds = state.userIds.includes(u.id) ? state.userIds : [u.id, ...state.userIds]
+      return { ...state, usersById, userIds }
+    }
+    case 'SET_AUTH': {
+      return { ...state, auth: { userId: action.userId } }
+    }
     case 'SELECT_FLIGHT': {
       return { ...state, selectedFlightId: action.id }
     }
