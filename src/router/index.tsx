@@ -22,7 +22,6 @@ export const router = createBrowserRouter([
     children: [
       { path: '/login', element: <Login /> },
       { path: '/register', element: <Register /> },
-
       {
         element: (
           <RequireAuth>

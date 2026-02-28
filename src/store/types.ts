@@ -7,7 +7,7 @@ export type AuthUser = {
 
 export type AuthState = {
   user: AuthUser | null
-  status: 'unknown' | 'authed' | 'anon'
+  status: 'unknown' | 'authed' | 'anon' | 'checking'
 }
 
 export type FlightComments = {
@@ -56,3 +56,4 @@ export type Action =
   | { type: 'UPDATE_COMMENTS'; id: string; comments: Partial<FlightComments> }
   | { type: 'IMPORT_TRACK'; id: string; track: Feature<LineString> }
   | { type: 'RESET_DEMO_DATA' }
+  | { [key: string]: any }
