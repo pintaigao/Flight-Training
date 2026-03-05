@@ -1,8 +1,18 @@
 import type { AppState, Action, Flight } from './types'
-import { makeDemoState } from './seed'
 
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
+    case 'SET_FLIGHTS': {
+      const flights = action.flights
+      const flightsById = Object.fromEntries(flights.map((f) => [f.id, f]))
+      const flightIds = flights.map((f) => f.id)
+      return {
+        ...state,
+        flightsById,
+        flightIds,
+        selectedFlightId: flightIds.includes(state.selectedFlightId ?? '') ? state.selectedFlightId : (flightIds[0] ?? null),
+      }
+    }
     case 'SET_AUTH_USER': {
       return {
         ...state,
@@ -26,6 +36,14 @@ export function reducer(state: AppState, action: Action): AppState {
         : [flight.id, ...state.flightIds]
       return { ...state, flightsById, flightIds }
     }
+    case 'DELETE_FLIGHT': {
+      if (!state.flightsById[action.id]) return state
+      const flightsById = { ...state.flightsById }
+      delete flightsById[action.id]
+      const flightIds = state.flightIds.filter((id) => id !== action.id)
+      const selectedFlightId = state.selectedFlightId === action.id ? (flightIds[0] ?? null) : state.selectedFlightId
+      return { ...state, flightsById, flightIds, selectedFlightId }
+    }
     case 'UPDATE_COMMENTS': {
       const f = state.flightsById[action.id]
       if (!f) return state
@@ -37,9 +55,6 @@ export function reducer(state: AppState, action: Action): AppState {
       if (!f) return state
       const updated: Flight = { ...f, track: action.track }
       return { ...state, flightsById: { ...state.flightsById, [action.id]: updated } }
-    }
-    case 'RESET_DEMO_DATA': {
-      return makeDemoState()
     }
     default:
       return state

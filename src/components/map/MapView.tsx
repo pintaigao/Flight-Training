@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, GeoJSON, useMap, CircleMarker } from 'react-leaflet'
 import type { Feature, FeatureCollection, LineString } from 'geojson'
 import L from 'leaflet'
 import { useEffect, useMemo } from 'react'
@@ -16,6 +16,7 @@ type Props = {
   height?: number | string
   onSelect?: (id: string) => void
   showTileAttribution?: boolean
+  cursor?: { lat: number; lng: number } | null
 }
 
 function FitBounds({ feature }: { feature?: Feature<LineString> }) {
@@ -33,7 +34,14 @@ function FitBounds({ feature }: { feature?: Feature<LineString> }) {
   return null
 }
 
-export default function MapView({ tracks, selectedId, height = '100%', onSelect, showTileAttribution = true }: Props) {
+export default function MapView({
+  tracks,
+  selectedId,
+  height = '100%',
+  onSelect,
+  showTileAttribution = true,
+  cursor = null,
+}: Props) {
   const selected = tracks.find((t) => t.id === selectedId)
 
   const collection: FeatureCollection = useMemo(
@@ -69,6 +77,8 @@ export default function MapView({ tracks, selectedId, height = '100%', onSelect,
             }
           }}
         />
+
+        {cursor && <CircleMarker center={[cursor.lat, cursor.lng]} radius={6} pathOptions={{ color: '#3aa9ff', weight: 2 }} />}
 
         <FitBounds feature={selected?.feature} />
       </MapContainer>

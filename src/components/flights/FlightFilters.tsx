@@ -44,10 +44,6 @@ export default function FlightFilters() {
           <option key={t} value={t}>{t === 'ALL' ? 'All Tags' : t}</option>
         ))}
       </select>
-
-      <button className="btn" onClick={() => dispatch({ type: 'RESET_DEMO_DATA' })}>
-        Reset demo
-      </button>
     </div>
   )
 }

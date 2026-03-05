@@ -49,3 +49,34 @@ export async function apiFetchWithRefresh<T>(path: string, init: RequestInit = {
     return await apiFetch<T>(path, init)
   }
 }
+
+export async function apiFetchFormData<T>(path: string, formData: FormData, init: RequestInit = {}): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, {
+    method: init.method ?? 'POST',
+    ...init,
+    // NOTE: do not set Content-Type; the browser will set multipart boundary.
+    headers: {
+      ...(init.headers || {}),
+    },
+    body: formData,
+    credentials: 'include',
+  })
+
+  const body = await parseBody(res)
+  if (!res.ok) throw new ApiError(res.status, body)
+  return body as T
+}
+
+export async function apiFetchFormDataWithRefresh<T>(path: string, formData: FormData, init: RequestInit = {}): Promise<T> {
+  try {
+    return await apiFetchFormData<T>(path, formData, init)
+  } catch (e: any) {
+    if (e?.status !== 401) throw e
+    try {
+      await apiFetch('/auth/refresh', { method: 'POST' })
+    } catch {
+      throw e
+    }
+    return await apiFetchFormData<T>(path, formData, init)
+  }
+}

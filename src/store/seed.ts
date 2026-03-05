@@ -101,3 +101,14 @@ export function makeDemoState(): AppState {
     ui: { mapMode: 'ALL' }
   }
 }
+
+export function makeEmptyState(): AppState {
+  return {
+    auth: { user: null, status: 'unknown' },
+    flightsById: {},
+    flightIds: [],
+    selectedFlightId: null,
+    filters: { q: '', aircraft: 'ALL', tag: 'ALL' },
+    ui: { mapMode: 'ALL' },
+  }
+}

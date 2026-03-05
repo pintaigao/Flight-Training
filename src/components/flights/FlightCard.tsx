@@ -1,7 +1,15 @@
 import { Link } from 'react-router-dom'
 import type { Flight } from '@/store/types'
 
-export default function FlightCard({ flight, selected }: { flight: Flight; selected?: boolean }) {
+export default function FlightCard({
+  flight,
+  selected,
+  onDelete,
+}: {
+  flight: Flight
+  selected?: boolean
+  onDelete?: (id: string) => void
+}) {
   const hrs = (flight.durationMin / 60).toFixed(1)
   return (
     <Link to={`/flights/${flight.id}`} className={selected ? 'flightCard selected' : 'flightCard'}>
@@ -20,6 +28,20 @@ export default function FlightCard({ flight, selected }: { flight: Flight; selec
       </div>
       <div className="flightThumb">
         <div className="thumbLabel">track</div>
+        {onDelete && (
+          <button
+            className="btnDanger"
+            style={{ padding: '6px 10px', borderRadius: 12, fontSize: 12, marginTop: 10 }}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onDelete(flight.id)
+            }}
+            type="button"
+          >
+            Delete
+          </button>
+        )}
       </div>
     </Link>
   )

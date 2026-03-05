@@ -108,6 +108,16 @@ h1{ margin: 0; font-size: 28px; letter-spacing: -0.02em; }
   background: linear-gradient(180deg, rgba(58,169,255,0.35), rgba(58,169,255,0.18));
 }
 .btnPrimary:hover{ background: linear-gradient(180deg, rgba(58,169,255,0.45), rgba(58,169,255,0.22)); }
+.btnDanger{
+  border-radius: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,84,84,0.35);
+  background: linear-gradient(180deg, rgba(255,84,84,0.30), rgba(255,84,84,0.14));
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 700;
+}
+.btnDanger:hover{ background: linear-gradient(180deg, rgba(255,84,84,0.38), rgba(255,84,84,0.18)); }
 
 .filters{ display:flex; gap: 10px; align-items: center; margin: 12px 0; }
 .input, .select{
@@ -159,6 +169,23 @@ h1{ margin: 0; font-size: 28px; letter-spacing: -0.02em; }
 
 .detailLayout{ display:grid; grid-template-columns: 1.3fr 0.7fr; gap: 12px; height: calc(100vh - 44px); }
 .detailMap{ min-height: 0; }
+.detailMapStack{ display:flex; flex-direction: column; gap: 10px; }
+.detailMapStage{ min-height: 0; flex: 1; }
+.detailMapStageOverlay{ position: relative; }
+.detailChartPanel{ flex: 0 0 auto; }
+.detailChartOverlay{
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 1000;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(10,16,28,0.62);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+}
 .detailSide{ overflow: auto; padding-right: 6px; }
 .sideHeader{ margin-bottom: 12px; }
 .sideTitle{ font-size: 18px; font-weight: 800; margin-top: 6px; }
@@ -234,6 +261,50 @@ h1{ margin: 0; font-size: 28px; letter-spacing: -0.02em; }
 .authActions{ display:flex; gap: 10px; align-items:center; justify-content: space-between; margin-top: 12px; }
 .authLink{ color: rgba(58,169,255,0.92); }
 .floatingTitle{ font-weight: 900; }
+
+.modalOverlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 50;
+}
+.modalCard{
+  width: min(920px, 100%);
+  max-height: min(86vh, 860px);
+  overflow: auto;
+  border-radius: var(--radius2);
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(10,16,28,0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+}
+.modalHeader{
+  display:flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+.modalBody{ padding: 14px; }
+
+.trackChart{ width: 100%; position: relative; user-select: none; touch-action: none; }
+.trackChartReadout{
+  position: absolute;
+  left: 12px;
+  top: 10px;
+  display:flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(10,16,28,0.62);
+  backdrop-filter: blur(10px);
+}
 
 @media (max-width: 980px){
   .app{ grid-template-columns: 1fr; }
