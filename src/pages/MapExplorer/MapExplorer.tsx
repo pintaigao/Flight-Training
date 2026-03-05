@@ -1,10 +1,17 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import MapView from '@/components/map/MapView'
 import { useStore } from '@/store/store'
+import type { TrackItem } from '@/components/map/MapView'
+import { getRecentTrackByTail } from '@/lib/api/track'
 
 export default function MapExplorer() {
   const { state, dispatch } = useStore()
+  const [tail, setTail] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [remoteTrack, setRemoteTrack] = useState<TrackItem | null>(null)
+  const [remoteSelectedId, setRemoteSelectedId] = useState<string | null>(null)
 
   const flights = useMemo(() => state.flightIds.map((id) => state.flightsById[id]), [state])
 
@@ -26,6 +33,8 @@ export default function MapExplorer() {
   )
 
   const selected = state.selectedFlightId ? state.flightsById[state.selectedFlightId] : null
+  const mergedTracks = useMemo(() => (remoteTrack ? [remoteTrack, ...tracks] : tracks), [remoteTrack, tracks])
+  const selectedId = remoteSelectedId ?? state.selectedFlightId
 
   return (
     <div className="mapLayout">
@@ -39,7 +48,10 @@ export default function MapExplorer() {
             <button
               key={f.id}
               className={state.selectedFlightId === f.id ? 'mapListItem active' : 'mapListItem'}
-              onClick={() => dispatch({ type: 'SELECT_FLIGHT', id: f.id })}
+              onClick={() => {
+                setRemoteSelectedId(null)
+                dispatch({ type: 'SELECT_FLIGHT', id: f.id })
+              }}
             >
               <div className="mapListMain">{f.from} → {f.to}</div>
               <div className="muted">{f.dateISO} · {(f.durationMin / 60).toFixed(1)} hrs</div>
@@ -51,14 +63,63 @@ export default function MapExplorer() {
       <div className="mapMain">
         <div className="mapTopbar">
           <div className="title">Map Explorer</div>
-          <div className="muted">All tracks</div>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <input
+              className="input"
+              style={{ width: 220, flex: '0 0 auto' }}
+              placeholder="Tail number (e.g. N77GX)"
+              value={tail}
+              onChange={(e) => setTail(e.target.value)}
+            />
+            <button
+              className="btnPrimary"
+              disabled={loading}
+              onClick={async () => {
+                const normalized = tail.trim().toUpperCase()
+                if (!normalized) return
+                setError(null)
+                setLoading(true)
+                try {
+                  const res = await getRecentTrackByTail(normalized)
+                  const id = `${res.tail}:${res.faFlightId}`
+                  const feature = res.track
+                  feature.properties = { ...(feature.properties ?? {}), id }
+                  const item: TrackItem = {
+                    id,
+                    title: res.tail,
+                    subtitle: new Date(res.departureTimeISO).toLocaleString('en-US', { timeZone: 'America/Chicago' }),
+                    feature
+                  }
+                  setRemoteTrack(item)
+                  setRemoteSelectedId(item.id)
+                } catch (e: any) {
+                  setRemoteTrack(null)
+                  setRemoteSelectedId(null)
+                  setError(e?.body?.message || e?.message || 'Failed to fetch track')
+                } finally {
+                  setLoading(false)
+                }
+              }}
+            >
+              {loading ? 'Fetching…' : 'Get Recent Track'}
+            </button>
+            <div className="muted">All tracks</div>
+          </div>
         </div>
+        {error && <div className="error">{error}</div>}
 
         <div className="mapStage">
           <MapView
-            tracks={tracks}
-            selectedId={state.selectedFlightId}
-            onSelect={(id) => dispatch({ type: 'SELECT_FLIGHT', id })}
+            tracks={mergedTracks}
+            selectedId={selectedId}
+            onSelect={(id) => {
+              if (remoteTrack && id === remoteTrack.id) {
+                setRemoteSelectedId(id)
+                return
+              }
+              setRemoteSelectedId(null)
+              dispatch({ type: 'SELECT_FLIGHT', id })
+            }}
           />
 
           {selected && (

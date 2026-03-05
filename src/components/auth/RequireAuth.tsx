@@ -14,8 +14,8 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
     if (state.auth.user) return;
     
     dispatch({
-      type: "AUTH_SET_USER",
-      payload: { id: "dev", email: import.meta.env.VITE_DEV_USER_EMAIL || "dev@local"},
+      type: "SET_AUTH_USER",
+      user: { id: "dev", email: import.meta.env.VITE_DEV_USER_EMAIL || "dev@local"},
     });
   }, [dispatch, state.auth.user]);
   
