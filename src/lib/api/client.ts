@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 export class ApiError extends Error {
@@ -10,28 +12,51 @@ export class ApiError extends Error {
   }
 }
 
-async function parseBody(res: Response) {
-  const text = await res.text()
-  if (!text) return null
+function headersInitToObject(headers?: HeadersInit): Record<string, string> {
+  if (!headers) return {}
+  if (headers instanceof Headers) {
+    const obj: Record<string, string> = {}
+    headers.forEach((value, key) => {
+      obj[key] = value
+    })
+    return obj
+  }
+  if (Array.isArray(headers)) {
+    return Object.fromEntries(headers)
+  }
+  return { ...headers }
+}
+
+function parseTextBody(text: string | undefined | null) {
+  if (text == null || text === '') return null
   try {
-    return JSON.parse(text)
+    return JSON.parse(text as string)
   } catch {
     return text
   }
 }
 
+const http = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+  validateStatus: () => true,
+})
+
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
-    ...init,
+  const res = await http.request<string>({
+    url: path,
+    method: init.method ?? 'GET',
     headers: {
       'Content-Type': 'application/json',
-      ...(init.headers || {}),
+      ...headersInitToObject(init.headers),
     },
-    credentials: 'include',
+    data: init.body,
+    signal: init.signal ?? undefined,
+    responseType: 'text',
   })
 
-  const body = await parseBody(res)
-  if (!res.ok) throw new ApiError(res.status, body)
+  const body = parseTextBody(res.data)
+  if (res.status < 200 || res.status >= 300) throw new ApiError(res.status, body)
   return body as T
 }
 
@@ -51,19 +76,20 @@ export async function apiFetchWithRefresh<T>(path: string, init: RequestInit = {
 }
 
 export async function apiFetchFormData<T>(path: string, formData: FormData, init: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await http.request<string>({
+    url: path,
     method: init.method ?? 'POST',
-    ...init,
     // NOTE: do not set Content-Type; the browser will set multipart boundary.
     headers: {
-      ...(init.headers || {}),
+      ...headersInitToObject(init.headers),
     },
-    body: formData,
-    credentials: 'include',
+    data: formData,
+    signal: init.signal ?? undefined,
+    responseType: 'text',
   })
 
-  const body = await parseBody(res)
-  if (!res.ok) throw new ApiError(res.status, body)
+  const body = parseTextBody(res.data)
+  if (res.status < 200 || res.status >= 300) throw new ApiError(res.status, body)
   return body as T
 }
 
