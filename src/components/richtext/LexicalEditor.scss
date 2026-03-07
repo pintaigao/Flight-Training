@@ -1,0 +1,162 @@
+.lx-editor {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius2);
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.lx-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $u1;
+  padding: 10px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.28);
+  align-items: center;
+}
+
+.lx-btn-icon {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.lx-btn-active {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.lx-sep {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 6px;
+}
+
+.lx-content {
+  padding: 26px 18px 30px;
+  min-height: 220px;
+}
+
+.lx-editable {
+  outline: none;
+  line-height: 1.7;
+  max-width: 820px;
+  margin: 0 auto;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.lx-placeholder {
+  max-width: 820px;
+  margin: 0 auto;
+  color: rgba(255, 255, 255, 0.38);
+  pointer-events: none;
+  user-select: none;
+}
+
+.lx-editable p {
+  margin: 0 0 14px 0;
+}
+
+.lx-editable p:last-child {
+  margin-bottom: 0;
+}
+
+.lx-editable ul,
+.lx-editable ol {
+  margin: 0 0 14px 22px;
+}
+
+.lx-editable h1,
+.lx-editable h2,
+.lx-editable h3 {
+  margin: 0 0 16px 0;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.lx-editable h1 {
+  font-size: 28px;
+}
+.lx-editable h2 {
+  font-size: 22px;
+}
+.lx-editable h3 {
+  font-size: 18px;
+}
+
+.lx-editable blockquote {
+  margin: 0 0 14px 0;
+  padding: 10px 14px;
+  border-left: 3px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.lx-editable pre {
+  margin: 0 0 14px 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.26);
+  overflow: auto;
+}
+
+.lx-editable code {
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.lx-editable pre code {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.lx-editable a {
+  color: rgba(167, 124, 255, 0.95);
+  text-decoration: underline;
+}
+.lx-editable a:hover {
+  color: rgba(167, 124, 255, 1);
+}
+
+.lx-editor:focus-within {
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+}
+
+.lx-readonly {
+  .lx-toolbar {
+    display: none;
+  }
+
+  .lx-content {
+    min-height: 0;
+    padding: $u2;
+  }
+
+  .lx-editable,
+  .lx-placeholder {
+    max-width: none;
+  }
+}

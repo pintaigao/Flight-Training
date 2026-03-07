@@ -1,108 +1,124 @@
-import axios from 'axios'
+import axios, {
+  AxiosHeaders,
+  type AxiosRequestConfig,
+  type InternalAxiosRequestConfig,
+} from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+// Prefer same-origin requests by default (works with Vite dev proxy and typical deployments).
+// If your API is hosted on a different origin, set `VITE_API_URL`.
+const API_ORIGIN = import.meta.env.VITE_API_URL ?? '';
+const API_PREFIX = '/api/v1';
+const API_URL = API_ORIGIN ? `${API_ORIGIN}${API_PREFIX}` : API_PREFIX;
 
 export class ApiError extends Error {
-  status: number
-  body: any
+  status: number;
+  body: any;
   constructor(status: number, body: any) {
-    super(`API error ${status}`)
-    this.status = status
-    this.body = body
+    super(`API error ${status}`);
+    this.status = status;
+    this.body = body;
   }
-}
-
-function headersInitToObject(headers?: HeadersInit): Record<string, string> {
-  if (!headers) return {}
-  if (headers instanceof Headers) {
-    const obj: Record<string, string> = {}
-    headers.forEach((value, key) => {
-      obj[key] = value
-    })
-    return obj
-  }
-  if (Array.isArray(headers)) {
-    return Object.fromEntries(headers)
-  }
-  return { ...headers }
 }
 
 function parseTextBody(text: string | undefined | null) {
-  if (text == null || text === '') return null
+  if (text == null || text === '') return null;
   try {
-    return JSON.parse(text as string)
+    return JSON.parse(text as string);
   } catch {
-    return text
+    return text;
   }
 }
 
-const http = axios.create({
+function normalizeAxiosData(data: any) {
+  if (data == null || data === '') return null;
+  if (typeof data === 'string') return parseTextBody(data);
+  return data;
+}
+
+function isFormData(value: any): value is FormData {
+  return typeof FormData !== 'undefined' && value instanceof FormData;
+}
+
+function shouldSkipAuthRefresh(url?: string) {
+  if (!url) return false;
+  const path = url.split('?')[0];
+  return (
+    path === '/auth/refresh' ||
+    path === '/auth/login' ||
+    path === '/auth/register' ||
+    path === '/auth/logout'
+  );
+}
+
+export const http = axios.create({
   baseURL: API_URL,
   withCredentials: true,
   validateStatus: () => true,
-})
+});
 
-export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const res = await http.request<string>({
-    url: path,
-    method: init.method ?? 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...headersInitToObject(init.headers),
-    },
-    data: init.body,
-    signal: init.signal ?? undefined,
-    responseType: 'text',
-  })
+const refreshHttp = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+  validateStatus: () => true,
+});
 
-  const body = parseTextBody(res.data)
-  if (res.status < 200 || res.status >= 300) throw new ApiError(res.status, body)
-  return body as T
-}
+let refreshInFlight: Promise<void> | null = null;
 
-// Auto-refresh flow (optional): if 401, try /auth/refresh then retry once.
-export async function apiFetchWithRefresh<T>(path: string, init: RequestInit = {}): Promise<T> {
-  try {
-    return await apiFetch<T>(path, init)
-  } catch (e: any) {
-    if (e?.status !== 401) throw e
-    try {
-      await apiFetch('/auth/refresh', { method: 'POST' })
-    } catch {
-      throw e
+http.interceptors.request.use((config) => {
+  if (isFormData(config.data)) return config;
+
+  const headers = config.headers ?? new AxiosHeaders();
+  const currentContentType =
+    headers instanceof AxiosHeaders
+      ? headers.get('Content-Type')
+      : ((headers as any)['Content-Type'] ?? (headers as any)['content-type']);
+
+  if (currentContentType == null) {
+    if (headers instanceof AxiosHeaders) {
+      headers.set('Content-Type', 'application/json');
+    } else {
+      (headers as any)['Content-Type'] = 'application/json';
     }
-    return await apiFetch<T>(path, init)
   }
-}
 
-export async function apiFetchFormData<T>(path: string, formData: FormData, init: RequestInit = {}): Promise<T> {
-  const res = await http.request<string>({
-    url: path,
-    method: init.method ?? 'POST',
-    // NOTE: do not set Content-Type; the browser will set multipart boundary.
-    headers: {
-      ...headersInitToObject(init.headers),
-    },
-    data: formData,
-    signal: init.signal ?? undefined,
-    responseType: 'text',
-  })
+  config.headers = headers as any;
+  return config;
+});
 
-  const body = parseTextBody(res.data)
-  if (res.status < 200 || res.status >= 300) throw new ApiError(res.status, body)
-  return body as T
-}
+http.interceptors.response.use(async (res) => {
+  const body = normalizeAxiosData(res.data);
 
-export async function apiFetchFormDataWithRefresh<T>(path: string, formData: FormData, init: RequestInit = {}): Promise<T> {
-  try {
-    return await apiFetchFormData<T>(path, formData, init)
-  } catch (e: any) {
-    if (e?.status !== 401) throw e
-    try {
-      await apiFetch('/auth/refresh', { method: 'POST' })
-    } catch {
-      throw e
+  if (res.status === 401) {
+    const config = res.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
+    if (!config._retry && !shouldSkipAuthRefresh(config.url)) {
+      config._retry = true;
+
+      if (!refreshInFlight) {
+        refreshInFlight = (async () => {
+          const refreshRes = await refreshHttp.request({
+            url: '/auth/refresh',
+            method: 'POST',
+          });
+          if (refreshRes.status < 200 || refreshRes.status >= 300) {
+            throw new ApiError(
+              refreshRes.status,
+              normalizeAxiosData(refreshRes.data),
+            );
+          }
+        })().finally(() => {
+          refreshInFlight = null;
+        });
+      }
+
+      await refreshInFlight;
+      return await http.request(config as unknown as AxiosRequestConfig);
     }
-    return await apiFetchFormData<T>(path, formData, init)
   }
-}
+
+  if (res.status < 200 || res.status >= 300)
+    throw new ApiError(res.status, body);
+  res.data = body;
+  return res;
+});

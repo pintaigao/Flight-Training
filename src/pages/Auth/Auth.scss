@@ -1,0 +1,23 @@
+.auth-wrap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: $u3;
+
+  .auth-card {
+    max-width: $u53;
+    width: 100%;
+
+    .auth-actions {
+      display: flex;
+      gap: $u1;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: $u2;
+
+      .auth-link {
+        color: rgba(58, 169, 255, 0.92);
+      }
+    }
+  }
+}

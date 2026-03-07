@@ -1,0 +1,54 @@
+.flight-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  border-radius: var(--radius2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  padding: $u2;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.07);
+  }
+  &.selected {
+    border-color: rgba(58, 169, 255, 0.35);
+  }
+
+  .flight-card-title {
+    font-weight: 800;
+  }
+  .flight-date {
+    color: var(--muted);
+    margin-right: $u1;
+    font-weight: 600;
+  }
+  .flight-card-meta {
+    display: flex;
+    gap: $u1;
+    margin-top: $u1;
+    flex-wrap: wrap;
+  }
+
+  .flight-thumb {
+    width: $u18;
+    border-radius: $u2;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background:
+      radial-gradient(
+        $u11 $u8 at 30% 30%,
+        rgba(58, 169, 255, 0.2),
+        transparent 60%
+      ),
+      rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: 700;
+
+    .thumb-label {
+      margin-bottom: $u1;
+    }
+  }
+}

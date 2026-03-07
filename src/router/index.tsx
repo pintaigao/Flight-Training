@@ -1,15 +1,15 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 
-import App from '@/app/App'
-import RequireAuth from '@/components/auth/RequireAuth'
-import PrivateLayout from '@/components/layout/PrivateLayout'
+import App from '@/App';
+import RequireAuth from '@/components/auth/RequireAuth';
+import PrivateLayout from '@/components/layout/PrivateLayout';
 
-import Dashboard from '@/pages/Dashboard/Dashboard'
-import Flights from '@/pages/Flights/Flights'
-import FlightDetail from '@/pages/FlightDetail/FlightDetail'
-import MapExplorer from '@/pages/MapExplorer/MapExplorer'
-import Login from '@/pages/Auth/Login'
-import Register from '@/pages/Auth/Register'
+import Dashboard from '@/pages/Dashboard/Dashboard';
+import Flights from '@/pages/Flights/Flights';
+import FlightDetail from '@/pages/Flights/FlightDetail/FlightDetail';
+import MapExplorer from '@/pages/MapExplorer/MapExplorer';
+import Login from '@/pages/Auth/Login';
+import Register from '@/pages/Auth/Register';
 
 /**
  * Centralized router config (React Router Data APIs).
@@ -35,10 +35,9 @@ export const router = createBrowserRouter([
           { path: '/map', element: <MapExplorer /> },
         ],
       },
-
-      { path: '*', element: <Navigate to='/' replace /> },
+      { path: '*', element: <Navigate to="/" replace /> },
     ],
   },
-])
+]);
 
-export default router
+export default router;

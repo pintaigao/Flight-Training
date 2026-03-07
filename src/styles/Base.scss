@@ -1,0 +1,51 @@
+:root {
+  --bg: #0b1220;
+  --panel: rgba(255, 255, 255, 0.06);
+  --panel2: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.1);
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.62);
+  --accent: #3aa9ff;
+  --accent2: #1e90ff;
+  --shadow: 0 $u2 $u4 rgba(0, 0, 0, 0.35);
+  --radius: $u2;
+  --radius2: $u3;
+  --font:
+    ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--text);
+  background:
+    radial-gradient(
+      $u150 $u113 at 30% 0%,
+      rgba(58, 169, 255, 0.1),
+      transparent 55%
+    ),
+    radial-gradient(
+      $u113 $u88 at 80% 10%,
+      rgba(46, 255, 176, 0.06),
+      transparent 55%
+    ),
+    var(--bg);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1 {
+  margin: 0;
+  font-size: $u4;
+  letter-spacing: -0.02em;
+}

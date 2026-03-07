@@ -1,62 +1,76 @@
-import type { AppState, Action, Flight } from './types'
+import type { AppState, Action, Flight } from './types';
 
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'SET_FLIGHTS': {
-      const flights = action.flights
-      const flightsById = Object.fromEntries(flights.map((f) => [f.id, f]))
-      const flightIds = flights.map((f) => f.id)
+      const flights = action.flights;
+      const flightsById = Object.fromEntries(flights.map((f) => [f.id, f]));
+      const flightIds = flights.map((f) => f.id);
       return {
         ...state,
         flightsById,
         flightIds,
-        selectedFlightId: flightIds.includes(state.selectedFlightId ?? '') ? state.selectedFlightId : (flightIds[0] ?? null),
-      }
+        selectedFlightId: flightIds.includes(state.selectedFlightId ?? '')
+          ? state.selectedFlightId
+          : (flightIds[0] ?? null),
+      };
     }
     case 'SET_AUTH_USER': {
       return {
         ...state,
         auth: { user: action.user, status: action.user ? 'authed' : 'anon' },
-      }
+      };
     }
     case 'SET_AUTH_STATUS': {
-      return { ...state, auth: { ...state.auth, status: action.status } }
+      return { ...state, auth: { ...state.auth, status: action.status } };
     }
     case 'SELECT_FLIGHT': {
-      return { ...state, selectedFlightId: action.id }
+      return { ...state, selectedFlightId: action.id };
     }
     case 'SET_FILTERS': {
-      return { ...state, filters: { ...state.filters, ...action.filters } }
+      return { ...state, filters: { ...state.filters, ...action.filters } };
     }
     case 'UPSERT_FLIGHT': {
-      const flight = action.flight
-      const flightsById = { ...state.flightsById, [flight.id]: flight }
+      const flight = action.flight;
+      const flightsById = { ...state.flightsById, [flight.id]: flight };
       const flightIds = state.flightIds.includes(flight.id)
         ? state.flightIds
-        : [flight.id, ...state.flightIds]
-      return { ...state, flightsById, flightIds }
+        : [flight.id, ...state.flightIds];
+      return { ...state, flightsById, flightIds };
     }
     case 'DELETE_FLIGHT': {
-      if (!state.flightsById[action.id]) return state
-      const flightsById = { ...state.flightsById }
-      delete flightsById[action.id]
-      const flightIds = state.flightIds.filter((id) => id !== action.id)
-      const selectedFlightId = state.selectedFlightId === action.id ? (flightIds[0] ?? null) : state.selectedFlightId
-      return { ...state, flightsById, flightIds, selectedFlightId }
+      if (!state.flightsById[action.id]) return state;
+      const flightsById = { ...state.flightsById };
+      delete flightsById[action.id];
+      const flightIds = state.flightIds.filter((id) => id !== action.id);
+      const selectedFlightId =
+        state.selectedFlightId === action.id
+          ? (flightIds[0] ?? null)
+          : state.selectedFlightId;
+      return { ...state, flightsById, flightIds, selectedFlightId };
     }
     case 'UPDATE_COMMENTS': {
-      const f = state.flightsById[action.id]
-      if (!f) return state
-      const updated: Flight = { ...f, comments: { ...f.comments, ...action.comments } }
-      return { ...state, flightsById: { ...state.flightsById, [action.id]: updated } }
+      const f = state.flightsById[action.id];
+      if (!f) return state;
+      const updated: Flight = {
+        ...f,
+        comments: action.comments,
+      };
+      return {
+        ...state,
+        flightsById: { ...state.flightsById, [action.id]: updated },
+      };
     }
     case 'IMPORT_TRACK': {
-      const f = state.flightsById[action.id]
-      if (!f) return state
-      const updated: Flight = { ...f, track: action.track }
-      return { ...state, flightsById: { ...state.flightsById, [action.id]: updated } }
+      const f = state.flightsById[action.id];
+      if (!f) return state;
+      const updated: Flight = { ...f, track: action.track };
+      return {
+        ...state,
+        flightsById: { ...state.flightsById, [action.id]: updated },
+      };
     }
     default:
-      return state
+      return state;
   }
 }

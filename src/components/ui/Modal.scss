@@ -1,0 +1,34 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: grid;
+  place-items: center;
+  padding: $u3;
+  // Must sit above Leaflet panes/controls (often z-index 200–1000+).
+  z-index: 5000;
+
+  .modal-card {
+    width: min($u115, 100%);
+    max-height: min(86vh, $u108);
+    overflow: auto;
+    border-radius: var(--radius2);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(10, 16, 28, 0.92);
+    backdrop-filter: blur($u1);
+    box-shadow: var(--shadow);
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: $u2;
+      padding: $u2;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-body {
+      padding: $u2;
+    }
+  }
+}

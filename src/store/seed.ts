@@ -1,5 +1,5 @@
-import type { AppState, Flight } from './types'
-import type { Feature, LineString } from 'geojson'
+import type { AppState, Flight } from './types';
+import type { Feature, LineString } from 'geojson';
 
 function line(coords: [number, number][], id: string): Feature<LineString> {
   // Leaflet expects [lat,lng] in Polyline; GeoJSON uses [lng,lat]. We'll keep GeoJSON standard: [lng,lat]
@@ -8,9 +8,9 @@ function line(coords: [number, number][], id: string): Feature<LineString> {
     properties: { id },
     geometry: {
       type: 'LineString',
-      coordinates: coords.map(([lat, lng]) => [lng, lat])
-    }
-  }
+      coordinates: coords.map(([lat, lng]) => [lng, lat]),
+    },
+  };
 }
 
 function demoFlights(): Flight[] {
@@ -29,15 +29,11 @@ function demoFlights(): Flight[] {
           [37.355, -121.93],
           [37.1, -122.05],
           [36.75, -121.85],
-          [36.587, -121.843] // KMRY area
+          [36.587, -121.843], // KMRY area
         ],
-        'kpao-kmry'
+        'kpao-kmry',
       ),
-      comments: {
-        well: 'Kept a stable cruise and solid checklist flow. Good radio cadence.',
-        improve: 'Work on descent planning earlier; reduce workload closer to the field.',
-        notes: 'Light bumps over the hills. Watch for marine layer near the coast.'
-      }
+      comments: '',
     },
     {
       id: 'f-2022-04-12-klvk-kpao',
@@ -52,15 +48,11 @@ function demoFlights(): Flight[] {
           [37.6934, -121.819],
           [37.55, -121.95],
           [37.48, -122.1],
-          [37.4611, -122.1157]
+          [37.4611, -122.1157],
         ],
-        'klvk-kpao'
+        'klvk-kpao',
       ),
-      comments: {
-        well: 'Pattern work felt smoother. Better speed control on final.',
-        improve: 'Aim point consistency—avoid chasing the runway with pitch changes.',
-        notes: 'Winds favored runway change mid-session.'
-      }
+      comments: '',
     },
     {
       id: 'f-2022-03-28-ksns-kpao',
@@ -75,31 +67,29 @@ function demoFlights(): Flight[] {
           [36.662, -121.605],
           [36.85, -121.75],
           [37.15, -121.95],
-          [37.4611, -122.1157]
+          [37.4611, -122.1157],
         ],
-        'ksns-kpao'
+        'ksns-kpao',
       ),
-      comments: {
-        well: 'Great situational awareness in busy airspace. Good scan.',
-        improve: 'Tighten up heading hold during transitions.',
-        notes: 'ATC sequencing into Palo Alto was busy—good practice.'
-      }
-    }
-  ]
+      comments: '',
+    },
+  ];
 }
 
 export function makeDemoState(): AppState {
-  const flights = demoFlights().sort((a, b) => (a.dateISO < b.dateISO ? 1 : -1))
-  const flightsById = Object.fromEntries(flights.map((f) => [f.id, f]))
-  const flightIds = flights.map((f) => f.id)
+  const flights = demoFlights().sort((a, b) =>
+    a.dateISO < b.dateISO ? 1 : -1,
+  );
+  const flightsById = Object.fromEntries(flights.map((f) => [f.id, f]));
+  const flightIds = flights.map((f) => f.id);
   return {
     auth: { user: null, status: 'unknown' },
     flightsById,
     flightIds,
     selectedFlightId: flights[0]?.id ?? null,
     filters: { q: '', aircraft: 'ALL', tag: 'ALL' },
-    ui: { mapMode: 'ALL' }
-  }
+    ui: { mapMode: 'ALL' },
+  };
 }
 
 export function makeEmptyState(): AppState {
@@ -110,5 +100,5 @@ export function makeEmptyState(): AppState {
     selectedFlightId: null,
     filters: { q: '', aircraft: 'ALL', tag: 'ALL' },
     ui: { mapMode: 'ALL' },
-  }
+  };
 }
