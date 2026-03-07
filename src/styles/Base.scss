@@ -1,4 +1,10 @@
 :root {
+  --radius: $u2;
+  --radius2: $u3;
+  --font:
+    ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+
+  /* Default to dark; overridden by system preference and/or explicit data-theme. */
   --bg: #0b1220;
   --panel: rgba(255, 255, 255, 0.06);
   --panel2: rgba(255, 255, 255, 0.08);
@@ -8,10 +14,44 @@
   --accent: #3aa9ff;
   --accent2: #1e90ff;
   --shadow: 0 $u2 $u4 rgba(0, 0, 0, 0.35);
-  --radius: $u2;
-  --radius2: $u3;
-  --font:
-    ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f6f8fc;
+    --panel: rgba(0, 0, 0, 0.04);
+    --panel2: rgba(0, 0, 0, 0.06);
+    --border: rgba(0, 0, 0, 0.1);
+    --text: rgba(0, 0, 0, 0.9);
+    --muted: rgba(0, 0, 0, 0.6);
+    --accent: #1e78ff;
+    --accent2: #0b5cff;
+    --shadow: 0 $u2 $u4 rgba(0, 0, 0, 0.12);
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #0b1220;
+  --panel: rgba(255, 255, 255, 0.06);
+  --panel2: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.1);
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.62);
+  --accent: #3aa9ff;
+  --accent2: #1e90ff;
+  --shadow: 0 $u2 $u4 rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme='light'] {
+  --bg: #f6f8fc;
+  --panel: rgba(0, 0, 0, 0.04);
+  --panel2: rgba(0, 0, 0, 0.06);
+  --border: rgba(0, 0, 0, 0.1);
+  --text: rgba(0, 0, 0, 0.9);
+  --muted: rgba(0, 0, 0, 0.6);
+  --accent: #1e78ff;
+  --accent2: #0b5cff;
+  --shadow: 0 $u2 $u4 rgba(0, 0, 0, 0.12);
 }
 
 * {
