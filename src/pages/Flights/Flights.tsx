@@ -6,7 +6,6 @@ import { readForeFlightKmlTimeRange } from '@/lib/utils/foreflightKmlTimeRange';
 import ImportFlightDataModal from '@/components/flights/ImportFlightDataModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { deleteFlight } from '@/lib/api/flight.api';
-import './Flights.scss';
 
 export default function Flights() {
   const { state, dispatch } = useStore();
@@ -48,24 +47,25 @@ export default function Flights() {
   }, [state]);
 
   return (
-    <div className="page">
-      <div className="page-header">
+    <div className="space-y-6">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h1>Flights</h1>
-          <div className="muted">
-            Filter, browse, and open a flight to add notes
+          <h1 className="text-3xl font-extrabold tracking-tight">Flights</h1>
+          <div className="mt-1 text-sm text-[var(--muted)]">
+            Browse flights and open a flight to add notes
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+
+        <div className="flex items-center gap-3">
           <button
-            className="btn-primary"
+            className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--accent)] px-4 font-semibold text-white hover:bg-[var(--accent2)]"
+            type="button"
             onClick={() => {
               setImportError(null);
               fileRef.current?.click();
             }}>
             Import ForeFlight KML
           </button>
-          {/* prettier-ignore */}
           <input
             ref={fileRef}
             type="file"
@@ -89,17 +89,26 @@ export default function Flights() {
               } finally {
                 e.currentTarget.value = '';
               }
-            }} />
+            }}
+          />
         </div>
       </div>
 
-      {importError && <div className="error">{importError}</div>}
-      {deleteError && <div className="error">{deleteError}</div>}
+      {(importError || deleteError) && (
+        <div className="space-y-2">
+          {importError && (
+            <div className="text-sm text-red-400">{importError}</div>
+          )}
+          {deleteError && (
+            <div className="text-sm text-red-400">{deleteError}</div>
+          )}
+        </div>
+      )}
+
       <FlightFilters />
 
-      <div className="flight-cards">
+      <div className="space-y-2">
         {flights.map((f) => (
-          // prettier-ignore
           <FlightCard
             key={f.id}
             flight={f}
@@ -110,7 +119,7 @@ export default function Flights() {
             }} />
         ))}
         {flights.length === 0 && (
-          <div className="muted">
+          <div className="text-sm text-[var(--muted)]">
             No flights yet. Import a ForeFlight KML to create or attach a track.
           </div>
         )}

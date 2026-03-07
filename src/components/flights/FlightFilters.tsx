@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { useStore } from '@/store/store';
-import './FlightFilters.scss';
 
 export default function FlightFilters() {
   const { state, dispatch } = useStore();
@@ -20,9 +19,9 @@ export default function FlightFilters() {
   }, [state.flights.flightIds, state.flights.flightsById]);
 
   return (
-    <div className="filters">
+    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
       <input
-        className="input"
+        className="h-11 w-full flex-1 rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-[color:var(--text)] placeholder:text-[color:var(--muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
         placeholder="Search (airport, tail, tag)"
         value={state.ui.filters.q}
         onChange={(e) =>
@@ -31,7 +30,7 @@ export default function FlightFilters() {
       />
 
       <select
-        className="select"
+        className="h-11 w-full rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-[color:var(--text)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] sm:w-56"
         value={state.ui.filters.aircraft}
         onChange={(e) =>
           dispatch({
@@ -47,7 +46,7 @@ export default function FlightFilters() {
       </select>
 
       <select
-        className="select"
+        className="h-11 w-full rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-[color:var(--text)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] sm:w-56"
         value={state.ui.filters.tag}
         onChange={(e) =>
           dispatch({
