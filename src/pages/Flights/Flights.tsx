@@ -24,16 +24,21 @@ export default function Flights() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const flights = useMemo(() => {
-    const list = state.flightIds.map((id) => state.flightsById[id]);
-    const q = state.filters.q.trim().toLowerCase();
+    const list = state.flights.flightIds.map(
+      (id) => state.flights.flightsById[id],
+    );
+    const q = state.ui.filters.q.trim().toLowerCase();
 
     return list.filter((f) => {
       if (
-        state.filters.aircraft !== 'ALL' &&
-        f.aircraftTail !== state.filters.aircraft
+        state.ui.filters.aircraft !== 'ALL' &&
+        f.aircraftTail !== state.ui.filters.aircraft
       )
         return false;
-      if (state.filters.tag !== 'ALL' && !f.tags.includes(state.filters.tag))
+      if (
+        state.ui.filters.tag !== 'ALL' &&
+        !f.tags.includes(state.ui.filters.tag)
+      )
         return false;
       if (!q) return true;
       const hay =
@@ -98,7 +103,7 @@ export default function Flights() {
           <FlightCard
             key={f.id}
             flight={f}
-            selected={state.selectedFlightId === f.id}
+            selected={state.flights.selectedFlightId === f.id}
             onDelete={(id) => {
               setDeleteError(null);
               setDeleteId(id);

@@ -7,24 +7,24 @@ export default function FlightFilters() {
 
   const aircraftOptions = useMemo(() => {
     const set = new Set<string>();
-    for (const id of state.flightIds)
-      set.add(state.flightsById[id].aircraftTail);
+    for (const id of state.flights.flightIds)
+      set.add(state.flights.flightsById[id].aircraftTail);
     return ['ALL', ...Array.from(set).sort()];
-  }, [state.flightIds, state.flightsById]);
+  }, [state.flights.flightIds, state.flights.flightsById]);
 
   const tagOptions = useMemo(() => {
     const set = new Set<string>();
-    for (const id of state.flightIds)
-      for (const t of state.flightsById[id].tags) set.add(t);
+    for (const id of state.flights.flightIds)
+      for (const t of state.flights.flightsById[id].tags) set.add(t);
     return ['ALL', ...Array.from(set).sort()];
-  }, [state.flightIds, state.flightsById]);
+  }, [state.flights.flightIds, state.flights.flightsById]);
 
   return (
     <div className="filters">
       <input
         className="input"
         placeholder="Search (airport, tail, tag)"
-        value={state.filters.q}
+        value={state.ui.filters.q}
         onChange={(e) =>
           dispatch({ type: 'SET_FILTERS', filters: { q: e.target.value } })
         }
@@ -32,7 +32,7 @@ export default function FlightFilters() {
 
       <select
         className="select"
-        value={state.filters.aircraft}
+        value={state.ui.filters.aircraft}
         onChange={(e) =>
           dispatch({
             type: 'SET_FILTERS',
@@ -48,7 +48,7 @@ export default function FlightFilters() {
 
       <select
         className="select"
-        value={state.filters.tag}
+        value={state.ui.filters.tag}
         onChange={(e) =>
           dispatch({
             type: 'SET_FILTERS',

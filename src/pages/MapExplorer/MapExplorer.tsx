@@ -16,8 +16,9 @@ export default function MapExplorer() {
   const [remoteSelectedId, setRemoteSelectedId] = useState<string | null>(null);
 
   const flights = useMemo(
-    () => state.flightIds.map((id) => state.flightsById[id]),
-    [state],
+    () =>
+      state.flights.flightIds.map((id) => state.flights.flightsById[id]),
+    [state.flights.flightIds, state.flights.flightsById],
   );
 
   const tracks = useMemo(
@@ -37,14 +38,14 @@ export default function MapExplorer() {
     [flights],
   );
 
-  const selected = state.selectedFlightId
-    ? state.flightsById[state.selectedFlightId]
+  const selected = state.flights.selectedFlightId
+    ? state.flights.flightsById[state.flights.selectedFlightId]
     : null;
   const mergedTracks = useMemo(
     () => (remoteTrack ? [remoteTrack, ...tracks] : tracks),
     [remoteTrack, tracks],
   );
-  const selectedId = remoteSelectedId ?? state.selectedFlightId;
+  const selectedId = remoteSelectedId ?? state.flights.selectedFlightId;
 
   return (
     <div className="map-layout">
@@ -58,7 +59,7 @@ export default function MapExplorer() {
             <button
               key={f.id}
               className={
-                state.selectedFlightId === f.id
+                state.flights.selectedFlightId === f.id
                   ? 'map-list-item active'
                   : 'map-list-item'
               }

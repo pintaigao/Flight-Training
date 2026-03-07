@@ -26,7 +26,7 @@ export default function FlightDetail() {
   const { id } = useParams();
   const nav = useNavigate();
   const { state, dispatch } = useStore();
-  const flight = id ? state.flightsById[id] : undefined;
+  const flight = id ? state.flights.flightsById[id] : undefined;
   const flightId = flight?.id ?? null;
 
   const [error, setError] = useState<string | null>(null);

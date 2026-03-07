@@ -53,8 +53,9 @@ export default function ImportFlightDataModal({open, parsed, onClose}: { open: b
   const [newTags, setNewTags] = useState('');
   
   const allFlights = useMemo(
-    () => state.flightIds.map((id) => state.flightsById[id]),
-    [state],
+    () =>
+      state.flights.flightIds.map((id) => state.flights.flightsById[id]),
+    [state.flights.flightIds, state.flights.flightsById],
   );
   
   const candidates = useMemo(() => {
@@ -142,7 +143,7 @@ export default function ImportFlightDataModal({open, parsed, onClose}: { open: b
       if (!to) throw new Error('To is required');
       
       const baseId = `f-${dateISO}-${from.toLowerCase()}-${to.toLowerCase()}-${p.startTimeISO.slice(11, 16).replace(':', '')}`;
-      const exists = state.flightsById[baseId];
+      const exists = state.flights.flightsById[baseId];
       const id = exists
         ? `${baseId}-${Math.random().toString(36).slice(2, 6)}`
         : baseId;
@@ -312,7 +313,7 @@ export default function ImportFlightDataModal({open, parsed, onClose}: { open: b
                   className="btn-primary"
                   disabled={saving || !selectedExistingId}
                   onClick={() => {
-                    const f = state.flightsById[selectedExistingId];
+                    const f = state.flights.flightsById[selectedExistingId];
                     if (f) attachToFlight(f);
                   }}>
                   {saving ? 'Saving…' : 'Attach track'}

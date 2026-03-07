@@ -8,8 +8,9 @@ export default function Dashboard() {
   const { state, dispatch } = useStore();
 
   const flights = useMemo(
-    () => state.flightIds.map((id) => state.flightsById[id]),
-    [state],
+    () =>
+      state.flights.flightIds.map((id) => state.flights.flightsById[id]),
+    [state.flights.flightIds, state.flights.flightsById],
   );
   const totalMin = flights.reduce((s, f) => s + f.durationMin, 0);
   const totalHours = (totalMin / 60).toFixed(1);
@@ -17,8 +18,8 @@ export default function Dashboard() {
     flights.slice(0, 3).reduce((s, f) => s + f.durationMin, 0) / 60
   ).toFixed(1);
 
-  const selected = state.selectedFlightId
-    ? state.flightsById[state.selectedFlightId]
+  const selected = state.flights.selectedFlightId
+    ? state.flights.flightsById[state.flights.selectedFlightId]
     : null;
 
   const tracks = useMemo(
