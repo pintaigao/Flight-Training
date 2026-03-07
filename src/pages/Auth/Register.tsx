@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/store';
 import { register } from '@/lib/api/auth.api';
-import './Auth.scss';
 
 export default function Register() {
   const { dispatch } = useStore();
@@ -43,51 +42,60 @@ export default function Register() {
   }
 
   return (
-    <div className="auth-wrap">
-      <div className="card auth-card">
-        <div className="card-title">Create account</div>
-        <div className="muted" style={{ marginBottom: 12 }}>
-          Create an account to sync your flights across devices.
-        </div>
+    <div className="min-h-screen px-6 py-10">
+      <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-md items-center">
+        <div className="w-full rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-6 shadow-[var(--shadow)]">
+          <div className="mb-5">
+            <h1 className="text-2xl font-extrabold tracking-tight">
+              Create account
+            </h1>
+            <div className="mt-1 text-sm text-[var(--muted)]">
+              Create an account to sync your flights across devices.
+            </div>
+          </div>
 
-        <form onSubmit={onSubmit}>
-          <div style={{ display: 'grid', gap: 10 }}>
-            {/* prettier-ignore */}
+          <form onSubmit={onSubmit} className="space-y-3">
             <input
-              className="input"
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-[color:var(--text)] placeholder:text-[color:var(--muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email" />
-            {/* prettier-ignore */}
+              autoComplete="email"
+            />
             <input
-              className="input"
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-[color:var(--text)] placeholder:text-[color:var(--muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
               placeholder="Password (min 8 chars)"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password" />
-            {/* prettier-ignore */}
+              autoComplete="new-password"
+            />
             <input
-              className="input"
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-[color:var(--text)] placeholder:text-[color:var(--muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
               placeholder="Confirm password"
               type="password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              autoComplete="new-password" />
-          </div>
+              autoComplete="new-password"
+            />
 
-          {error && <div className="error">{error}</div>}
+            {error && <div className="text-sm text-red-400">{error}</div>}
 
-          <div className="auth-actions">
-            <button className="btn-primary" type="submit" disabled={loading}>
-              {loading ? 'Creating…' : 'Create'}
-            </button>
-            <Link className="auth-link" to="/login">
-              Back to login
-            </Link>
-          </div>
-        </form>
+            <div className="flex items-center justify-between pt-2">
+              <button
+                className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--accent)] px-4 font-semibold text-white hover:bg-[var(--accent2)] disabled:cursor-not-allowed disabled:opacity-60"
+                type="submit"
+                disabled={loading}>
+                {loading ? 'Creating…' : 'Create'}
+              </button>
+              <Link
+                className="text-sm font-semibold text-[var(--accent)] hover:underline"
+                to="/login">
+                Back to login
+              </Link>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
