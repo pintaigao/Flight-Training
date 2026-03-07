@@ -6,8 +6,8 @@ import React, {
   useReducer,
 } from 'react';
 import type { AppState, Action } from './types';
-import { reducer } from './reducer';
-import { makeEmptyState } from './seed';
+import { rootReducer } from './rootReducer';
+import { makeEmptyState } from './initialState';
 import { getFlights } from '@/lib/api/flight.api';
 
 const STORAGE_KEY = 'flightlog.ui.v1';
@@ -43,7 +43,7 @@ function loadInitialState(): AppState {
 }
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, undefined, loadInitialState);
+  const [state, dispatch] = useReducer(rootReducer, undefined, loadInitialState);
 
   useEffect(() => {
     try {
