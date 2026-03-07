@@ -1,4 +1,4 @@
-import type { Action } from '../rootTypes';
+import type { Action } from '../types';
 import type { UIState } from './types';
 
 export function uiReducer(state: UIState, action: Action): UIState {

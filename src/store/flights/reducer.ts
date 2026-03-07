@@ -1,4 +1,4 @@
-import type { Action } from '../rootTypes';
+import type { Action } from '../types';
 import type { FlightsState, Flight } from './types';
 
 export function flightsReducer(

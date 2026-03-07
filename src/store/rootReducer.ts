@@ -1,4 +1,4 @@
-import type { Action, AppState } from './rootTypes';
+import type { Action, AppState } from './types';
 import { authReducer } from './auth/reducer';
 import { flightsReducer } from './flights/reducer';
 import { uiReducer } from './ui/reducer';

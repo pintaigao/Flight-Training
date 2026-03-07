@@ -1,4 +1,4 @@
-import type { Action } from '../rootTypes';
+import type { Action } from '../types';
 import type { AuthState } from './types';
 
 export function authReducer(state: AuthState, action: Action): AuthState {
