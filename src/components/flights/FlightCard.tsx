@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { Flight } from '@/store/types';
+import './FlightCard.scss';
 
 export default function FlightCard({
   flight,
@@ -15,23 +16,24 @@ export default function FlightCard({
     <Link
       to={`/flights/${flight.id}`}
       className={[
-        'block rounded-2xl border bg-[var(--panel)] p-4 shadow-[var(--shadow)]',
+        'card flightCard block rounded-2xl border bg-[var(--panel)] p-4 shadow-[var(--shadow)]',
+        selected ? 'flightCard--selected' : '',
         selected
           ? 'border-[color:rgba(58,169,255,0.45)]'
           : 'border-[var(--border)] hover:bg-[color:var(--panel2)]',
       ].join(' ')}>
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <div className="text-sm font-semibold text-[var(--muted)]">
+      <div className="flightCard-top flex items-start justify-between gap-4">
+        <div className="flightCard-main">
+          <div className="flightCard-titleRow flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <div className="flightCard-date text-sm font-semibold text-[var(--muted)]">
               {flight.dateISO}
             </div>
-            <div className="truncate text-base font-extrabold tracking-tight">
+            <div className="flightCard-route truncate text-base font-extrabold tracking-tight">
               {flight.from} → {flight.to}
             </div>
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="flightCard-badges mt-3 flex flex-wrap gap-2">
             <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[color:var(--panel2)] px-3 py-1 text-sm font-semibold">
               {flight.aircraftTail}
             </span>
@@ -48,12 +50,12 @@ export default function FlightCard({
           </div>
         </div>
 
-        <div className="flex shrink-0 flex-col items-end gap-2">
+        <div className="flightCard-side flex shrink-0 flex-col items-end gap-2">
           <span
             className={[
-              'inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-bold uppercase tracking-wide',
+              'flightCard-trackBadge inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-bold uppercase tracking-wide',
               flight.track
-                ? 'border-[color:rgba(46,255,176,0.30)] bg-[color:rgba(46,255,176,0.12)] text-[color:rgba(46,255,176,0.95)]'
+                ? 'flightCard-trackBadge--ok border-[color:rgba(46,255,176,0.30)] bg-[color:rgba(46,255,176,0.12)] text-[color:rgba(46,255,176,0.95)]'
                 : 'border-[var(--border)] bg-[color:var(--panel2)] text-[var(--muted)]',
             ].join(' ')}>
             {flight.track ? 'Track' : 'No track'}
@@ -61,7 +63,7 @@ export default function FlightCard({
 
           {onDelete && (
             <button
-              className="inline-flex h-9 items-center justify-center rounded-xl border border-[color:rgba(255,84,84,0.35)] bg-[color:rgba(255,84,84,0.14)] px-3 text-sm font-semibold text-[color:rgba(255,84,84,0.95)] hover:bg-[color:rgba(255,84,84,0.18)]"
+              className="btn-danger flightCard-deleteBtn inline-flex h-9 items-center justify-center rounded-xl border border-[color:rgba(255,84,84,0.35)] bg-[color:rgba(255,84,84,0.14)] px-3 text-sm font-semibold text-[color:rgba(255,84,84,0.95)] hover:bg-[color:rgba(255,84,84,0.18)]"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

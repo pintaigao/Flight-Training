@@ -2,10 +2,19 @@
 .select {
   height: $u5;
   border-radius: $u2;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--border);
+  background: var(--panel2);
   color: var(--text);
   padding: 0 $u2;
+
+  &::placeholder {
+    color: var(--muted);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(58, 169, 255, 0.35);
+  }
 }
 
 .input {
@@ -86,81 +95,57 @@
   align-items: center;
   padding: $u1 $u2;
   border-radius: $u2;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  background: var(--panel2);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--panel);
   }
 }
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $u1;
+  height: $u5;
   border-radius: $u2;
-  padding: $u1 $u2;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
+  padding: 0 $u2;
+  border: 1px solid var(--border);
+  background: var(--panel2);
   color: var(--text);
   cursor: pointer;
   font-weight: 600;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--panel);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
   }
 
   &-primary {
     @extend .btn;
-    border: 1px solid rgba(58, 169, 255, 0.35);
-    background: linear-gradient(
-      180deg,
-      rgba(58, 169, 255, 0.35),
-      rgba(58, 169, 255, 0.18)
-    );
+    border-color: rgba(58, 169, 255, 0.25);
+    background: var(--accent);
+    color: #fff;
 
     &:hover {
-      background: linear-gradient(
-        180deg,
-        rgba(58, 169, 255, 0.45),
-        rgba(58, 169, 255, 0.22)
-      );
+      background: var(--accent2);
     }
   }
 
   &-danger {
-    border-radius: $u2;
-    padding: $u1 $u2;
-    border: 1px solid rgba(255, 84, 84, 0.35);
-    background: linear-gradient(
-      180deg,
-      rgba(255, 84, 84, 0.3),
-      rgba(255, 84, 84, 0.14)
-    );
-    color: var(--text);
-    cursor: pointer;
+    @extend .btn;
+    border-color: rgba(255, 84, 84, 0.35);
+    background: rgba(255, 84, 84, 0.18);
     font-weight: 700;
 
     &:hover {
-      background: linear-gradient(
-        180deg,
-        rgba(255, 84, 84, 0.38),
-        rgba(255, 84, 84, 0.18)
-      );
+      background: rgba(255, 84, 84, 0.24);
     }
-  }
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px $u1;
-  border-radius: $u125;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.18);
-  font-size: $u2;
-  color: var(--text);
-
-  &-soft {
-    background: rgba(58, 169, 255, 0.12);
-    border-color: rgba(58, 169, 255, 0.22);
   }
 }
 
@@ -168,11 +153,20 @@
   width: 100%;
   min-height: $u11;
   border-radius: $u2;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--border);
+  background: var(--panel2);
   color: var(--text);
   padding: $u1 $u2;
   resize: vertical;
+
+  &::placeholder {
+    color: var(--muted);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(58, 169, 255, 0.35);
+  }
 }
 
 .error {

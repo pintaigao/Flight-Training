@@ -1,19 +1,5 @@
-.app-layout {
-  display: grid;
-  grid-template-columns: $u33 1fr;
-  min-height: 100vh;
-
-  .app-main {
-    padding: $u3;
-  }
-}
-
-@media (max-width: $u123) {
-  .app-layout {
-    grid-template-columns: 1fr;
-
-    .app-main {
-      padding: $u2;
-    }
-  }
-}
+/* Placeholder: styling lives in Tailwind utilities. */
+.private-layout {}
+.private-sidebar {}
+.private-main {}
+.private-inner {}

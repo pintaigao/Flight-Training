@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useMemo } from 'react';
 import { useStore } from '@/store/store';
 import MapView from '@/components/map/MapView';
+import './Dashboard.scss';
 
 export default function Dashboard() {
   const { state, dispatch } = useStore();
@@ -35,88 +36,94 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-end justify-between gap-4">
+    <div className="dashboard space-y-6">
+      <div className="dashboard-head flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">
+          <h1 className="dashboard-title text-3xl font-extrabold tracking-tight">
             Dashboard
           </h1>
-          <div className="mt-1 text-sm text-[var(--muted)]">
+          <div className="dashboard-subtitle mt-1 text-sm text-[var(--muted)]">
             Overview of your recent flying
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
-          <div className="text-sm text-[var(--muted)]">Total Hours</div>
-          <div className="mt-1 text-2xl font-extrabold">{totalHours}</div>
+      <div className="dashboard-stats grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
+          <div className="muted text-sm text-[var(--muted)]">Total Hours</div>
+          <div className="stat-value mt-1 text-2xl font-extrabold">
+            {totalHours}
+          </div>
         </div>
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
-          <div className="text-sm text-[var(--muted)]">Last 30 Days</div>
-          <div className="mt-1 text-2xl font-extrabold">
+        <div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
+          <div className="muted text-sm text-[var(--muted)]">Last 30 Days</div>
+          <div className="stat-value mt-1 text-2xl font-extrabold">
             {last30Hours}{' '}
-            <span className="text-base font-semibold text-[var(--muted)]">
+            <span className="stat-unit text-base font-semibold text-[var(--muted)]">
               hrs
             </span>
           </div>
         </div>
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
-          <div className="text-sm text-[var(--muted)]">Landings</div>
-          <div className="mt-1 text-2xl font-extrabold">
+        <div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
+          <div className="muted text-sm text-[var(--muted)]">Landings</div>
+          <div className="stat-value mt-1 text-2xl font-extrabold">
             {flights.length * 2}
           </div>
         </div>
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
-          <div className="text-sm text-[var(--muted)]">Night Flights</div>
-          <div className="mt-1 text-2xl font-extrabold">
+        <div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
+          <div className="muted text-sm text-[var(--muted)]">Night Flights</div>
+          <div className="stat-value mt-1 text-2xl font-extrabold">
             {Math.min(5, flights.length)}
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
-          <div className="text-base font-bold">Recent Flights</div>
-          <div className="mt-3 space-y-2">
+      <div className="dashboard-panels grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
+          <div className="card-title text-base font-bold">Recent Flights</div>
+          <div className="dashboard-recentList mt-3 space-y-2">
             {flights.slice(0, 5).map((f) => (
               <Link
                 key={f.id}
                 to={`/flights/${f.id}`}
-                className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--panel2)] px-3 py-2 hover:bg-[color:var(--panel)]"
+                className="row dashboard-recentRow flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--panel2)] px-3 py-2 hover:bg-[color:var(--panel)]"
                 onClick={() => dispatch({ type: 'SELECT_FLIGHT', id: f.id })}>
-                <div className="min-w-0">
-                  <div className="truncate font-semibold">
+                <div className="dashboard-recentMain">
+                  <div className="dashboard-recentRoute">
                     {f.from} → {f.to}
                   </div>
-                  <div className="text-sm text-[var(--muted)]">{f.dateISO}</div>
+                  <div className="dashboard-recentDate">{f.dateISO}</div>
                 </div>
-                <div className="shrink-0 pl-4 text-sm font-semibold text-[var(--muted)]">
+                <div className="dashboard-recentDur">
                   {(f.durationMin / 60).toFixed(1)}h
                 </div>
               </Link>
             ))}
             {flights.length === 0 && (
-              <div className="text-sm text-[var(--muted)]">No flights yet.</div>
+              <div className="muted text-sm text-[var(--muted)]">
+                No flights yet.
+              </div>
             )}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
-          <div className="text-base font-bold">Continue Your Last Flight</div>
+        <div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
+          <div className="card-title text-base font-bold">
+            Continue Your Last Flight
+          </div>
           {selected ? (
             <>
-              <div className="mt-1 text-sm text-[var(--muted)]">
+              <div className="muted mt-1 text-sm text-[var(--muted)]">
                 {selected.dateISO} — {selected.from} → {selected.to}
               </div>
-              <div className="mt-3">
+              <div className="dashboard-ctaRow">
                 <Link
-                  className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--accent)] px-4 font-semibold text-white hover:bg-[var(--accent2)]"
+                  className="btn-primary inline-flex h-11 items-center justify-center rounded-xl bg-[var(--accent)] px-4 font-semibold text-white hover:bg-[var(--accent2)]"
                   to={`/flights/${selected.id}`}>
                   Resume Entry
                 </Link>
               </div>
-              <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--border)]">
+              <div className="dashboard-mapWrap mt-4 overflow-hidden rounded-2xl border border-[var(--border)]">
                 <MapView
                   tracks={tracks}
                   selectedId={selected.track?.properties?.id || selected.id}
@@ -135,7 +142,7 @@ export default function Dashboard() {
               </div>
             </>
           ) : (
-            <div className="mt-3 text-sm text-[var(--muted)]">
+            <div className="dashboard-empty muted mt-3 text-sm text-[var(--muted)]">
               No flights yet.
             </div>
           )}
