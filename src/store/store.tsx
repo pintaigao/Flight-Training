@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import type { AppState, Action } from './types';
 import { rootReducer } from './rootReducer';
-import { makeEmptyState } from './initialState';
+import { initState } from './initialState';
 import { getFlights } from '@/lib/api/flight.api';
 
 const STORAGE_KEY = 'flightlog.ui.v1';
@@ -20,7 +20,7 @@ type Store = {
 const StoreContext = createContext<Store | null>(null);
 
 function loadInitialState(): AppState {
-  const base = makeEmptyState();
+  const base = initState();
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return base;
