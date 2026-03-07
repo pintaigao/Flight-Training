@@ -1,5 +1,9 @@
-import type { AppState, Flight } from './types';
+import type { AppState } from './types';
 import type { Feature, LineString } from 'geojson';
+import { initialAuthState } from './auth/initial';
+import { initialFlightsState } from './flights/initial';
+import { initialUiState } from './ui/initial';
+import type { Flight } from './flights/types';
 
 function line(coords: [number, number][], id: string): Feature<LineString> {
   // Leaflet expects [lat,lng] in Polyline; GeoJSON uses [lng,lat]. We'll keep GeoJSON standard: [lng,lat]
@@ -83,22 +87,20 @@ export function makeDemoState(): AppState {
   const flightsById = Object.fromEntries(flights.map((f) => [f.id, f]));
   const flightIds = flights.map((f) => f.id);
   return {
-    auth: { user: null, status: 'unknown' },
-    flightsById,
-    flightIds,
-    selectedFlightId: flights[0]?.id ?? null,
-    filters: { q: '', aircraft: 'ALL', tag: 'ALL' },
-    ui: { mapMode: 'ALL' },
+    auth: initialAuthState,
+    flights: {
+      flightsById,
+      flightIds,
+      selectedFlightId: flights[0]?.id ?? null,
+    },
+    ui: initialUiState,
   };
 }
 
 export function makeEmptyState(): AppState {
   return {
-    auth: { user: null, status: 'unknown' },
-    flightsById: {},
-    flightIds: [],
-    selectedFlightId: null,
-    filters: { q: '', aircraft: 'ALL', tag: 'ALL' },
-    ui: { mapMode: 'ALL' },
+    auth: initialAuthState,
+    flights: initialFlightsState,
+    ui: initialUiState,
   };
 }

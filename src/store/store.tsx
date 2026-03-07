@@ -24,11 +24,18 @@ function loadInitialState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return base;
-    const parsed = JSON.parse(raw) as Partial<AppState>;
+    const parsed = JSON.parse(raw) as any;
+    // Migrate older persisted shape: { filters, ui: { mapMode } } → { ui: { filters, mapMode } }.
+    const migratedUi =
+      parsed?.ui?.filters != null
+        ? parsed.ui
+        : {
+            filters: parsed?.filters ?? base.ui.filters,
+            mapMode: parsed?.ui?.mapMode ?? base.ui.mapMode,
+          };
     return {
       ...base,
-      filters: (parsed as any)?.filters ?? base.filters,
-      ui: (parsed as any)?.ui ?? base.ui,
+      ui: migratedUi ?? base.ui,
     };
   } catch {
     return base;
@@ -42,12 +49,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ filters: state.filters, ui: state.ui }),
+        JSON.stringify({ ui: state.ui }),
       );
     } catch {
       // ignore
     }
-  }, [state]);
+  }, [state.ui]);
 
   useEffect(() => {
     let cancelled = false;
