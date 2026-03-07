@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/store';
 import { logout as apiLogout } from '@/lib/api/auth.api';
+import { useTheme } from '@/lib/theme/ThemeProvider';
 import './Sidebar.scss';
 
 const nav = [
@@ -13,6 +14,7 @@ export default function Sidebar() {
   const { state, dispatch } = useStore();
   const navigate = useNavigate();
   const user = state.auth.user;
+  const { theme, toggle } = useTheme();
 
   async function logout() {
     try {
@@ -51,18 +53,48 @@ export default function Sidebar() {
       <div className="sidebar-footer">
         {user ? (
           <>
-            <div className="muted" style={{ marginBottom: 8 }}>
-              Signed in as{' '}
-              <span style={{ color: 'rgba(255,255,255,0.86)' }}>
-                {user.email}
-              </span>
+            <div
+              className="muted"
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: 10,
+                marginBottom: 8,
+              }}>
+              <div>
+                Signed in as{' '}
+                <span style={{ color: 'rgba(255,255,255,0.86)' }}>
+                  {user.email}
+                </span>
+              </div>
+              <button
+                className="btn"
+                type="button"
+                aria-label="Toggle theme"
+                title="Toggle theme"
+                onClick={toggle}>
+                {theme === 'dark' ? 'Light' : 'Dark'}
+              </button>
             </div>
-            <button className="btn" onClick={logout}>
+            <button className="btn" onClick={logout} type="button">
               Log out
             </button>
           </>
         ) : (
-          <div className="muted">MVP demo</div>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <div className="muted" style={{ flex: 1 }}>
+              MVP demo
+            </div>
+            <button
+              className="btn"
+              type="button"
+              aria-label="Toggle theme"
+              title="Toggle theme"
+              onClick={toggle}>
+              {theme === 'dark' ? 'Light' : 'Dark'}
+            </button>
+          </div>
         )}
       </div>
     </aside>
