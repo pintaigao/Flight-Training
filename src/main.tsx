@@ -5,6 +5,7 @@ import { StoreProvider } from './store/store';
 import router from './router';
 
 import 'leaflet/dist/leaflet.css';
+import './styles/tailwind.css';
 import './styles/Base.scss';
 import './styles/Ui.scss';
 
