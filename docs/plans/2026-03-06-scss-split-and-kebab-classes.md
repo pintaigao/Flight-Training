@@ -104,7 +104,7 @@ Expected: exits 0.
 - Modify: `src/components/flights/FlightCard.tsx`
 - Create: `src/components/ui/modal.scss`
 - Modify: `src/components/ui/ConfirmModal.tsx`
-- Modify: `src/components/flights/ImportForeFlightKmlModal.tsx`
+- Modify: `src/components/flights/ImportFlightDataModal.tsx`
 - Create: `src/components/track/track-chart.scss`
 - Modify: `src/components/track/TrackChart.tsx`
 
@@ -137,7 +137,7 @@ Expected: exits 0.
   - `.modalCard` → `.modal-card`
   - `.modalHeader` → `.modal-header`
   - `.modalBody` → `.modal-body`
-- Import `../ui/modal.scss` from `ImportForeFlightKmlModal.tsx`
+- Import `../ui/modal.scss` from `ImportFlightDataModal.tsx`
 - Import `./modal.scss` from `ConfirmModal.tsx`
 
 **Step 4: TrackChart**

@@ -3,7 +3,7 @@ import FlightFilters from '@/components/flights/FlightFilters';
 import FlightCard from '@/components/flights/FlightCard';
 import { useStore } from '@/store/store';
 import { readForeFlightKmlTimeRange } from '@/lib/utils/foreflightKmlTimeRange';
-import ImportForeFlightKmlModal from '@/components/flights/ImportForeFlightKmlModal';
+import ImportFlightDataModal from '@/components/flights/ImportFlightDataModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { deleteFlight } from '@/lib/api/flight.api';
 import './Flights.scss';
@@ -112,7 +112,7 @@ export default function Flights() {
       </div>
 
       {/* prettier-ignore */}
-      <ImportForeFlightKmlModal
+      <ImportFlightDataModal
         open={importOpen}
         parsed={parsed}
         onClose={() => {

@@ -47,9 +47,7 @@ export default function FlightDetail() {
   const [playing, setPlaying] = useState(false);
   const [pointsPerSec, setPointsPerSec] = useState(10);
   const timerRef = useRef<number | null>(null);
-  const [chartPlacement, setChartPlacement] = useState<'below' | 'overlay'>(
-    'overlay',
-  );
+  const [chartPlacement, setChartPlacement] = useState<'below' | 'overlay'>('overlay',);
 
   const tracks = useMemo(() => {
     if (!flight?.track) return [];
