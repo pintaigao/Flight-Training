@@ -16,7 +16,6 @@ import type { TrackSample } from '@/lib/api/flight.api';
 import TrackChart from '@/components/track/TrackChart';
 import Modal from '@/components/ui/Modal';
 import LexicalEditor from '@/components/richtext/LexicalEditor';
-import { guessUsTimeZoneFromLatLng } from '@/lib/utils/timeZoneGuess';
 import './FlightDetail.scss';
 
 function fmtNum(n: number | null | undefined, digits = 0) {
@@ -130,14 +129,7 @@ export default function FlightDetail() {
     ];
   }, [flight]);
 
-  const departureTimeZone = useMemo(() => {
-    const feature = flight?.track;
-    const coords: any = feature?.geometry?.coordinates;
-    const first = Array.isArray(coords) && coords.length ? coords[0] : null;
-    const lng = Array.isArray(first) ? Number(first[0]) : NaN;
-    const lat = Array.isArray(first) ? Number(first[1]) : NaN;
-    return guessUsTimeZoneFromLatLng(lat, lng);
-  }, [flight?.track]);
+  const departureTimeZone = (flight as any)?.trackMeta?.departureTimeZone ?? null;
 
   const activeSample =
     samples && samples.length
