@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/store';
-import { register } from '@/lib/api/auth.api';
+import * as AuthApi from '@/lib/api/auth.api';
 import './Auth.scss';
 
 export default function Register() {
@@ -32,7 +32,7 @@ export default function Register() {
         setError('Passwords do not match.');
         return;
       }
-      const me = await register({ email: normalized, password });
+      const me = await AuthApi.register({ email: normalized, password });
       dispatch({ type: 'SET_AUTH_USER', user: me });
       navigate('/', { replace: true });
     } catch (err: any) {

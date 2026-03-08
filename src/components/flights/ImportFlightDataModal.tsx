@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/store';
 import type { Flight } from '@/store/types';
-import { uploadFlightTrackFile, upsertFlight } from '@/lib/api/flight.api';
+import * as FlightApi from '@/lib/api/flight.api';
 import ModalCloseButton from '@/components/ui/ModalCloseButton';
 import '../ui/Modal.scss';
 import '../map/MapList.scss';
@@ -93,7 +93,7 @@ export default function ImportFlightDataModal({open, parsed, onClose}: { open: b
         endTimeISO: p.endTimeISO,
       };
       
-      await upsertFlight(updated.id, {
+      await FlightApi.upsertFlight(updated.id, {
         dateISO: updated.dateISO,
         startTimeISO: updated.startTimeISO ?? null,
         endTimeISO: updated.endTimeISO ?? null,
@@ -105,7 +105,7 @@ export default function ImportFlightDataModal({open, parsed, onClose}: { open: b
         comments: updated.comments,
       });
       
-      const saved = await uploadFlightTrackFile(
+      const saved = await FlightApi.uploadFlightTrackFile(
         updated.id,
         'FORE_FLIGHT',
         p.file,
@@ -169,7 +169,7 @@ export default function ImportFlightDataModal({open, parsed, onClose}: { open: b
         comments: '',
       };
       
-      await upsertFlight(flight.id, {
+      await FlightApi.upsertFlight(flight.id, {
         dateISO: flight.dateISO,
         startTimeISO: flight.startTimeISO ?? null,
         endTimeISO: flight.endTimeISO ?? null,
@@ -182,7 +182,7 @@ export default function ImportFlightDataModal({open, parsed, onClose}: { open: b
         comments: flight.comments,
       });
       
-      const saved = await uploadFlightTrackFile(
+      const saved = await FlightApi.uploadFlightTrackFile(
         flight.id,
         'FORE_FLIGHT',
         p.file,

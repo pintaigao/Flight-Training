@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import MapView from '@/components/map/MapView';
 import { useStore } from '@/store/store';
 import type { TrackItem } from '@/components/map/MapView';
-import { getRecentTrackByTail } from '@/lib/api/track.api';
+import * as TrackApi from '@/lib/api/track.api';
 import './MapExplorer.scss';
 
 export default function MapExplorer() {
@@ -116,7 +116,7 @@ export default function MapExplorer() {
                 setError(null);
                 setLoading(true);
                 try {
-                  const res = await getRecentTrackByTail(normalized);
+                  const res = await TrackApi.getRecentTrackByTail(normalized);
                   const id = `${res.tail}:${res.faFlightId}`;
                   const feature = res.track;
                   feature.properties = { ...(feature.properties ?? {}), id };

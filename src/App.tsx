@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useStore } from '@/store/store';
-import { getMe } from '@/lib/api/auth.api';
+import * as AuthApi from '@/lib/api/auth.api';
 
 export default function App() {
   const { dispatch } = useStore();
@@ -11,7 +11,7 @@ export default function App() {
     let alive = true;
     (async () => {
       try {
-        const me = await getMe();
+        const me = await AuthApi.getMe();
         if (!alive) return;
         dispatch({ type: 'SET_AUTH_USER', user: me });
       } catch {

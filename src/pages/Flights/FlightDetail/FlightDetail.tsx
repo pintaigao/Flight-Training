@@ -3,16 +3,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '@/store/store';
 import { readGpxAsLineString } from '@/lib/utils/gpxToGeojson';
-import {
-  deleteFlight,
-  getFlightTrackSamples,
-  patchFlightDescription,
-  uploadFlightTrackFile,
-  upsertFlight,
-  upsertFlightTrack,
-} from '@/lib/api/flight.api';
+import * as FlightApi from '@/lib/api/flight.api';
 import ConfirmModal from '@/components/ui/ConfirmModal';
-import type { TrackSample } from '@/lib/api/flight.api';
 import TrackChart from '@/components/track/TrackChart';
 import Modal from '@/components/ui/Modal';
 import LexicalEditor from '@/components/richtext/LexicalEditor';
@@ -65,7 +57,7 @@ export default function FlightDetail() {
   const [savingDesc, setSavingDesc] = useState(false);
   const [descError, setDescError] = useState<string | null>(null);
 
-  const [samples, setSamples] = useState<TrackSample[] | null>(null);
+  const [samples, setSamples] = useState<FlightApi.TrackSample[] | null>(null);
   const [samplesError, setSamplesError] = useState<string | null>(null);
   const [loadingSamples, setLoadingSamples] = useState(false);
   const [cursorIdx, setCursorIdx] = useState(0);
@@ -162,7 +154,7 @@ export default function FlightDetail() {
     setLoadingSamples(true);
     (async () => {
       try {
-        const res = await getFlightTrackSamples(flightId, 'FORE_FLIGHT');
+        const res = await FlightApi.getFlightTrackSamples(flightId, 'FORE_FLIGHT');
         if (cancelled) return;
         setSamples(res.samples);
         setCursorIdx(0);
@@ -192,7 +184,7 @@ export default function FlightDetail() {
 
     try {
       const comments = nextComments ?? flight.comments ?? '';
-      await upsertFlight(flight.id, {
+      await FlightApi.upsertFlight(flight.id, {
         dateISO: flight.dateISO,
         startTimeISO: flight.startTimeISO ?? null,
         endTimeISO: flight.endTimeISO ?? null,
@@ -427,7 +419,7 @@ export default function FlightDetail() {
                     const name = file.name.toLowerCase();
                     const isKml = name.endsWith('.kml');
                     if (isKml) {
-                      const saved = await uploadFlightTrackFile(
+                      const saved = await FlightApi.uploadFlightTrackFile(
                         flight.id,
                         'FORE_FLIGHT',
                         file,
@@ -454,7 +446,7 @@ export default function FlightDetail() {
                       };
                       dispatch({ type: 'UPSERT_FLIGHT', flight: updated });
                       dispatch({ type: 'IMPORT_TRACK', id: flight.id, track });
-                      await upsertFlight(flight.id, {
+                      await FlightApi.upsertFlight(flight.id, {
                         dateISO: updated.dateISO,
                         startTimeISO: updated.startTimeISO ?? null,
                         endTimeISO: updated.endTimeISO ?? null,
@@ -474,7 +466,7 @@ export default function FlightDetail() {
                       ...(track.properties ?? {}),
                       id: flight.id,
                     };
-                    await upsertFlightTrack(flight.id, 'FORE_FLIGHT', track, {
+                    await FlightApi.upsertFlightTrack(flight.id, 'FORE_FLIGHT', track, {
                       originalFilename: file.name,
                     });
                     dispatch({ type: 'IMPORT_TRACK', id: flight.id, track });
@@ -730,7 +722,7 @@ export default function FlightDetail() {
               setDescError(null);
               setSavingDesc(true);
               try {
-                const res = await patchFlightDescription(flight.id, descDraft);
+                const res = await FlightApi.patchFlightDescription(flight.id, descDraft);
                 dispatch({
                   type: 'UPSERT_FLIGHT',
                   flight: { ...flight, description: res.description },
@@ -764,7 +756,7 @@ export default function FlightDetail() {
           setDeleteError(null);
           setDeleting(true);
           try {
-            await deleteFlight(flight.id);
+            await FlightApi.deleteFlight(flight.id);
             dispatch({ type: 'DELETE_FLIGHT', id: flight.id });
             setConfirmDelete(false);
             nav('/flights');

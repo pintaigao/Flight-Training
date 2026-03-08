@@ -8,7 +8,7 @@ import React, {
 import type { AppState, Action } from './types';
 import { rootReducer } from './rootReducer';
 import { initState } from './initialState';
-import { getFlights } from '@/lib/api/flight.api';
+import * as FlightApi from '@/lib/api/flight.api';
 
 const STORAGE_KEY = 'flightlog.ui.v1';
 
@@ -60,7 +60,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
     (async () => {
       try {
-        const flights = await getFlights();
+        const flights = await FlightApi.getFlights();
         if (cancelled) return;
         dispatch({ type: 'SET_FLIGHTS', flights });
       } catch {

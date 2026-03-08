@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/store';
-import { login } from '@/lib/api/auth.api';
+import * as AuthApi from '@/lib/api/auth.api';
 import './Auth.scss';
 
 export default function Login() {
@@ -24,7 +24,7 @@ export default function Login() {
     setError(null);
     setLoading(true);
     try {
-      const me = await login({ email: email.trim().toLowerCase(), password });
+      const me = await AuthApi.login({ email: email.trim().toLowerCase(), password });
       dispatch({ type: 'SET_AUTH_USER', user: me });
       navigate(from, { replace: true });
     } catch (err: any) {

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { TrackSample } from '@/lib/api/flight.api';
+import type * as FlightApi from '@/lib/api/flight.api';
 import './TrackChart.scss';
 
 const CHICAGO_TZ = 'America/Chicago';
@@ -33,7 +33,7 @@ function downsampleKeepEnds<T>(arr: T[], max: number): T[] {
 }
 
 type Props = {
-  samples: TrackSample[];
+  samples: FlightApi.TrackSample[];
   cursorIdx: number;
   onCursorChange: (idx: number) => void;
   height?: number;

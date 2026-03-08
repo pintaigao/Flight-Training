@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/store';
-import { logout as apiLogout } from '@/lib/api/auth.api';
+import * as AuthApi from '@/lib/api/auth.api';
 import { useTheme } from '@/lib/theme/ThemeProvider';
 import './Sidebar.scss';
 
@@ -18,7 +18,7 @@ export default function Sidebar() {
 
   async function logout() {
     try {
-      await apiLogout();
+      await AuthApi.logout();
     } catch {
       // ignore
     }

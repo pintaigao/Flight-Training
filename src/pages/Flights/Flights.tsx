@@ -5,7 +5,7 @@ import { useStore } from '@/store/store';
 import { readForeFlightKmlTimeRange } from '@/lib/utils/foreflightKmlTimeRange';
 import ImportFlightDataModal from '@/components/flights/ImportFlightDataModal';
 import ConfirmModal from '@/components/ui/ConfirmModal';
-import { deleteFlight } from '@/lib/api/flight.api';
+import * as FlightApi from '@/lib/api/flight.api';
 import './Flights.scss';
 
 export default function Flights() {
@@ -154,7 +154,7 @@ export default function Flights() {
           setDeleteError(null);
           setDeleting(true);
           try {
-            await deleteFlight(deleteId);
+            await FlightApi.deleteFlight(deleteId);
             setDeleteId(null);
             // optimistic local update
             dispatch({ type: 'DELETE_FLIGHT', id: deleteId });
