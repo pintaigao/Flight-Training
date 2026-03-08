@@ -30,7 +30,7 @@ import { $isLinkNode, LinkNode } from '@lexical/link';
 import { CodeNode } from '@lexical/code';
 import './LexicalEditor.scss';
 
-function Icon({ title, children }: { title: string; children: ReactNode }) {
+function Icon({title, children}: { title: string; children: ReactNode }) {
   return (
     <span className="lx-icon" aria-hidden="true" title={title}>
       {children}
@@ -38,15 +38,15 @@ function Icon({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function Toolbar({ disabled }: { disabled: boolean }) {
+function Toolbar({disabled}: { disabled: boolean }) {
   const [editor] = useLexicalComposerContext();
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isLink, setIsLink] = useState(false);
   const [listType, setListType] = useState<'bullet' | 'number' | null>(null);
-
+  
   useEffect(() => {
-    return editor.registerUpdateListener(({ editorState }) => {
+    return editor.registerUpdateListener(({editorState}) => {
       editorState.read(() => {
         const selection = $getSelection();
         if (!$isRangeSelection(selection)) {
@@ -56,14 +56,14 @@ function Toolbar({ disabled }: { disabled: boolean }) {
           setListType(null);
           return;
         }
-
+        
         setIsBold(selection.hasFormat('bold'));
         setIsItalic(selection.hasFormat('italic'));
-
+        
         const anchorNode = selection.anchor.getNode();
         const parent = anchorNode.getParent();
         setIsLink($isLinkNode(parent) || $isLinkNode(anchorNode));
-
+        
         // List type detection without importing list-node utils: rely on DOM nesting.
         // This is good enough for our current features (bullet/ordered toggles).
         const dom = editor.getElementByKey(anchorNode.getKey());
@@ -76,10 +76,9 @@ function Toolbar({ disabled }: { disabled: boolean }) {
       });
     });
   }, [editor]);
-
-  const btnClass = (active: boolean) =>
-    active ? 'lx-btn-icon lx-btn-active' : 'lx-btn-icon';
-
+  
+  const btnClass = (active: boolean) => active ? 'lx-btn-icon lx-btn-active' : 'lx-btn-icon';
+  
   return (
     <div className="lx-toolbar">
       <button
@@ -110,9 +109,9 @@ function Toolbar({ disabled }: { disabled: boolean }) {
           </svg>
         </Icon>
       </button>
-
-      <div className="lx-sep" />
-
+      
+      <div className="lx-sep"/>
+      
       <button
         className={btnClass(isBold)}
         type="button"
@@ -192,10 +191,10 @@ function Toolbar({ disabled }: { disabled: boolean }) {
 }
 
 function SyncFromValue({
-  value,
-  enabled,
-  lastEmittedJsonRef,
-}: {
+                         value,
+                         enabled,
+                         lastEmittedJsonRef,
+                       }: {
   // Lexical serialized EditorState JSON string.
   value: string;
   enabled: boolean;
@@ -203,20 +202,15 @@ function SyncFromValue({
 }) {
   const [editor] = useLexicalComposerContext();
   const lastAppliedRef = useRef<string | null>(null);
-
+  
   useEffect(() => {
     if (!enabled) return;
-
+    
     // Avoid re-applying the same document over and over, and avoid feedback loops:
     // when `value` comes from this editor's own onChange, it will match
     // `lastEmittedJsonRef.current`.
-    if (
-      (lastAppliedRef.current != null && value === lastAppliedRef.current) ||
-      (lastEmittedJsonRef.current != null && value === lastEmittedJsonRef.current)
-    ) {
-      return;
-    }
-
+    if ((lastAppliedRef.current != null && value === lastAppliedRef.current) || (lastEmittedJsonRef.current != null && value === lastEmittedJsonRef.current)) return;
+    
     if (!value) {
       editor.update(() => {
         const root = $getRoot();
@@ -234,11 +228,11 @@ function SyncFromValue({
       // ignore malformed stored data
     }
   }, [editor, enabled, lastEmittedJsonRef, value]);
-
+  
   return null;
 }
 
-function SetEditable({ disabled }: { disabled: boolean }) {
+function SetEditable({disabled}: { disabled: boolean }) {
   const [editor] = useLexicalComposerContext();
   useEffect(() => {
     editor.setEditable(!disabled);
@@ -247,12 +241,12 @@ function SetEditable({ disabled }: { disabled: boolean }) {
 }
 
 export default function LexicalEditor({
-  value,
-  onChange,
-  placeholder = 'Write comments…',
-  disabled = false,
-  showToolbar = true,
-}: {
+                                        value,
+                                        onChange,
+                                        placeholder = 'Write comments…',
+                                        disabled = false,
+                                        showToolbar = true,
+                                      }: {
   // Serialized Lexical editorState JSON string.
   value: string;
   onChange?: (json: string) => void;
@@ -278,23 +272,23 @@ export default function LexicalEditor({
       ],
     };
   }, [disabled]);
-
+  
   const lastEmittedJsonRef = useRef<string | null>(null);
-
+  
   return (
     <div className={showToolbar ? 'lx-editor' : 'lx-editor lx-readonly'}>
       <LexicalComposer initialConfig={initialConfig}>
-        {showToolbar && <Toolbar disabled={disabled} />}
+        {showToolbar && <Toolbar disabled={disabled}/>}
         <div className="lx-content">
           <RichTextPlugin
-            contentEditable={<ContentEditable className="lx-editable" />}
+            contentEditable={<ContentEditable className="lx-editable"/>}
             placeholder={<div className="lx-placeholder">{placeholder}</div>}
             ErrorBoundary={LexicalErrorBoundary}
           />
-          {showToolbar && <HistoryPlugin />}
-          <ListPlugin />
-          <LinkPlugin />
-          <SetEditable disabled={disabled} />
+          {showToolbar && <HistoryPlugin/>}
+          <ListPlugin/>
+          <LinkPlugin/>
+          <SetEditable disabled={disabled}/>
           {onChange && (
             <OnChangePlugin
               onChange={(editorState) => {
@@ -306,7 +300,7 @@ export default function LexicalEditor({
           )}
           <SyncFromValue
             value={value || ''}
-            enabled={disabled || !onChange}
+            enabled={true}
             lastEmittedJsonRef={lastEmittedJsonRef}
           />
         </div>
