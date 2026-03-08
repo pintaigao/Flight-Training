@@ -25,7 +25,7 @@ export default function MapExplorer() {
         const baseFeature = f.track!;
         const feature = {
           ...baseFeature,
-          properties: { ...(baseFeature.properties ?? {}), id: f.id },
+          properties: {...(baseFeature.properties ?? {}), id: f.id},
         } as any;
         return {
           id: f.id,
@@ -64,6 +64,7 @@ export default function MapExplorer() {
         selectedId={selectedFlightId}
         onSelect={(id) => setSelectedFlightId(id)}
         showTileAttribution={false}
+        showZoomControl={false}
       />
       
       <button
@@ -89,17 +90,6 @@ export default function MapExplorer() {
       </button>
       
       <div className="absolute bottom-4 left-4 top-16 z-[4000] flex w-[280px] flex-col sm:w-[320px]">
-        <div className="px-1 py-1">
-          <div className="min-w-0">
-            <div className="text-sm font-extrabold tracking-tight text-[color:rgba(255,255,255,0.92)]">
-              Flights
-            </div>
-            <div className="mt-0.5 text-xs font-semibold text-[color:rgba(255,255,255,0.62)]">
-              Click a flight to view details
-            </div>
-          </div>
-        </div>
-        
         <div className="flex-1 space-y-2 overflow-auto px-1 py-2">
           {flightsWithTracks.map((f) => {
             const active = selectedFlightId === f.id;

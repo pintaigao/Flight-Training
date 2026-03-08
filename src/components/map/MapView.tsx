@@ -17,6 +17,7 @@ type Props = {
   height?: number | string;
   onSelect?: (id: string) => void;
   showTileAttribution?: boolean;
+  showZoomControl?: boolean;
   cursor?: { lat: number; lng: number } | null;
   invalidateKey?: unknown;
   cursorLabelLines?: string[] | null;
@@ -104,6 +105,7 @@ function MapView({
   height = '100%',
   onSelect,
   showTileAttribution = true,
+  showZoomControl = true,
   cursor = null,
   invalidateKey,
   cursorLabelLines = null,
@@ -142,6 +144,7 @@ function MapView({
         zoom={9}
         scrollWheelZoom
         preferCanvas
+        zoomControl={showZoomControl}
         className="map">
         <InvalidateSize invalidateKey={invalidateKey} />
         <TileLayer
