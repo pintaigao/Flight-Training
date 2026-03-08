@@ -110,7 +110,7 @@ export default function Flights() {
 
       <FlightFilters />
 
-      <div className="flightsList space-y-2">
+      <div className="flightsList grid grid-cols-1 gap-3 sm:grid-cols-2">
         {flights.map((f) => (
           <FlightCard
             key={f.id}
