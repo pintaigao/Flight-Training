@@ -118,10 +118,10 @@ export default function MapExplorer() {
               <button
                 key={f.id}
                 className={[
-                  'w-full rounded-3xl px-4 py-3 text-left transition-colors',
+                  'w-full rounded-3xl px-4 py-3 text-left shadow-[0_10px_26px_rgba(0,0,0,0.35)] backdrop-blur transition-colors',
                   active
-                    ? 'border-2 border-[color:rgba(255,140,70,0.95)] bg-[color:rgba(255,255,255,0.04)]'
-                    : 'border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(255,255,255,0.04)] hover:bg-[color:rgba(255,255,255,0.06)]',
+                    ? 'border-2 border-[color:rgba(255,140,70,0.95)] bg-[color:rgba(10,16,28,0.72)]'
+                    : 'border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(10,16,28,0.60)] hover:bg-[color:rgba(10,16,28,0.68)]',
                 ].join(' ')}
                 type="button"
                 onClick={() => setSelectedFlightId(f.id)}>
