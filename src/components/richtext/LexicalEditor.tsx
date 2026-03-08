@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -193,28 +193,47 @@ function Toolbar({ disabled }: { disabled: boolean }) {
 
 function SyncFromValue({
   value,
+  enabled,
+  lastEmittedJsonRef,
 }: {
   // Lexical serialized EditorState JSON string.
   value: string;
+  enabled: boolean;
+  lastEmittedJsonRef: { current: string | null };
 }) {
   const [editor] = useLexicalComposerContext();
+  const lastAppliedRef = useRef<string | null>(null);
 
   useEffect(() => {
+    if (!enabled) return;
+
+    // Avoid re-applying the same document over and over, and avoid feedback loops:
+    // when `value` comes from this editor's own onChange, it will match
+    // `lastEmittedJsonRef.current`.
+    if (
+      (lastAppliedRef.current != null && value === lastAppliedRef.current) ||
+      (lastEmittedJsonRef.current != null && value === lastEmittedJsonRef.current)
+    ) {
+      return;
+    }
+
     if (!value) {
       editor.update(() => {
         const root = $getRoot();
         root.clear();
         root.append($createParagraphNode());
       });
+      lastAppliedRef.current = '';
       return;
     }
     try {
       const parsed = editor.parseEditorState(value);
       editor.setEditorState(parsed);
+      lastAppliedRef.current = value;
     } catch {
       // ignore malformed stored data
     }
-  }, [editor, value]);
+  }, [editor, enabled, lastEmittedJsonRef, value]);
 
   return null;
 }
@@ -260,6 +279,8 @@ export default function LexicalEditor({
     };
   }, [disabled]);
 
+  const lastEmittedJsonRef = useRef<string | null>(null);
+
   return (
     <div className={showToolbar ? 'lx-editor' : 'lx-editor lx-readonly'}>
       <LexicalComposer initialConfig={initialConfig}>
@@ -278,11 +299,16 @@ export default function LexicalEditor({
             <OnChangePlugin
               onChange={(editorState) => {
                 const json = JSON.stringify(editorState.toJSON());
+                lastEmittedJsonRef.current = json;
                 onChange(json);
               }}
             />
           )}
-          <SyncFromValue value={value || ''} />
+          <SyncFromValue
+            value={value || ''}
+            enabled={disabled || !onChange}
+            lastEmittedJsonRef={lastEmittedJsonRef}
+          />
         </div>
       </LexicalComposer>
     </div>
