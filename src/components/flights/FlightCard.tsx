@@ -25,7 +25,7 @@ export default function FlightCard({
   return (
     <div
       className={[
-        'card flightCard group rounded-2xl border border-[var(--border)] bg-[color:var(--modal)] p-4 shadow-[var(--shadow)] transition-colors hover:bg-[color:var(--panel)]',
+        'card flightCard group rounded-3xl bg-[color:var(--modal)] p-4 shadow-[0_14px_40px_color-mix(in_srgb,#000_22%,transparent)] transition-colors hover:bg-[color:var(--panel)]',
         selected ? 'flightCard--selected ring-2 ring-[color:rgba(58,169,255,0.35)]' : '',
       ].join(' ')}>
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start gap-4">
