@@ -24,10 +24,10 @@ export default function FlightCard({
   return (
     <div
       className={[
-        'card flightCard group rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)] transition-colors hover:bg-[color:var(--panel2)]',
+        'card flightCard group rounded-2xl border border-[var(--border)] bg-[color:var(--modal)] p-4 shadow-[var(--shadow)] transition-colors hover:bg-[color:var(--panel)]',
         selected ? 'flightCard--selected ring-2 ring-[color:rgba(58,169,255,0.35)]' : '',
       ].join(' ')}>
-      <div className="grid grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_minmax(0,0.8fr)] items-start gap-4">
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)] items-start gap-4">
         <div className="min-w-0">
           <div className="text-base font-extrabold tracking-tight text-[color:var(--text)]">
             {flight.from} → {flight.to}
@@ -35,24 +35,37 @@ export default function FlightCard({
           <div className="mt-1 text-sm font-semibold text-[var(--muted)]">
             TAIL # <span className="text-[color:var(--text)]">{flight.aircraftTail}</span>
           </div>
-        </div>
 
-        <div className="text-right">
-          <div className="text-lg font-extrabold text-[color:var(--text)]">
-            {startLocal}{' '}
-            <span className="text-xs font-bold text-[var(--muted)]">{tzStart}</span>
+          <div className="mt-3">
+            <div className="text-lg font-extrabold text-[color:var(--text)]">
+              {startLocal}{' '}
+              <span className="text-xs font-bold text-[var(--muted)]">{tzStart}</span>
+            </div>
+            <div className="text-xs font-semibold text-[var(--muted)]">{startZulu}</div>
+            <div className="mt-1 text-xs font-semibold text-[var(--muted)]">{flight.dateISO}</div>
           </div>
-          <div className="text-xs font-semibold text-[var(--muted)]">{startZulu}</div>
-          <div className="mt-2 text-xs font-semibold text-[var(--muted)]">{flight.dateISO}</div>
         </div>
 
-        <div className="text-right">
+        <div className="pt-3">
+          <div className="text-center text-xs font-semibold text-[var(--muted)]">
+            {hrs} hrs
+          </div>
+          <div className="mt-2 flex items-center">
+            <div
+              className="relative h-1 w-full rounded-full bg-[color:color-mix(in_srgb,var(--accent)_28%,transparent)]"
+              aria-hidden="true">
+              <div className="absolute -left-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-[var(--accent)] shadow-[0_0_0_3px_color-mix(in_srgb,var(--accent)_18%,transparent)]" />
+              <div className="absolute -right-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-[var(--accent)] shadow-[0_0_0_3px_color-mix(in_srgb,var(--accent)_18%,transparent)]" />
+            </div>
+          </div>
+        </div>
+
+        <div className="text-right pt-7">
           <div className="text-lg font-extrabold text-[color:var(--text)]">
             {endLocal}{' '}
             <span className="text-xs font-bold text-[var(--muted)]">{tzEnd}</span>
           </div>
           <div className="text-xs font-semibold text-[var(--muted)]">{endZulu}</div>
-          <div className="mt-2 text-xs font-semibold text-[var(--muted)]">{hrs} hrs</div>
         </div>
       </div>
 
