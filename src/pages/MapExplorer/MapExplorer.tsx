@@ -224,12 +224,24 @@ export default function MapExplorer() {
               </div>
               <div className="mt-2 max-h-56 overflow-auto rounded-2xl border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(255,255,255,0.04)] p-3">
                 {selectedFlight.comments?.trim() ? (
-                  <LexicalEditor
-                    value={selectedFlight.comments}
-                    placeholder="No comments yet."
-                    disabled
-                    showToolbar={false}
-                  />
+                  <div
+                    className={[
+                      // Force "inverse" colors to match the dark map overlay even when the global theme is light.
+                      '[&_.lx-editor]:!bg-transparent [&_.lx-editor]:!shadow-none',
+                      '[&_.lx-editable]:!text-[color:rgba(255,255,255,0.92)]',
+                      '[&_.lx-placeholder]:!text-[color:rgba(255,255,255,0.55)]',
+                      '[&_.lx-editable_a]:!text-[color:rgba(58,169,255,0.95)]',
+                      '[&_.lx-editable_blockquote]:!bg-[color:rgba(255,255,255,0.06)]',
+                      '[&_.lx-editable_pre]:!bg-[color:rgba(255,255,255,0.06)]',
+                      '[&_.lx-editable_code]:!bg-[color:rgba(255,255,255,0.06)]',
+                    ].join(' ')}>
+                    <LexicalEditor
+                      value={selectedFlight.comments}
+                      placeholder="No comments yet."
+                      disabled
+                      showToolbar={false}
+                    />
+                  </div>
                 ) : (
                   <div className="text-sm font-semibold text-[color:rgba(255,255,255,0.62)]">
                     —
