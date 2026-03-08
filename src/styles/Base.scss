@@ -14,6 +14,8 @@
   --accent: #3aa9ff;
   --accent2: #1e90ff;
   --shadow: 0 $u2 $u4 rgba(0, 0, 0, 0.35);
+  --overlay: rgba(0, 0, 0, 0.55);
+  --modal: rgba(10, 16, 28, 0.92);
 }
 
 @media (prefers-color-scheme: light) {
@@ -27,6 +29,8 @@
     --accent: #1e78ff;
     --accent2: #0b5cff;
     --shadow: 0 $u2 $u4 rgba(0, 0, 0, 0.12);
+    --overlay: rgba(0, 0, 0, 0.35);
+    --modal: rgba(255, 255, 255, 0.92);
   }
 }
 
@@ -40,6 +44,8 @@
   --accent: #3aa9ff;
   --accent2: #1e90ff;
   --shadow: 0 $u2 $u4 rgba(0, 0, 0, 0.35);
+  --overlay: rgba(0, 0, 0, 0.55);
+  --modal: rgba(10, 16, 28, 0.92);
 }
 
 :root[data-theme='light'] {
@@ -52,6 +58,8 @@
   --accent: #1e78ff;
   --accent2: #0b5cff;
   --shadow: 0 $u2 $u4 rgba(0, 0, 0, 0.12);
+  --overlay: rgba(0, 0, 0, 0.35);
+  --modal: rgba(255, 255, 255, 0.92);
 }
 
 * {
@@ -60,6 +68,10 @@
 html,
 body {
   height: 100%;
+  // Prevent layout shift when content height toggles causes the page scrollbar
+  // to appear/disappear (keeps viewport width stable).
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
 }
 body {
   margin: 0;

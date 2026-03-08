@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/store';
 import type { Flight } from '@/store/types';
 import { uploadFlightTrackFile, upsertFlight } from '@/lib/api/flight.api';
+import ModalCloseButton from '@/components/ui/ModalCloseButton';
 import '../ui/Modal.scss';
 import '../map/MapList.scss';
 
@@ -222,9 +223,7 @@ export default function ImportFlightDataModal({open, parsed, onClose}: { open: b
               {fmtChicago(p.endTimeISO)} · ~{(durationMin / 60).toFixed(1)} hrs
             </div>
           </div>
-          <button className="btn" onClick={onClose} disabled={saving}>
-            Close
-          </button>
+          <ModalCloseButton onClick={onClose} disabled={saving} />
         </div>
         
         <div className="modal-body">

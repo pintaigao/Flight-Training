@@ -27,6 +27,15 @@ export function upsertFlight(id: string, flight: Omit<Flight, 'id'>) {
     .then((res) => res.data);
 }
 
+export function patchFlightDescription(id: string, description: string) {
+  return http
+    .patch<{ id: string; description: string }>(
+      `/flight/${encodeURIComponent(id)}/description`,
+      { description },
+    )
+    .then((res) => res.data);
+}
+
 export function upsertFlightTrack(
   id: string,
   source: FlightTrackSource,
@@ -100,6 +109,7 @@ export function getFlightTrackSamples(
       flightId: string;
       source: FlightTrackSource;
       samples: TrackSample[];
+      meta?: any;
     }>(
       `/flight/${encodeURIComponent(id)}/track/samples?source=${encodeURIComponent(source)}`,
     )

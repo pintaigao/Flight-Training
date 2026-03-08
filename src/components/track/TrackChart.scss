@@ -7,7 +7,7 @@
   .track-chart-readout {
     position: absolute;
     left: $u2;
-    top: $u1;
+    top: 22px;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -16,5 +16,9 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(10, 16, 28, 0.62);
     backdrop-filter: blur($u1);
+    pointer-events: none;
+    font-size: 12px;
+    line-height: 1.25;
+    max-width: min(320px, calc(100% - #{$u4}));
   }
 }

@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { MapContainer, TileLayer, GeoJSON, useMap, CircleMarker } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, useMap, Marker } from 'react-leaflet';
 import type { Feature, FeatureCollection, LineString } from 'geojson';
 import L from 'leaflet';
 import './MapView.scss';
@@ -18,6 +18,9 @@ type Props = {
   onSelect?: (id: string) => void;
   showTileAttribution?: boolean;
   cursor?: { lat: number; lng: number } | null;
+  invalidateKey?: unknown;
+  cursorLabelLines?: string[] | null;
+  cursorHeadingDeg?: number | null;
 };
 
 function FitBounds({feature}: { feature?: Feature<LineString> }) {
@@ -35,7 +38,77 @@ function FitBounds({feature}: { feature?: Feature<LineString> }) {
   return null;
 }
 
-export default function MapView({tracks, selectedId, height = '100%', onSelect, showTileAttribution = true, cursor = null}: Props) {
+function InvalidateSize({invalidateKey}: { invalidateKey?: unknown }) {
+  const map = useMap();
+
+  useEffect(() => {
+    // Leaflet needs an explicit size invalidation when the container changes
+    // height due to layout (e.g. chart toggles below/overlay).
+    const t = window.setTimeout(() => map.invalidateSize(), 0);
+    return () => window.clearTimeout(t);
+  }, [map, invalidateKey]);
+
+  return null;
+}
+
+function CursorMarker({
+  cursor,
+  lines,
+  headingDeg,
+}: {
+  cursor: { lat: number; lng: number };
+  lines: string[];
+  headingDeg?: number | null;
+}) {
+  const icon = useMemo(() => {
+    const safeLines = (lines ?? []).filter(Boolean).slice(0, 4);
+    const heading = Number.isFinite(headingDeg as any) ? Number(headingDeg) : 0;
+    const esc = (s: string) =>
+      s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    const labelHtml = safeLines
+      .map((l) => `<div class="cursor-label-line">${esc(l)}</div>`)
+      .join('');
+
+    const svg = `
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3-1 3 1v-1.5L13 19v-5.5L21 16z"></path>
+      </svg>
+    `;
+
+    const html = `
+      <div class="cursor-marker" style="--heading:${heading}deg">
+        <div class="cursor-dot"></div>
+        <div class="cursor-plane">${svg}</div>
+        <div class="cursor-label">${labelHtml}</div>
+      </div>
+    `;
+
+    return L.divIcon({
+      className: '',
+      html,
+      iconSize: [1, 1],
+      iconAnchor: [0, 0],
+    });
+  }, [headingDeg, lines]);
+
+  return <Marker position={[cursor.lat, cursor.lng]} icon={icon} />;
+}
+
+export default function MapView({
+  tracks,
+  selectedId,
+  height = '100%',
+  onSelect,
+  showTileAttribution = true,
+  cursor = null,
+  invalidateKey,
+  cursorLabelLines = null,
+  cursorHeadingDeg = null,
+}: Props) {
   const selected = tracks.find((t) => t.id === selectedId);
   
   const collection: FeatureCollection = useMemo(() => ({type: 'FeatureCollection', features: tracks.map((t) => t.feature)}), [tracks]);
@@ -47,6 +120,7 @@ export default function MapView({tracks, selectedId, height = '100%', onSelect, 
         zoom={9}
         scrollWheelZoom
         className="map">
+        <InvalidateSize invalidateKey={invalidateKey} />
         <TileLayer
           attribution={showTileAttribution ? '&copy; OpenStreetMap contributors' : ''}
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
@@ -65,12 +139,13 @@ export default function MapView({tracks, selectedId, height = '100%', onSelect, 
             }
           }}/>
         
-        {cursor && (
-          <CircleMarker
-            center={[cursor.lat, cursor.lng]}
-            radius={6}
-            pathOptions={{color: '#3aa9ff', weight: 2}}/>
-        )}
+        {cursor && cursorLabelLines && cursorLabelLines.length > 0 ? (
+          <CursorMarker
+            cursor={cursor}
+            lines={cursorLabelLines}
+            headingDeg={cursorHeadingDeg}
+          />
+        ) : null}
         
         <FitBounds feature={selected?.feature}/>
       </MapContainer>

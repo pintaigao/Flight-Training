@@ -1,5 +1,6 @@
 import './Modal.scss';
 import type { ReactNode } from 'react';
+import ModalCloseButton from '@/components/ui/ModalCloseButton';
 
 export default function Modal({
   open,
@@ -31,12 +32,7 @@ export default function Modal({
       <div className="modal-card" style={{ width }}>
         <div className="modal-header">
           <div style={{ fontWeight: 900, fontSize: 16 }}>{title}</div>
-          <button
-            className="btn inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-sm font-semibold hover:bg-[color:var(--panel)] disabled:cursor-not-allowed disabled:opacity-60"
-            onClick={onClose}
-            disabled={disabled}>
-            Close
-          </button>
+          <ModalCloseButton onClick={onClose} disabled={disabled} />
         </div>
         <div className="modal-body">{children}</div>
       </div>

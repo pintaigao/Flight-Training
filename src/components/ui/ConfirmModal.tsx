@@ -1,4 +1,5 @@
 import './Modal.scss';
+import ModalCloseButton from '@/components/ui/ModalCloseButton';
 
 export default function ConfirmModal({
   open,
@@ -28,12 +29,7 @@ export default function ConfirmModal({
       <div className="modal-card" style={{ width: 'min(560px, 100%)' }}>
         <div className="modal-header">
           <div style={{ fontWeight: 900, fontSize: 16 }}>{title}</div>
-          <button
-            className="btn inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-sm font-semibold hover:bg-[color:var(--panel)] disabled:cursor-not-allowed disabled:opacity-60"
-            onClick={onCancel}
-            disabled={disabled}>
-            {cancelText}
-          </button>
+          <ModalCloseButton onClick={onCancel} disabled={disabled} />
         </div>
         <div className="modal-body">
           {message && (

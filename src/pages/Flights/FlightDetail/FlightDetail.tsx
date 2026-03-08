@@ -6,6 +6,7 @@ import { readGpxAsLineString } from '@/lib/utils/gpxToGeojson';
 import {
   deleteFlight,
   getFlightTrackSamples,
+  patchFlightDescription,
   uploadFlightTrackFile,
   upsertFlight,
   upsertFlightTrack,
@@ -20,6 +21,25 @@ import './FlightDetail.scss';
 function fmtNum(n: number | null | undefined, digits = 0) {
   if (n == null || !Number.isFinite(n)) return '—';
   return n.toFixed(digits);
+}
+
+function fmtInt(n: number | null | undefined) {
+  if (n == null || !Number.isFinite(n)) return '—';
+  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
+}
+
+function bearingDeg(from: { lat: number; lng: number }, to: { lat: number; lng: number }) {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const toDeg = (r: number) => (r * 180) / Math.PI;
+  const lat1 = toRad(from.lat);
+  const lat2 = toRad(to.lat);
+  const dLon = toRad(to.lng - from.lng);
+  const y = Math.sin(dLon) * Math.cos(lat2);
+  const x =
+    Math.cos(lat1) * Math.sin(lat2) -
+    Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+  const brng = (toDeg(Math.atan2(y, x)) + 360) % 360;
+  return brng;
 }
 
 export default function FlightDetail() {
@@ -39,6 +59,10 @@ export default function FlightDetail() {
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [commentsDraft, setCommentsDraft] = useState('');
+  const [descOpen, setDescOpen] = useState(false);
+  const [descDraft, setDescDraft] = useState('');
+  const [savingDesc, setSavingDesc] = useState(false);
+  const [descError, setDescError] = useState<string | null>(null);
 
   const [samples, setSamples] = useState<TrackSample[] | null>(null);
   const [samplesError, setSamplesError] = useState<string | null>(null);
@@ -71,6 +95,31 @@ export default function FlightDetail() {
   const cursor = activeSample
     ? { lat: activeSample.lat, lng: activeSample.lng }
     : null;
+  const cursorHeadingDeg =
+    activeSample && samples && samples.length > 1
+      ? (() => {
+          const idx = Math.min(cursorIdx, samples.length - 1);
+          const prev = idx > 0 ? samples[idx - 1] : samples[idx + 1];
+          if (!prev) return null;
+          return bearingDeg(
+            { lat: prev.lat, lng: prev.lng },
+            { lat: activeSample.lat, lng: activeSample.lng },
+          );
+        })()
+      : null;
+  const cursorLabelLines =
+    activeSample && flight
+      ? [
+          flight.aircraftTail,
+          `${fmtInt(activeSample.altAglFt)} ft  ${fmtInt(activeSample.gsKt)} kts`,
+          new Date(activeSample.t).toLocaleTimeString('en-US', {
+            timeZone: 'America/Chicago',
+            hour: 'numeric',
+            minute: '2-digit',
+          }),
+          `${flight.from}  ${flight.to}`,
+        ]
+      : null;
 
   useEffect(() => {
     if (!playing) return;
@@ -185,14 +234,25 @@ export default function FlightDetail() {
   }
 
   const hrs = (flight.durationMin / 60).toFixed(1);
-  const stats = (flight.trackMeta as any)?.stats as any;
+  const hasChart = !!(samples && samples.length > 0);
 
   return (
-    <div className="flightDetail grid grid-cols-1 gap-4 lg:grid-cols-[1.35fr_0.9fr]">
-      <div className="flightDetail-main space-y-3">
-        <div className="flightDetail-mapShell relative h-[60vh] overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--panel)] shadow-[var(--shadow)] lg:h-[calc(100vh-18rem)]">
+    <div className="flightDetail grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.9fr)]">
+      <div className="flightDetail-main min-w-0 space-y-3 lg:flex lg:h-[calc(100vh-12rem)] lg:flex-col lg:gap-3 lg:space-y-0">
+        <div
+          className={[
+            'flightDetail-mapShell relative h-[60vh] overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--panel)] shadow-[var(--shadow)]',
+            'lg:h-auto lg:flex-1',
+          ].join(' ')}>
           {flight.track ? (
-            <MapView tracks={tracks} selectedId={tracks[0].id} cursor={cursor} />
+            <MapView
+              tracks={tracks}
+              selectedId={tracks[0].id}
+              cursor={cursor}
+              invalidateKey={`${chartPlacement}:${hasChart ? 'chart' : 'nochart'}`}
+              cursorLabelLines={cursorLabelLines}
+              cursorHeadingDeg={cursorHeadingDeg}
+            />
           ) : (
             <div className="flightDetail-emptyMap flex h-full flex-col items-center justify-center gap-1 text-center">
               <div className="flightDetail-emptyTitle text-base font-extrabold">
@@ -204,7 +264,7 @@ export default function FlightDetail() {
             </div>
           )}
 
-          {chartPlacement === 'overlay' && samples && samples.length > 0 && (
+          {chartPlacement === 'overlay' && hasChart && (
             <div className="flightDetail-chartOverlay pointer-events-none absolute inset-x-4 bottom-4 z-[2000] overflow-hidden rounded-2xl border border-[var(--border)] bg-[color:rgba(10,16,28,0.55)] shadow-[var(--shadow)] backdrop-blur">
               <div className="flightDetail-chartOverlayInner pointer-events-auto">
                 <TrackChart
@@ -218,8 +278,8 @@ export default function FlightDetail() {
           )}
         </div>
 
-        {chartPlacement === 'below' && samples && samples.length > 0 && (
-          <div className="flightDetail-chartBelow overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--panel)] shadow-[var(--shadow)]">
+        {chartPlacement === 'below' && hasChart && (
+          <div className="flightDetail-chartBelow overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--panel)] shadow-[var(--shadow)] lg:h-[220px] lg:shrink-0">
             <TrackChart
               samples={samples}
               cursorIdx={cursorIdx}
@@ -230,7 +290,9 @@ export default function FlightDetail() {
         )}
       </div>
 
-      <div className="flightDetail-side space-y-4 lg:max-h-[calc(100vh-12rem)] lg:overflow-auto lg:pr-1">
+      <div
+        className="flightDetail-side min-w-0 space-y-4 lg:h-[calc(100vh-12rem)] lg:overflow-y-auto lg:pr-1"
+        style={{ scrollbarGutter: 'stable' }}>
         <div>
           <div className="flightDetail-date text-sm font-semibold text-[var(--muted)]">
             {flight.dateISO}
@@ -253,7 +315,33 @@ export default function FlightDetail() {
         </div>
 
         <div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
-          <div className="card-title text-base font-bold">Flight Details</div>
+          <div className="flex items-start justify-between gap-3">
+            <div className="card-title text-base font-bold">Flight Details</div>
+            <button
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] hover:bg-[color:var(--panel)]"
+              type="button"
+              aria-label="Edit description"
+              title="Edit description"
+              onClick={() => {
+                setDescError(null);
+                setDescDraft(flight.description ?? '');
+                setDescOpen(true);
+              }}>
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+              </svg>
+            </button>
+          </div>
           <div className="flightDetail-kvList mt-3 space-y-2 text-sm">
             <div className="flightDetail-kv flex justify-between gap-4">
               <span className="muted text-[var(--muted)]">Route</span>
@@ -262,30 +350,15 @@ export default function FlightDetail() {
               </span>
             </div>
             <div className="flightDetail-kv flex justify-between gap-4">
-              <span className="muted text-[var(--muted)]">Aircraft</span>
-              <span className="font-semibold">{flight.aircraftTail}</span>
-            </div>
-            <div className="flightDetail-kv flex justify-between gap-4">
               <span className="muted text-[var(--muted)]">Duration</span>
               <span className="font-semibold">{hrs} hrs</span>
             </div>
-            {stats && (
-              <>
-                <div className="flightDetail-kv flex justify-between gap-4">
-                  <span className="muted text-[var(--muted)]">AGL</span>
-                  <span className="font-semibold">
-                    {fmtNum(stats.altMinFt, 0)}–{fmtNum(stats.altMaxFt, 0)} ft
-                  </span>
-                </div>
-                <div className="flightDetail-kv flex justify-between gap-4">
-                  <span className="muted text-[var(--muted)]">GS</span>
-                  <span className="font-semibold">
-                    avg {fmtNum(stats.gsAvgKt, 1)} kt · max{' '}
-                    {fmtNum(stats.gsMaxKt, 1)} kt
-                  </span>
-                </div>
-              </>
-            )}
+            <div className="flightDetail-kv flex flex-col gap-1">
+              <span className="muted text-[var(--muted)]">Description</span>
+              <span className="font-semibold text-[color:var(--text)]">
+                {flight.description?.trim() ? flight.description : '—'}
+              </span>
+            </div>
           </div>
 
           <div className="flightDetail-mtMd mt-4">
@@ -464,7 +537,7 @@ export default function FlightDetail() {
                         </span>
                       </div>
                       <div className="flightDetail-kv flex justify-between gap-4">
-                        <span className="muted text-[var(--muted)]">AGL</span>
+                        <span className="muted text-[var(--muted)]">MSL</span>
                         <span className="font-semibold">
                           {fmtNum(activeSample.altAglFt, 0)} ft
                         </span>
@@ -590,6 +663,59 @@ export default function FlightDetail() {
               if (ok) setCommentsOpen(false);
             }}>
             {savingFlight ? 'Saving…' : 'Save'}
+          </button>
+        </div>
+      </Modal>
+
+      <Modal
+        open={descOpen}
+        title="Edit Description"
+        disabled={savingDesc}
+        onClose={() => {
+          if (savingDesc) return;
+          setDescOpen(false);
+        }}>
+        <textarea
+          className="h-28 w-full resize-y rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 py-2 text-[color:var(--text)] placeholder:text-[color:var(--muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+          value={descDraft}
+          placeholder="Short summary (optional)"
+          disabled={savingDesc}
+          maxLength={280}
+          onChange={(e) => setDescDraft(e.target.value)}
+        />
+        {descError && <div className="mt-2 text-sm text-red-400">{descError}</div>}
+        <div className="h-4" />
+        <div className="flex justify-end gap-2">
+          <button
+            className="inline-flex h-11 items-center justify-center rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-4 font-semibold hover:bg-[color:var(--panel)] disabled:cursor-not-allowed disabled:opacity-60"
+            type="button"
+            disabled={savingDesc}
+            onClick={() => setDescOpen(false)}>
+            Cancel
+          </button>
+          <button
+            className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--accent)] px-4 font-semibold text-white hover:bg-[var(--accent2)] disabled:cursor-not-allowed disabled:opacity-60"
+            type="button"
+            disabled={savingDesc}
+            onClick={async () => {
+              setDescError(null);
+              setSavingDesc(true);
+              try {
+                const res = await patchFlightDescription(flight.id, descDraft);
+                dispatch({
+                  type: 'UPSERT_FLIGHT',
+                  flight: { ...flight, description: res.description },
+                });
+                setDescOpen(false);
+              } catch (e: any) {
+                setDescError(
+                  e?.body?.message || e?.message || 'Failed to save description',
+                );
+              } finally {
+                setSavingDesc(false);
+              }
+            }}>
+            {savingDesc ? 'Saving…' : 'Save'}
           </button>
         </div>
       </Modal>

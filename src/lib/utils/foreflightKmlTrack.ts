@@ -3,6 +3,8 @@ import type { Feature, LineString } from 'geojson';
 const KML_NS = 'http://www.opengis.net/kml/2.2';
 const GX_NS = 'http://www.google.com/kml/ext/2.2';
 
+const METERS_TO_FEET = 3.280839895013123;
+
 type Sample = {
   t: string;
   lng: number;
@@ -87,7 +89,8 @@ export async function readForeFlightKmlTrack(
     const lat = Number(parts[1]);
     if (!Number.isFinite(lng) || !Number.isFinite(lat)) continue;
     const alt = parts.length >= 3 ? Number(parts[2]) : null;
-    const altAglFt = alt != null && Number.isFinite(alt) ? alt : null;
+    const altAglFt =
+      alt != null && Number.isFinite(alt) ? alt * METERS_TO_FEET : null;
     const t = whens[i];
     if (!t) continue;
     samplesRaw.push({ t: new Date(t).toISOString(), lng, lat, altAglFt });

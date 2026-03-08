@@ -13,6 +13,11 @@ function fmtNum(n: number | null | undefined, digits = 0) {
   return n.toFixed(digits);
 }
 
+function fmtInt(n: number | null | undefined) {
+  if (n == null || !Number.isFinite(n)) return '—';
+  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
+}
+
 function downsampleKeepEnds<T>(arr: T[], max: number): T[] {
   if (arr.length <= max) return arr;
   if (max < 2) return [arr[0]];
@@ -154,6 +159,12 @@ export default function TrackChart({
 
   const cursorX = xForIndex(safeCursor);
   const hoverX = hoverIdx != null ? xForIndex(hoverIdx) : null;
+  const displaySample = hovered ?? active;
+  const labelY = 14;
+  const leftLabelX = Math.max(padL + 2, cursorX - 8);
+  const leftLabelAnchor = cursorX - 8 < padL + 2 ? 'start' : 'end';
+  const rightLabelX = Math.min(W - padR - 2, cursorX + 8);
+  const rightLabelAnchor = cursorX + 8 > W - padR - 2 ? 'end' : 'start';
 
   return (
     <div
@@ -217,24 +228,6 @@ export default function TrackChart({
           y2={H - padB}
           stroke="rgba(255,255,255,0.18)"
         />
-
-        <text
-          x={10}
-          y={14}
-          fill="rgba(120,255,120,0.95)"
-          fontSize="11"
-          fontWeight="700">
-          ALTITUDE (AGL ft)
-        </text>
-        <text
-          x={W - 10}
-          y={14}
-          fill="rgba(255,236,120,0.95)"
-          fontSize="11"
-          fontWeight="700"
-          textAnchor="end">
-          SPEED (kt)
-        </text>
 
         {/* ticks */}
         <text
@@ -304,6 +297,26 @@ export default function TrackChart({
           />
         )}
 
+        {/* cursor readout (no box, no time) */}
+        <text
+          x={leftLabelX}
+          y={labelY}
+          fill="rgba(120,255,120,0.95)"
+          fontSize="12"
+          fontWeight="800"
+          textAnchor={leftLabelAnchor as any}>
+          {fmtInt(displaySample.altAglFt)} ft
+        </text>
+        <text
+          x={rightLabelX}
+          y={labelY}
+          fill="rgba(255,236,120,0.95)"
+          fontSize="12"
+          fontWeight="800"
+          textAnchor={rightLabelAnchor as any}>
+          {fmtInt(displaySample.gsKt)} kts
+        </text>
+
         {/* bottom labels */}
         <text x={padL} y={H - 8} fill="rgba(255,255,255,0.55)" fontSize="11">
           {fmtTime(samples[0].t)}
@@ -317,28 +330,6 @@ export default function TrackChart({
           {fmtTime(samples[n - 1].t)}
         </text>
       </svg>
-
-      <div className="track-chart-readout">
-        <div className="muted">
-          {hovered
-            ? `Hover: ${fmtTime(hovered.t)}`
-            : `Cursor: ${fmtTime(active.t)}`}
-        </div>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <div>
-            <span style={{ color: 'rgba(120,255,120,0.95)', fontWeight: 800 }}>
-              AGL
-            </span>{' '}
-            {fmtNum((hovered ?? active).altAglFt, 0)} ft
-          </div>
-          <div>
-            <span style={{ color: 'rgba(255,236,120,0.95)', fontWeight: 800 }}>
-              GS
-            </span>{' '}
-            {fmtNum((hovered ?? active).gsKt, 1)} kt
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
