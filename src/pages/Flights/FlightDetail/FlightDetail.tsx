@@ -337,23 +337,57 @@ export default function FlightDetail() {
         className="flightDetail-side min-w-0 space-y-4 lg:h-[calc(100vh-12rem)] lg:overflow-y-auto lg:pr-1"
         style={{ scrollbarGutter: 'stable' }}>
         <div>
-          <div className="flightDetail-date text-sm font-semibold text-[var(--muted)]">
-            {flight.dateISO}
-          </div>
-          <h1 className="flightDetail-title mt-1 text-2xl font-extrabold tracking-tight">
-            {flight.aircraftTail} — {flight.from} → {flight.to}
-          </h1>
-          <div className="flightDetail-tags mt-3 flex flex-wrap gap-2">
-            <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[color:var(--panel2)] px-3 py-1 text-sm font-semibold">
-              {hrs} hrs
-            </span>
-            {flight.tags.map((t) => (
-              <span
-                key={t}
-                className="inline-flex items-center rounded-full border border-[color:rgba(58,169,255,0.25)] bg-[color:rgba(58,169,255,0.12)] px-3 py-1 text-sm font-semibold">
-                {t}
-              </span>
-            ))}
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <div className="flightDetail-date text-sm font-semibold text-[var(--muted)]">
+                {flight.dateISO}
+              </div>
+              <h1 className="flightDetail-title mt-1 text-2xl font-extrabold tracking-tight">
+                {flight.aircraftTail} — {flight.from} → {flight.to}
+              </h1>
+              <div className="flightDetail-tags mt-3 flex flex-wrap gap-2">
+                <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[color:var(--panel2)] px-3 py-1 text-sm font-semibold">
+                  {hrs} hrs
+                </span>
+                {flight.tags.map((t) => (
+                  <span
+                    key={t}
+                    className="inline-flex items-center rounded-full border border-[color:rgba(58,169,255,0.25)] bg-[color:rgba(58,169,255,0.12)] px-3 py-1 text-sm font-semibold">
+                    {t}
+                  </span>
+                ))}
+              </div>
+              {deleteError && (
+                <div className="error mt-2 text-sm text-red-400">
+                  {deleteError}
+                </div>
+              )}
+            </div>
+
+            <button
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[color:rgba(255,84,84,0.25)] bg-[color:rgba(255,84,84,0.08)] text-[color:rgba(255,84,84,0.95)] hover:bg-[color:rgba(255,84,84,0.12)] disabled:cursor-not-allowed disabled:opacity-60"
+              type="button"
+              aria-label="Delete flight"
+              title="Delete flight"
+              onClick={() => setConfirmDelete(true)}
+              disabled={deleting}>
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round">
+                <path d="M3 6h18" />
+                <path d="M8 6V4h8v2" />
+                <path d="M19 6l-1 14H6L5 6" />
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -639,24 +673,6 @@ export default function FlightDetail() {
           {samplesError && (
             <div className="error flightDetail-mtSm mt-2 text-sm text-red-400">
               {samplesError}
-            </div>
-          )}
-        </div>
-
-        <div className="card flightDetail-danger rounded-2xl border border-[color:rgba(255,84,84,0.25)] bg-[color:rgba(255,84,84,0.08)] p-4 shadow-[var(--shadow)]">
-          <div className="flightDetail-dangerTitle text-base font-bold">
-            Danger Zone
-          </div>
-          <button
-            className="btn-danger mt-3 inline-flex h-11 items-center justify-center rounded-xl border border-[color:rgba(255,84,84,0.35)] bg-[color:rgba(255,84,84,0.14)] px-4 font-semibold text-[color:rgba(255,84,84,0.95)] hover:bg-[color:rgba(255,84,84,0.18)] disabled:cursor-not-allowed disabled:opacity-60"
-            type="button"
-            onClick={() => setConfirmDelete(true)}
-            disabled={deleting}>
-            Delete Flight
-          </button>
-          {deleteError && (
-            <div className="error flightDetail-mtSm mt-2 text-sm text-red-400">
-              {deleteError}
             </div>
           )}
         </div>
