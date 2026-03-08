@@ -110,8 +110,11 @@ export default function ImportFlightDataModal({open, parsed, onClose}: { open: b
         'FORE_FLIGHT',
         p.file,
       );
-      const feature = saved.feature;
-      feature.properties = {...(feature.properties ?? {}), id: updated.id};
+      const baseFeature = saved.feature;
+      const feature = {
+        ...baseFeature,
+        properties: { ...(baseFeature.properties ?? {}), id: updated.id },
+      } as any;
       
       dispatch({
         type: 'UPSERT_FLIGHT',
@@ -187,8 +190,11 @@ export default function ImportFlightDataModal({open, parsed, onClose}: { open: b
         'FORE_FLIGHT',
         p.file,
       );
-      const feature = saved.feature;
-      feature.properties = {...(feature.properties ?? {}), id: flight.id};
+      const baseFeature = saved.feature;
+      const feature = {
+        ...baseFeature,
+        properties: { ...(baseFeature.properties ?? {}), id: flight.id },
+      } as any;
       
       dispatch({
         type: 'UPSERT_FLIGHT',

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap, Marker } from 'react-leaflet';
 import type { Feature, FeatureCollection, LineString } from 'geojson';
 import L from 'leaflet';
@@ -98,7 +98,7 @@ function CursorMarker({
   return <Marker position={[cursor.lat, cursor.lng]} icon={icon} />;
 }
 
-export default function MapView({
+function MapView({
   tracks,
   selectedId,
   height = '100%',
@@ -111,7 +111,29 @@ export default function MapView({
 }: Props) {
   const selected = tracks.find((t) => t.id === selectedId);
   
-  const collection: FeatureCollection = useMemo(() => ({type: 'FeatureCollection', features: tracks.map((t) => t.feature)}), [tracks]);
+  const collection: FeatureCollection = useMemo(
+    () => ({ type: 'FeatureCollection', features: tracks.map((t) => t.feature) }),
+    [tracks],
+  );
+
+  const geoJsonStyle = useCallback(
+    (feature: any) => {
+      const id = feature?.properties?.id;
+      const isSelected = selectedId && id && id === selectedId;
+      return { weight: isSelected ? 4 : 3, opacity: isSelected ? 1 : 0.65 };
+    },
+    [selectedId],
+  );
+
+  const geoJsonEvents = useMemo(
+    () => ({
+      click: (e: any) => {
+        const id = (e.propagatedFrom?.feature?.properties as any)?.id;
+        if (id && onSelect) onSelect(id);
+      },
+    }),
+    [onSelect],
+  );
   
   return (
     <div className="map-wrap" style={{height}}>
@@ -119,6 +141,7 @@ export default function MapView({
         center={[37.5, -122.1]}
         zoom={9}
         scrollWheelZoom
+        preferCanvas
         className="map">
         <InvalidateSize invalidateKey={invalidateKey} />
         <TileLayer
@@ -127,17 +150,9 @@ export default function MapView({
         
         <GeoJSON
           data={collection}
-          style={(feature) => {
-            const id = (feature?.properties as any)?.id;
-            const isSelected = selectedId && id && id === selectedId;
-            return {weight: isSelected ? 4 : 3, opacity: isSelected ? 1 : 0.65};
-          }}
-          eventHandlers={{
-            click: (e) => {
-              const id = (e.propagatedFrom?.feature?.properties as any)?.id;
-              if (id && onSelect) onSelect(id);
-            }
-          }}/>
+          style={geoJsonStyle}
+          eventHandlers={geoJsonEvents}
+        />
         
         {cursor && cursorLabelLines && cursorLabelLines.length > 0 ? (
           <CursorMarker
@@ -152,3 +167,5 @@ export default function MapView({
     </div>
   );
 }
+
+export default React.memo(MapView);
