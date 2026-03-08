@@ -16,6 +16,7 @@ import type { TrackSample } from '@/lib/api/flight.api';
 import TrackChart from '@/components/track/TrackChart';
 import Modal from '@/components/ui/Modal';
 import LexicalEditor from '@/components/richtext/LexicalEditor';
+import { fmtFlightTimeRange } from '@/lib/utils/flightTimeFormat';
 import './FlightDetail.scss';
 
 function fmtNum(n: number | null | undefined, digits = 0) {
@@ -26,47 +27,6 @@ function fmtNum(n: number | null | undefined, digits = 0) {
 function fmtInt(n: number | null | undefined) {
   if (n == null || !Number.isFinite(n)) return '—';
   return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
-}
-
-function fmtZuluTime(iso: string | null | undefined) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  if (!Number.isFinite(d.getTime())) return '—';
-  const hhmm = d.toLocaleTimeString('en-US', {
-    timeZone: 'UTC',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
-  return `${hhmm}Z`;
-}
-
-function fmtTimeInZone(
-  iso: string | null | undefined,
-  timeZone?: string | null,
-) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  if (!Number.isFinite(d.getTime())) return '—';
-  return d.toLocaleTimeString('en-US', {
-    timeZone: timeZone || undefined,
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-}
-
-function fmtTzAbbrev(
-  iso: string | null | undefined,
-  timeZone?: string | null,
-) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  if (!Number.isFinite(d.getTime())) return '—';
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: timeZone || undefined,
-    timeZoneName: 'short',
-  }).formatToParts(d);
-  return parts.find((p) => p.type === 'timeZoneName')?.value ?? '—';
 }
 
 function bearingDeg(from: { lat: number; lng: number }, to: { lat: number; lng: number }) {
@@ -429,28 +389,11 @@ export default function FlightDetail() {
             <div className="flightDetail-kv flex justify-between gap-4">
               <span className="muted text-[var(--muted)]">Time</span>
               <span className="font-semibold">
-                {fmtZuluTime(flight.startTimeISO)} → {fmtZuluTime(flight.endTimeISO)}{' '}
-                {(() => {
-                  const startLocal = fmtTimeInZone(
-                    flight.startTimeISO,
-                    departureTimeZone,
-                  );
-                  const endLocal = fmtTimeInZone(
-                    flight.endTimeISO,
-                    departureTimeZone,
-                  );
-                  const tzStart = fmtTzAbbrev(
-                    flight.startTimeISO,
-                    departureTimeZone,
-                  );
-                  const tzEnd = fmtTzAbbrev(
-                    flight.endTimeISO,
-                    departureTimeZone,
-                  );
-                  if (tzStart !== '—' && tzStart === tzEnd)
-                    return `(${startLocal} → ${endLocal} ${tzStart})`;
-                  return `(${startLocal} ${tzStart} → ${endLocal} ${tzEnd})`;
-                })()}
+                {fmtFlightTimeRange(
+                  flight.startTimeISO,
+                  flight.endTimeISO,
+                  departureTimeZone,
+                )}
               </span>
             </div>
             <div className="flightDetail-kv flex justify-between gap-4">
