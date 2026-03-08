@@ -28,6 +28,19 @@ function fmtInt(n: number | null | undefined) {
   return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
 }
 
+function fmtZuluTime(iso: string | null | undefined) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return '—';
+  const hhmm = d.toLocaleTimeString('en-US', {
+    timeZone: 'UTC',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  return `${hhmm}Z`;
+}
+
 function bearingDeg(from: { lat: number; lng: number }, to: { lat: number; lng: number }) {
   const toRad = (d: number) => (d * Math.PI) / 180;
   const toDeg = (r: number) => (r * 180) / Math.PI;
@@ -294,8 +307,12 @@ export default function FlightDetail() {
         className="flightDetail-side min-w-0 space-y-4 lg:h-[calc(100vh-12rem)] lg:overflow-y-auto lg:pr-1"
         style={{ scrollbarGutter: 'stable' }}>
         <div>
-          <div className="flightDetail-date text-sm font-semibold text-[var(--muted)]">
-            {flight.dateISO}
+          <div className="flightDetail-date flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-semibold text-[var(--muted)]">
+            <span>{flight.dateISO}</span>
+            <span>
+              Time {fmtZuluTime(flight.startTimeISO)} →{' '}
+              {fmtZuluTime(flight.endTimeISO)}
+            </span>
           </div>
           <h1 className="flightDetail-title mt-1 text-2xl font-extrabold tracking-tight">
             {flight.aircraftTail} — {flight.from} → {flight.to}
