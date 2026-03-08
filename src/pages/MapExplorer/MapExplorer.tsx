@@ -222,7 +222,7 @@ export default function MapExplorer() {
               <div className="text-sm font-bold text-[color:rgba(255,255,255,0.78)]">
                 Comments
               </div>
-              <div className="mt-2 max-h-56 overflow-auto rounded-2xl border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(255,255,255,0.04)] p-3">
+              <div className="mt-2 max-h-56 overflow-auto rounded-2xl border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(255,255,255,0.04)]">
                 {selectedFlight.comments?.trim() ? (
                   <div
                     className={[

@@ -3,11 +3,7 @@ import { Link } from 'react-router-dom';
 import { fmtTimeInZone, fmtTzAbbrev, fmtZuluTime } from '@/lib/utils/flightTimeFormat';
 import './FlightCard.scss';
 
-export default function FlightCard({
-  flight,
-  selected,
-  onDelete,
-}: {
+export default function FlightCard({flight, selected, onDelete}: {
   flight: Flight;
   selected?: boolean;
   onDelete?: (id: string) => void;
@@ -21,7 +17,7 @@ export default function FlightCard({
   const tzStart = fmtTzAbbrev(flight.startTimeISO ?? null, departureTimeZone);
   const tzEnd = fmtTzAbbrev(flight.endTimeISO ?? null, departureTimeZone);
   const description = flight.description?.trim() ? flight.description.trim() : '—';
-
+  
   return (
     <div
       className={[
@@ -37,7 +33,7 @@ export default function FlightCard({
             TAIL # <span className="text-[color:var(--text)]">{flight.aircraftTail}</span>
           </div>
         </div>
-
+        
         <div
           className="min-w-0 text-right text-sm font-semibold leading-snug text-[color:var(--text)]"
           style={{
@@ -49,8 +45,8 @@ export default function FlightCard({
           {description}
         </div>
       </div>
-
-      <div className="mt-3 grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)] items-start gap-4">
+      
+      <div className="mt-3 flex items-center justify-between">
         <div className="min-w-0">
           <div className="text-lg font-extrabold text-[color:var(--text)]">
             {startLocal}{' '}
@@ -58,8 +54,8 @@ export default function FlightCard({
           </div>
           <div className="text-xs font-semibold text-[var(--muted)]">{startZulu}</div>
         </div>
-
-        <div className="pt-1">
+        
+        <div className="pt-1 w-2/5">
           <div className="text-center text-xs font-semibold text-[var(--muted)]">
             {hrs} hrs
           </div>
@@ -67,15 +63,15 @@ export default function FlightCard({
             <div
               className="relative h-1 w-full rounded-full bg-[color:color-mix(in_srgb,var(--accent)_28%,transparent)]"
               aria-hidden="true">
-              <div className="absolute -left-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-[var(--accent)] shadow-[0_0_0_3px_color-mix(in_srgb,var(--accent)_18%,transparent)]" />
-              <div className="absolute -right-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-[var(--accent)] shadow-[0_0_0_3px_color-mix(in_srgb,var(--accent)_18%,transparent)]" />
+              <div className="absolute -left-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-[var(--accent)] shadow-[0_0_0_3px_color-mix(in_srgb,var(--accent)_18%,transparent)]"/>
+              <div className="absolute -right-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-[var(--accent)] shadow-[0_0_0_3px_color-mix(in_srgb,var(--accent)_18%,transparent)]"/>
             </div>
           </div>
           <div className="mt-2 text-center text-xs font-semibold text-[var(--muted)]">
             {flight.dateISO}
           </div>
         </div>
-
+        
         <div className="min-w-0 text-right">
           <div className="text-lg font-extrabold text-[color:var(--text)]">
             {endLocal}{' '}
@@ -84,7 +80,7 @@ export default function FlightCard({
           <div className="text-xs font-semibold text-[var(--muted)]">{endZulu}</div>
         </div>
       </div>
-
+      
       <div className="mt-4 flex items-center justify-between border-t border-[var(--border)] pt-3">
         <div className="flex flex-wrap gap-2">
           {flight.tags.map((t) => (
@@ -95,7 +91,7 @@ export default function FlightCard({
             </span>
           ))}
         </div>
-
+        
         <div className="flex items-center gap-2">
           {onDelete && (
             <button
@@ -114,11 +110,11 @@ export default function FlightCard({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round">
-                <path d="M3 6h18" />
-                <path d="M8 6V4h8v2" />
-                <path d="M19 6l-1 14H6L5 6" />
-                <path d="M10 11v6" />
-                <path d="M14 11v6" />
+                <path d="M3 6h18"/>
+                <path d="M8 6V4h8v2"/>
+                <path d="M19 6l-1 14H6L5 6"/>
+                <path d="M10 11v6"/>
+                <path d="M14 11v6"/>
               </svg>
             </button>
           )}
@@ -136,7 +132,7 @@ export default function FlightCard({
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round">
-              <path d="M9 18l6-6-6-6" />
+              <path d="M9 18l6-6-6-6"/>
             </svg>
           </Link>
         </div>

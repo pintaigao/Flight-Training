@@ -9,7 +9,7 @@ import * as FlightApi from '@/lib/api/flight.api';
 import './Flights.scss';
 
 export default function Flights() {
-  const { state, dispatch } = useStore();
+  const {state, dispatch} = useStore();
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
@@ -22,13 +22,13 @@ export default function Flights() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-
+  
   const flights = useMemo(() => {
     const list = state.flights.flightIds.map(
       (id) => state.flights.flightsById[id],
     );
     const q = state.ui.filters.q.trim().toLowerCase();
-
+    
     return list.filter((f) => {
       if (
         state.ui.filters.aircraft !== 'ALL' &&
@@ -46,7 +46,7 @@ export default function Flights() {
       return hay.includes(q);
     });
   }, [state]);
-
+  
   return (
     <div className="flightsPage space-y-6">
       <div className="flightsHead flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
@@ -58,7 +58,7 @@ export default function Flights() {
             Browse flights and open a flight to add notes
           </div>
         </div>
-
+        
         <div className="flightsActions flex items-center gap-3">
           <button
             className="btn-primary inline-flex h-11 items-center justify-center rounded-xl bg-[var(--accent)] px-4 font-semibold text-white hover:bg-[var(--accent2)]"
@@ -73,7 +73,7 @@ export default function Flights() {
             ref={fileRef}
             type="file"
             accept=".kml,application/vnd.google-earth.kml+xml,text/xml"
-            style={{ display: 'none' }}
+            style={{display: 'none'}}
             onChange={async (e) => {
               const file = e.target.files?.[0];
               if (!file) return;
@@ -96,7 +96,7 @@ export default function Flights() {
           />
         </div>
       </div>
-
+      
       {(importError || deleteError) && (
         <div className="space-y-2">
           {importError && (
@@ -107,9 +107,9 @@ export default function Flights() {
           )}
         </div>
       )}
-
-      <FlightFilters />
-
+      
+      <FlightFilters/>
+      
       <div className="flightsList grid grid-cols-1 gap-3 sm:grid-cols-2">
         {flights.map((f) => (
           <FlightCard
@@ -119,7 +119,7 @@ export default function Flights() {
             onDelete={(id) => {
               setDeleteError(null);
               setDeleteId(id);
-            }} />
+            }}/>
         ))}
         {flights.length === 0 && (
           <div className="muted text-sm text-[var(--muted)]">
@@ -127,7 +127,7 @@ export default function Flights() {
           </div>
         )}
       </div>
-
+      
       {/* prettier-ignore */}
       <ImportFlightDataModal
         open={importOpen}
@@ -135,8 +135,8 @@ export default function Flights() {
         onClose={() => {
           setImportOpen(false);
           setParsed(null);
-        }} />
-
+        }}/>
+      
       {/* prettier-ignore */}
       <ConfirmModal
         open={!!deleteId}
@@ -157,7 +157,7 @@ export default function Flights() {
             await FlightApi.deleteFlight(deleteId);
             setDeleteId(null);
             // optimistic local update
-            dispatch({ type: 'DELETE_FLIGHT', id: deleteId });
+            dispatch({type: 'DELETE_FLIGHT', id: deleteId});
           } catch (e: any) {
             setDeleteError(
               e?.body?.message || e?.message || 'Failed to delete flight',
@@ -165,7 +165,7 @@ export default function Flights() {
           } finally {
             setDeleting(false);
           }
-        }} />
+        }}/>
     </div>
   );
 }
