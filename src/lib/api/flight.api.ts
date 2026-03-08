@@ -36,6 +36,15 @@ export function patchFlightDescription(id: string, description: string) {
     .then((res) => res.data);
 }
 
+export function patchFlightComment(id: string, comment: string) {
+  return http
+    .patch<{ id: string; comments: string }>(
+      `/flight/${encodeURIComponent(id)}/comment`,
+      { comment },
+    )
+    .then((res) => res.data);
+}
+
 export function upsertFlightTrack(
   id: string,
   source: FlightTrackSource,

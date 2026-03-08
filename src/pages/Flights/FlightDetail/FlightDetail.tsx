@@ -18,30 +18,23 @@ function fmtNum(n: number | null | undefined, digits = 0) {
 
 function fmtInt(n: number | null | undefined) {
   if (n == null || !Number.isFinite(n)) return '—';
-  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
+  return new Intl.NumberFormat('en-US', {maximumFractionDigits: 0}).format(n);
 }
 
 function bearingDeg(from: { lat: number; lng: number }, to: { lat: number; lng: number }) {
-  const toRad = (d: number) => (d * Math.PI) / 180;
-  const toDeg = (r: number) => (r * 180) / Math.PI;
-  const lat1 = toRad(from.lat);
-  const lat2 = toRad(to.lat);
-  const dLon = toRad(to.lng - from.lng);
-  const y = Math.sin(dLon) * Math.cos(lat2);
-  const x =
-    Math.cos(lat1) * Math.sin(lat2) -
-    Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-  const brng = (toDeg(Math.atan2(y, x)) + 360) % 360;
-  return brng;
+  const toRad = (d: number) => (d * Math.PI) / 180, toDeg = (r: number) => (r * 180) / Math.PI;
+  const lat1 = toRad(from.lat), lat2 = toRad(to.lat), dLon = toRad(to.lng - from.lng);
+  const y = Math.sin(dLon) * Math.cos(lat2), x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
 }
 
 export default function FlightDetail() {
-  const { id } = useParams();
+  const {id} = useParams();
   const nav = useNavigate();
-  const { state, dispatch } = useStore();
+  const {state, dispatch} = useStore();
   const flight = id ? state.flights.flightsById[id] : undefined;
   const flightId = flight?.id ?? null;
-
+  
   const [error, setError] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -56,7 +49,7 @@ export default function FlightDetail() {
   const [descDraft, setDescDraft] = useState('');
   const [savingDesc, setSavingDesc] = useState(false);
   const [descError, setDescError] = useState<string | null>(null);
-
+  
   const [samples, setSamples] = useState<FlightApi.TrackSample[] | null>(null);
   const [samplesError, setSamplesError] = useState<string | null>(null);
   const [loadingSamples, setLoadingSamples] = useState(false);
@@ -64,94 +57,76 @@ export default function FlightDetail() {
   const [playing, setPlaying] = useState(false);
   const [pointsPerSec, setPointsPerSec] = useState(10);
   const timerRef = useRef<number | null>(null);
-  const [chartPlacement, setChartPlacement] = useState<'below' | 'overlay'>(
-    'overlay',
-  );
-
+  const [chartPlacement, setChartPlacement] = useState<'below' | 'overlay'>('overlay');
+  
   const tracks = useMemo(() => {
     if (!flight?.track) return [];
-
-    return [
-      {
-        id: (flight.track.properties as any)?.id || flight.id,
-        title: `${flight.from} → ${flight.to}`,
-        subtitle: flight.dateISO,
-        feature: flight.track,
-      },
-    ];
+    
+    return [{
+      id: (flight.track.properties as any)?.id || flight.id,
+      title: `${flight.from} → ${flight.to}`,
+      subtitle: flight.dateISO,
+      feature: flight.track,
+    }];
   }, [flight]);
-
+  
   const departureTimeZone = (flight as any)?.trackMeta?.departureTimeZone ?? null;
-
-  const activeSample =
-    samples && samples.length
-      ? samples[Math.min(cursorIdx, samples.length - 1)]
-      : null;
-  const cursor = activeSample
-    ? { lat: activeSample.lat, lng: activeSample.lng }
-    : null;
-  const cursorHeadingDeg =
-    activeSample && samples && samples.length > 1
-      ? (() => {
-          const idx = Math.min(cursorIdx, samples.length - 1);
-          const prev = idx > 0 ? samples[idx - 1] : samples[idx + 1];
-          if (!prev) return null;
-          return bearingDeg(
-            { lat: prev.lat, lng: prev.lng },
-            { lat: activeSample.lat, lng: activeSample.lng },
-          );
-        })()
-      : null;
-  const cursorLabelLines =
-    activeSample && flight
-      ? [
-          flight.aircraftTail,
-          `${fmtInt(activeSample.altAglFt)} ft  ${fmtInt(activeSample.gsKt)} kts`,
-          new Date(activeSample.t).toLocaleTimeString('en-US', {
-            timeZone: 'America/Chicago',
-            hour: 'numeric',
-            minute: '2-digit',
-          }),
-          `${flight.from}  ${flight.to}`,
-        ]
-      : null;
-
+  
+  const activeSample = samples && samples.length ? samples[Math.min(cursorIdx, samples.length - 1)] : null;
+  const cursor = activeSample ? {lat: activeSample.lat, lng: activeSample.lng} : null;
+  const cursorHeadingDeg = activeSample && samples && samples.length > 1 ? (() => {
+    const idx = Math.min(cursorIdx, samples.length - 1);
+    const prev = idx > 0 ? samples[idx - 1] : samples[idx + 1];
+    if (!prev) return null;
+    return bearingDeg(
+      {lat: prev.lat, lng: prev.lng},
+      {lat: activeSample.lat, lng: activeSample.lng},
+    );
+  })() : null;
+  
+  const cursorLabelLines = activeSample && flight ? [
+    flight.aircraftTail,
+    `${fmtInt(activeSample.altAglFt)} ft  ${fmtInt(activeSample.gsKt)} kts`,
+    new Date(activeSample.t).toLocaleTimeString('en-US', {
+      timeZone: 'America/Chicago',
+      hour: 'numeric',
+      minute: '2-digit',
+    }),
+    `${flight.from}  ${flight.to}`,
+  ] : null;
+  
   useEffect(() => {
     if (!playing) return;
     if (!samples || samples.length === 0) return;
-
+    
     timerRef.current = window.setInterval(() => {
       setCursorIdx((idx) => {
         const next = idx + Math.max(1, Math.floor(pointsPerSec || 1));
-
+        
         if (next >= samples.length - 1) {
           window.clearInterval(timerRef.current ?? undefined);
           timerRef.current = null;
           setPlaying(false);
           return samples.length - 1;
         }
-
+        
         return next;
       });
     }, 1000);
-
+    
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current);
-
+      
       timerRef.current = null;
     };
   }, [playing, pointsPerSec, samples]);
-
+  
   useEffect(() => {
     if (!flightId) return;
     // stop playback when flight changes + auto-load replay data
-
+    
     let cancelled = false;
-    setPlaying(false);
-    setCursorIdx(0);
-    setSamples(null);
-    setSamplesError(null);
-    setLoadingSamples(true);
+    setPlaying(false), setCursorIdx(0), setSamples(null), setSamplesError(null), setLoadingSamples(true);
     (async () => {
       try {
         const res = await FlightApi.getFlightTrackSamples(flightId, 'FORE_FLIGHT');
@@ -161,44 +136,40 @@ export default function FlightDetail() {
       } catch (e: any) {
         if (cancelled) return;
         setSamples(null);
-        setSamplesError(
-          e?.body?.message || e?.message || 'Failed to load samples',
-        );
+        setSamplesError(e?.body?.message || e?.message || 'Failed to load samples');
       } finally {
         if (cancelled) return;
-
+        
         setLoadingSamples(false);
       }
     })();
-
-    return () => {
-      cancelled = true;
-    };
+    
+    return () => {cancelled = true;};
   }, [flightId]);
-
+  
   async function saveToDb(nextComments?: string) {
     if (!flight) return;
-
+    
     setSaveError(null);
     setSavingFlight(true);
-
+    
     try {
-      const comments = nextComments ?? flight.comments ?? '';
-      await FlightApi.upsertFlight(flight.id, {
-        dateISO: flight.dateISO,
-        startTimeISO: flight.startTimeISO ?? null,
-        endTimeISO: flight.endTimeISO ?? null,
-        aircraftTail: flight.aircraftTail,
-        from: flight.from,
-        to: flight.to,
-        durationMin: flight.durationMin,
-        description: flight.description ?? null,
-        tags: flight.tags,
-        comments,
-      });
-
       if (nextComments != null) {
-        dispatch({ type: 'UPDATE_COMMENTS', id: flight.id, comments });
+        const res = await FlightApi.patchFlightComment(flight.id, nextComments);
+        dispatch({type: 'UPDATE_COMMENTS', id: flight.id, comments: res.comments});
+      } else {
+        await FlightApi.upsertFlight(flight.id, {
+          dateISO: flight.dateISO,
+          startTimeISO: flight.startTimeISO ?? null,
+          endTimeISO: flight.endTimeISO ?? null,
+          aircraftTail: flight.aircraftTail,
+          from: flight.from,
+          to: flight.to,
+          durationMin: flight.durationMin,
+          description: flight.description ?? null,
+          tags: flight.tags,
+          comments: flight.comments ?? '',
+        });
       }
       setLastSavedAt(new Date().toISOString());
       return true;
@@ -209,7 +180,7 @@ export default function FlightDetail() {
       setSavingFlight(false);
     }
   }
-
+  
   if (!flight) {
     return (
       <div className="card flightDetail-notFound rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-6 shadow-[var(--shadow)]">
@@ -227,10 +198,10 @@ export default function FlightDetail() {
       </div>
     );
   }
-
+  
   const hrs = (flight.durationMin / 60).toFixed(1);
   const hasChart = !!(samples && samples.length > 0);
-
+  
   return (
     <div className="flightDetail grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.9fr)]">
       <div className="flightDetail-main min-w-0 space-y-3 lg:flex lg:h-[calc(100vh-12rem)] lg:flex-col lg:gap-3 lg:space-y-0">
@@ -258,7 +229,7 @@ export default function FlightDetail() {
               </div>
             </div>
           )}
-
+          
           {chartPlacement === 'overlay' && hasChart && (
             <div className="flightDetail-chartOverlay pointer-events-none absolute inset-x-4 bottom-4 z-[2000] overflow-hidden rounded-2xl border border-[var(--border)] bg-[color:rgba(10,16,28,0.55)] shadow-[var(--shadow)] backdrop-blur">
               <div className="flightDetail-chartOverlayInner pointer-events-auto">
@@ -272,7 +243,7 @@ export default function FlightDetail() {
             </div>
           )}
         </div>
-
+        
         {chartPlacement === 'below' && hasChart && (
           <div className="flightDetail-chartBelow overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--panel)] shadow-[var(--shadow)] lg:h-[220px] lg:shrink-0">
             <TrackChart
@@ -284,10 +255,10 @@ export default function FlightDetail() {
           </div>
         )}
       </div>
-
+      
       <div
         className="flightDetail-side min-w-0 space-y-4 lg:h-[calc(100vh-12rem)] lg:overflow-y-auto lg:pr-1"
-        style={{ scrollbarGutter: 'stable' }}>
+        style={{scrollbarGutter: 'stable'}}>
         <div>
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
@@ -315,7 +286,7 @@ export default function FlightDetail() {
                 </div>
               )}
             </div>
-
+            
             <button
               className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[color:rgba(255,84,84,0.25)] bg-[color:rgba(255,84,84,0.08)] text-[color:rgba(255,84,84,0.95)] hover:bg-[color:rgba(255,84,84,0.12)] disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
@@ -333,16 +304,16 @@ export default function FlightDetail() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round">
-                <path d="M3 6h18" />
-                <path d="M8 6V4h8v2" />
-                <path d="M19 6l-1 14H6L5 6" />
-                <path d="M10 11v6" />
-                <path d="M14 11v6" />
+                <path d="M3 6h18"/>
+                <path d="M8 6V4h8v2"/>
+                <path d="M19 6l-1 14H6L5 6"/>
+                <path d="M10 11v6"/>
+                <path d="M14 11v6"/>
               </svg>
             </button>
           </div>
         </div>
-
+        
         <div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
           <div className="flex items-start justify-between gap-3">
             <div className="card-title text-base font-bold">Flight Details</div>
@@ -366,8 +337,8 @@ export default function FlightDetail() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round">
-                <path d="M12 20h9" />
-                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>
               </svg>
             </button>
           </div>
@@ -399,7 +370,7 @@ export default function FlightDetail() {
               </span>
             </div>
           </div>
-
+          
           <div className="flightDetail-mtMd mt-4">
             <label className="inline-flex cursor-pointer">
               <span className="btn inline-flex h-11 items-center justify-center rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-4 font-semibold hover:bg-[color:var(--panel)]">
@@ -408,7 +379,7 @@ export default function FlightDetail() {
               <input
                 type="file"
                 accept=".gpx,.kml,application/gpx+xml,application/vnd.google-earth.kml+xml,text/xml"
-                style={{ display: 'none' }}
+                style={{display: 'none'}}
                 disabled={importing}
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
@@ -436,7 +407,7 @@ export default function FlightDetail() {
                         null;
                       const endTimeISO =
                         (meta as any)?.endTimeISO ?? flight.endTimeISO ?? null;
-
+                      
                       const updated = {
                         ...flight,
                         startTimeISO,
@@ -444,8 +415,8 @@ export default function FlightDetail() {
                         trackMeta: meta,
                         trackSource: saved.source,
                       };
-                      dispatch({ type: 'UPSERT_FLIGHT', flight: updated });
-                      dispatch({ type: 'IMPORT_TRACK', id: flight.id, track });
+                      dispatch({type: 'UPSERT_FLIGHT', flight: updated});
+                      dispatch({type: 'IMPORT_TRACK', id: flight.id, track});
                       await FlightApi.upsertFlight(flight.id, {
                         dateISO: updated.dateISO,
                         startTimeISO: updated.startTimeISO ?? null,
@@ -460,7 +431,7 @@ export default function FlightDetail() {
                       });
                       return;
                     }
-
+                    
                     const track = await readGpxAsLineString(file);
                     track.properties = {
                       ...(track.properties ?? {}),
@@ -469,7 +440,7 @@ export default function FlightDetail() {
                     await FlightApi.upsertFlightTrack(flight.id, 'FORE_FLIGHT', track, {
                       originalFilename: file.name,
                     });
-                    dispatch({ type: 'IMPORT_TRACK', id: flight.id, track });
+                    dispatch({type: 'IMPORT_TRACK', id: flight.id, track});
                   } catch (err: any) {
                     setError(err?.message ?? 'Failed to import track');
                   } finally {
@@ -480,17 +451,17 @@ export default function FlightDetail() {
               />
             </label>
           </div>
-
+          
           {error && (
             <div className="error flightDetail-mtSm mt-2 text-sm text-red-400">
               {error}
             </div>
           )}
         </div>
-
+        
         <div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
           <div className="card-title text-base font-bold">Replay</div>
-
+          
           <div className="flightDetail-actions mt-3 flex flex-wrap items-center gap-2">
             <button
               className="btn-primary inline-flex h-11 items-center justify-center rounded-xl bg-[var(--accent)] px-4 font-semibold text-white hover:bg-[var(--accent2)] disabled:cursor-not-allowed disabled:opacity-60"
@@ -506,7 +477,7 @@ export default function FlightDetail() {
               onClick={() => setCursorIdx(0)}>
               Reset
             </button>
-
+            
             <div className="flightDetail-actionsRight ml-auto flex items-center gap-2">
               <div className="flightDetail-pointsLabel text-sm text-[var(--muted)]">
                 Points/sec
@@ -521,12 +492,12 @@ export default function FlightDetail() {
                 }
               />
             </div>
-
+            
             {loadingSamples && (
               <div className="muted text-sm text-[var(--muted)]">Loading…</div>
             )}
           </div>
-
+          
           <div className="flightDetail-radioRow mt-4 flex flex-wrap items-center gap-4">
             <div className="muted text-sm text-[var(--muted)]">Chart placement</div>
             <label className="flightDetail-radioLabel flex items-center gap-2 text-sm font-semibold">
@@ -546,7 +517,7 @@ export default function FlightDetail() {
               <span>Overlay</span>
             </label>
           </div>
-
+          
           <div className="flightDetail-mtMd mt-4">
             {samples && samples.length > 0 ? (
               <>
@@ -604,14 +575,14 @@ export default function FlightDetail() {
               </div>
             )}
           </div>
-
+          
           {samplesError && (
             <div className="error flightDetail-mtSm mt-2 text-sm text-red-400">
               {samplesError}
             </div>
           )}
         </div>
-
+        
         <div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
           <div className="flightDetail-cardHead flex items-center justify-between gap-4">
             <div className="card-title flightDetail-cardTitle">Comments</div>
@@ -626,7 +597,7 @@ export default function FlightDetail() {
               Edit
             </button>
           </div>
-
+          
           <div className="mt-3">
             {flight.comments ? (
               <LexicalEditor
@@ -639,7 +610,7 @@ export default function FlightDetail() {
               <div className="muted text-sm text-[var(--muted)]">No comments yet.</div>
             )}
           </div>
-
+          
           {lastSavedAt && (
             <div className="muted flightDetail-mtMd mt-3 text-sm text-[var(--muted)]">
               Saved:{' '}
@@ -650,7 +621,7 @@ export default function FlightDetail() {
           )}
         </div>
       </div>
-
+      
       <Modal
         open={commentsOpen}
         title="Edit Comments"
@@ -666,7 +637,7 @@ export default function FlightDetail() {
           disabled={savingFlight}
         />
         {saveError && <div className="error text-sm text-red-400">{saveError}</div>}
-        <div className="h-4" />
+        <div className="h-4"/>
         <div className="flightDetail-actions flightDetail-actionsEnd flex justify-end gap-2">
           <button
             className="btn inline-flex h-11 items-center justify-center rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-4 font-semibold hover:bg-[color:var(--panel)] disabled:cursor-not-allowed disabled:opacity-60"
@@ -687,7 +658,7 @@ export default function FlightDetail() {
           </button>
         </div>
       </Modal>
-
+      
       <Modal
         open={descOpen}
         title="Edit Description"
@@ -705,7 +676,7 @@ export default function FlightDetail() {
           onChange={(e) => setDescDraft(e.target.value)}
         />
         {descError && <div className="mt-2 text-sm text-red-400">{descError}</div>}
-        <div className="h-4" />
+        <div className="h-4"/>
         <div className="flex justify-end gap-2">
           <button
             className="inline-flex h-11 items-center justify-center rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-4 font-semibold hover:bg-[color:var(--panel)] disabled:cursor-not-allowed disabled:opacity-60"
@@ -725,7 +696,7 @@ export default function FlightDetail() {
                 const res = await FlightApi.patchFlightDescription(flight.id, descDraft);
                 dispatch({
                   type: 'UPSERT_FLIGHT',
-                  flight: { ...flight, description: res.description },
+                  flight: {...flight, description: res.description},
                 });
                 setDescOpen(false);
               } catch (e: any) {
@@ -740,7 +711,7 @@ export default function FlightDetail() {
           </button>
         </div>
       </Modal>
-
+      
       <ConfirmModal
         open={confirmDelete}
         title="Delete flight?"
@@ -757,7 +728,7 @@ export default function FlightDetail() {
           setDeleting(true);
           try {
             await FlightApi.deleteFlight(flight.id);
-            dispatch({ type: 'DELETE_FLIGHT', id: flight.id });
+            dispatch({type: 'DELETE_FLIGHT', id: flight.id});
             setConfirmDelete(false);
             nav('/flights');
           } catch (e: any) {
