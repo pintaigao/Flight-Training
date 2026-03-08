@@ -6,14 +6,12 @@ import type { TrackItem } from '@/components/map/MapView';
 import * as TrackApi from '@/lib/api/track.api';
 import { useLayout } from '@/components/layout/LayoutContext';
 import { fmtFlightTimeRange } from '@/lib/utils/flightTimeFormat';
+import { fmtTimeInZone, fmtTzAbbrev } from '@/lib/utils/flightTimeFormat';
 import './MapExplorer.scss';
 
 export default function MapExplorer() {
   const { toggleSidebarCollapsed } = useLayout();
   const { state } = useStore();
-  const [tail, setTail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [remoteTrack, setRemoteTrack] = useState<TrackItem | null>(null);
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
 
@@ -21,6 +19,11 @@ export default function MapExplorer() {
     () =>
       state.flights.flightIds.map((id) => state.flights.flightsById[id]),
     [state.flights.flightIds, state.flights.flightsById],
+  );
+
+  const flightsWithTracks = useMemo(
+    () => flights.filter((f) => !!f.track),
+    [flights],
   );
 
   const tracks = useMemo(() => {
@@ -42,6 +45,22 @@ export default function MapExplorer() {
   const selectedFlight = selectedFlightId
     ? state.flights.flightsById[selectedFlightId] ?? null
     : null;
+
+  const selectedDepartureTimeZone =
+    (selectedFlight as any)?.trackMeta?.departureTimeZone ?? null;
+
+  function fmtLocalTimeRange(
+    startISO: string | null | undefined,
+    endISO: string | null | undefined,
+    timeZone?: string | null,
+  ) {
+    const startLocal = fmtTimeInZone(startISO ?? null, timeZone);
+    const endLocal = fmtTimeInZone(endISO ?? null, timeZone);
+    const tzStart = fmtTzAbbrev(startISO ?? null, timeZone);
+    const tzEnd = fmtTzAbbrev(endISO ?? null, timeZone);
+    if (tzStart !== '—' && tzStart === tzEnd) return `${startLocal} → ${endLocal} ${tzStart}`;
+    return `${startLocal} ${tzStart} → ${endLocal} ${tzEnd}`;
+  }
 
   return (
     <div className="mapExplorer relative h-full w-full overflow-hidden">
@@ -74,7 +93,7 @@ export default function MapExplorer() {
         </svg>
       </button>
 
-      <div className="absolute bottom-4 left-16 top-4 z-[4000] w-[280px] overflow-hidden rounded-3xl border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(10,16,28,0.72)] shadow-[0_14px_40px_rgba(0,0,0,0.55)] backdrop-blur sm:w-[320px]">
+      <div className="absolute bottom-4 left-4 top-16 z-[4000] w-[280px] overflow-hidden rounded-3xl border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(10,16,28,0.72)] shadow-[0_14px_40px_rgba(0,0,0,0.55)] backdrop-blur sm:w-[320px]">
         <div className="flex items-start justify-between gap-3 border-b border-[color:rgba(255,255,255,0.08)] px-4 py-3">
           <div className="min-w-0">
             <div className="text-sm font-extrabold tracking-tight text-[color:rgba(255,255,255,0.92)]">
@@ -86,67 +105,29 @@ export default function MapExplorer() {
           </div>
         </div>
 
-        <div className="space-y-3 px-4 py-3">
-          <div className="flex items-center gap-2">
-            <input
-              className="h-10 w-full rounded-2xl border border-[color:rgba(255,255,255,0.10)] bg-[color:rgba(255,255,255,0.06)] px-3 text-sm font-semibold text-[color:rgba(255,255,255,0.92)] placeholder:text-[color:rgba(255,255,255,0.48)] focus:outline-none focus:ring-2 focus:ring-[color:rgba(58,169,255,0.45)]"
-              placeholder="Tail number (e.g. N77GX)"
-              value={tail}
-              onChange={(e) => setTail(e.target.value)}
-            />
-            <button
-              className="inline-flex h-10 shrink-0 items-center justify-center rounded-2xl bg-[color:rgba(58,169,255,0.92)] px-3 text-sm font-extrabold text-white hover:bg-[color:rgba(58,169,255,1)] disabled:cursor-not-allowed disabled:opacity-60"
-              type="button"
-              disabled={loading}
-              onClick={async () => {
-                const normalized = tail.trim().toUpperCase();
-                if (!normalized) return;
-                setError(null);
-                setLoading(true);
-                try {
-                  const res = await TrackApi.getRecentTrackByTail(normalized);
-                  const id = `${res.tail}:${res.faFlightId}`;
-                  const feature = res.track;
-                  feature.properties = { ...(feature.properties ?? {}), id };
-                  const item: TrackItem = { id, title: res.tail, feature };
-                  setRemoteTrack(item);
-                  setSelectedFlightId(null);
-                } catch (e: any) {
-                  setRemoteTrack(null);
-                  setError(
-                    e?.body?.message || e?.message || 'Failed to fetch track',
-                  );
-                } finally {
-                  setLoading(false);
-                }
-              }}>
-              {loading ? '…' : 'Go'}
-            </button>
-          </div>
-
-          {error && <div className="text-xs font-semibold text-red-300">{error}</div>}
-        </div>
-
-        <div className="max-h-[calc(100%-8.5rem)] space-y-2 overflow-auto px-3 pb-3">
-          {flights.map((f) => {
+        <div className="max-h-[calc(100%-3.25rem)] space-y-2 overflow-auto px-3 py-3">
+          {flightsWithTracks.map((f) => {
             const active = selectedFlightId === f.id;
+            const departureTimeZone = (f as any)?.trackMeta?.departureTimeZone ?? null;
+            const localRange = fmtLocalTimeRange(
+              f.startTimeISO ?? null,
+              f.endTimeISO ?? null,
+              departureTimeZone,
+            );
             return (
               <button
                 key={f.id}
                 className={[
-                  'w-full rounded-2xl px-3 py-3 text-left transition-colors',
+                  'w-full rounded-3xl px-4 py-3 text-left transition-colors',
                   active
-                    ? 'bg-[color:rgba(58,169,255,0.16)]'
-                    : 'bg-[color:rgba(255,255,255,0.04)] hover:bg-[color:rgba(255,255,255,0.06)]',
+                    ? 'border-2 border-[color:rgba(255,140,70,0.95)] bg-[color:rgba(255,255,255,0.04)]'
+                    : 'border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(255,255,255,0.04)] hover:bg-[color:rgba(255,255,255,0.06)]',
                 ].join(' ')}
                 type="button"
                 onClick={() => setSelectedFlightId(f.id)}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="truncate text-base font-extrabold tracking-tight text-[color:rgba(255,255,255,0.92)]">
-                      {f.from} → {f.to}
-                    </div>
-                    <div className="mt-0.5 truncate text-xs font-semibold text-[color:rgba(255,255,255,0.62)]">
+                    <div className="truncate text-xs font-extrabold tracking-wide text-[color:rgba(255,255,255,0.82)]">
                       TAIL # {f.aircraftTail}
                     </div>
                   </div>
@@ -154,13 +135,39 @@ export default function MapExplorer() {
                     {f.dateISO}
                   </div>
                 </div>
-                <div className="mt-2 text-xs font-semibold text-[color:rgba(255,255,255,0.70)]">
-                  {(f.durationMin / 60).toFixed(1)} hrs
+
+                <div className="mt-2 text-2xl font-black tracking-tight text-[color:rgba(255,255,255,0.94)]">
+                  <span>{f.from}</span>
+                  <span className="mx-2 text-[color:rgba(255,255,255,0.55)]">→</span>
+                  <span>{f.to}</span>
+                </div>
+
+                <div className="relative my-2 h-4">
+                  <div className="absolute left-0 right-0 top-1/2 h-[2px] -translate-y-1/2 bg-[color:rgba(255,255,255,0.14)]" />
+                  <div className="absolute left-0 top-1/2 h-[2px] w-[56%] -translate-y-1/2 bg-[color:rgba(255,140,70,0.95)]" />
+                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[color:rgba(255,255,255,0.92)]">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round">
+                      <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3-1 3 1v-1.5L13 19v-5.5L21 16z" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="text-xs font-semibold text-[color:rgba(255,255,255,0.72)]">
+                  {localRange}
                 </div>
               </button>
             );
           })}
-          {flights.length === 0 && (
+          {flightsWithTracks.length === 0 && (
             <div className="px-3 py-2 text-sm text-[color:rgba(255,255,255,0.62)]">
               No flights yet.
             </div>
@@ -213,7 +220,7 @@ export default function MapExplorer() {
                 {fmtFlightTimeRange(
                   selectedFlight.startTimeISO,
                   selectedFlight.endTimeISO,
-                  (selectedFlight as any)?.trackMeta?.departureTimeZone ?? null,
+                  selectedDepartureTimeZone,
                 )}
               </div>
 
