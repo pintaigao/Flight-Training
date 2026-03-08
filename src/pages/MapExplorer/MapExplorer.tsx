@@ -53,7 +53,7 @@ export default function MapExplorer() {
       />
 
       <button
-        className="absolute left-4 top-4 z-50 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(10,16,28,0.78)] text-[color:rgba(255,255,255,0.92)] shadow-[0_14px_40px_rgba(0,0,0,0.55)] backdrop-blur hover:bg-[color:rgba(10,16,28,0.86)]"
+        className="absolute left-4 top-4 z-[5000] inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(10,16,28,0.78)] text-[color:rgba(255,255,255,0.92)] shadow-[0_14px_40px_rgba(0,0,0,0.55)] backdrop-blur hover:bg-[color:rgba(10,16,28,0.86)]"
         type="button"
         aria-label="Toggle sidebar"
         title="Toggle sidebar"
@@ -74,7 +74,7 @@ export default function MapExplorer() {
         </svg>
       </button>
 
-      <div className="absolute bottom-4 left-16 top-4 z-40 w-[280px] overflow-hidden rounded-3xl border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(10,16,28,0.72)] shadow-[0_14px_40px_rgba(0,0,0,0.55)] backdrop-blur sm:w-[320px]">
+      <div className="absolute bottom-4 left-16 top-4 z-[4000] w-[280px] overflow-hidden rounded-3xl border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(10,16,28,0.72)] shadow-[0_14px_40px_rgba(0,0,0,0.55)] backdrop-blur sm:w-[320px]">
         <div className="flex items-start justify-between gap-3 border-b border-[color:rgba(255,255,255,0.08)] px-4 py-3">
           <div className="min-w-0">
             <div className="text-sm font-extrabold tracking-tight text-[color:rgba(255,255,255,0.92)]">
@@ -169,7 +169,7 @@ export default function MapExplorer() {
       </div>
 
       {selectedFlight && (
-        <div className="absolute bottom-4 right-4 top-4 z-40 w-[360px] overflow-hidden rounded-3xl border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(10,16,28,0.74)] shadow-[0_14px_40px_rgba(0,0,0,0.55)] backdrop-blur">
+        <div className="absolute bottom-4 right-4 top-4 z-[4000] w-[360px] overflow-hidden rounded-3xl border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(10,16,28,0.74)] shadow-[0_14px_40px_rgba(0,0,0,0.55)] backdrop-blur">
           <div className="flex items-start justify-between gap-3 border-b border-[color:rgba(255,255,255,0.08)] px-4 py-3">
             <div className="min-w-0">
               <div className="text-xs font-bold uppercase tracking-wide text-[color:rgba(58,169,255,0.95)]">
