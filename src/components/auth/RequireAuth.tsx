@@ -30,8 +30,9 @@ export default function RequireAuth({
   if (bypass) return <>{children}</>;
 
   // 正常逻辑
-  if (state.auth.status === 'checking') return null;
+  if (state.auth.status === 'checking' || state.auth.status === 'unknown')
+    return null;
   if (!state.auth.user)
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    return <Navigate to="/register" replace state={{ from: location }} />;
   return <>{children}</>;
 }
