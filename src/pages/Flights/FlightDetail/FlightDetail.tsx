@@ -307,12 +307,8 @@ export default function FlightDetail() {
         className="flightDetail-side min-w-0 space-y-4 lg:h-[calc(100vh-12rem)] lg:overflow-y-auto lg:pr-1"
         style={{ scrollbarGutter: 'stable' }}>
         <div>
-          <div className="flightDetail-date flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-semibold text-[var(--muted)]">
-            <span>{flight.dateISO}</span>
-            <span>
-              Time {fmtZuluTime(flight.startTimeISO)} →{' '}
-              {fmtZuluTime(flight.endTimeISO)}
-            </span>
+          <div className="flightDetail-date text-sm font-semibold text-[var(--muted)]">
+            {flight.dateISO}
           </div>
           <h1 className="flightDetail-title mt-1 text-2xl font-extrabold tracking-tight">
             {flight.aircraftTail} — {flight.from} → {flight.to}
@@ -364,6 +360,13 @@ export default function FlightDetail() {
               <span className="muted text-[var(--muted)]">Route</span>
               <span className="font-semibold">
                 {flight.from} → {flight.to}
+              </span>
+            </div>
+            <div className="flightDetail-kv flex justify-between gap-4">
+              <span className="muted text-[var(--muted)]">Time</span>
+              <span className="font-semibold">
+                {fmtZuluTime(flight.startTimeISO)} →{' '}
+                {fmtZuluTime(flight.endTimeISO)}
               </span>
             </div>
             <div className="flightDetail-kv flex justify-between gap-4">
