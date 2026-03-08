@@ -6,6 +6,7 @@ import type { TrackItem } from '@/components/map/MapView';
 import { useLayout } from '@/components/layout/LayoutContext';
 import { fmtFlightTimeRange } from '@/lib/utils/flightTimeFormat';
 import { fmtTimeInZone, fmtTzAbbrev } from '@/lib/utils/flightTimeFormat';
+import LexicalEditor from '@/components/richtext/LexicalEditor';
 import './MapExplorer.scss';
 
 export default function MapExplorer() {
@@ -89,25 +90,16 @@ export default function MapExplorer() {
         </svg>
       </button>
       
-      <div className="absolute bottom-4 left-4 top-16 z-[4000] flex w-[280px] flex-col sm:w-[320px]">
+      <div className="absolute bottom-4 left-4 top-4 z-[4000] flex w-[280px] flex-col sm:w-[320px]">
         <div className="flex-1 space-y-2 overflow-auto px-1 py-2">
           {flightsWithTracks.map((f) => {
             const active = selectedFlightId === f.id;
             const departureTimeZone = (f as any)?.trackMeta?.departureTimeZone ?? null;
-            const localRange = fmtLocalTimeRange(
-              f.startTimeISO ?? null,
-              f.endTimeISO ?? null,
-              departureTimeZone,
-            );
+            const localRange = fmtLocalTimeRange(f.startTimeISO ?? null, f.endTimeISO ?? null, departureTimeZone);
             return (
               <button
                 key={f.id}
-                className={[
-                  'w-full rounded-3xl px-4 py-3 text-left shadow-[0_10px_26px_rgba(0,0,0,0.35)] backdrop-blur transition-colors',
-                  active
-                    ? 'border-2 border-[color:rgba(255,140,70,0.95)] bg-[color:rgba(10,16,28,0.72)]'
-                    : 'border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(10,16,28,0.60)] hover:bg-[color:rgba(10,16,28,0.68)]',
-                ].join(' ')}
+                className={['w-full rounded-3xl px-4 py-3 text-left backdrop-blur transition-colors', active ? 'border-2 border-[color:rgba(255,140,70,0.95)] bg-[color:rgba(10,16,28,0.72)]' : 'border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(10,16,28,0.60)] hover:bg-[color:rgba(10,16,28,0.68)]'].join(' ')}
                 type="button"
                 onClick={() => setSelectedFlightId(f.id)}>
                 <div className="flex items-start justify-between gap-3">
@@ -225,7 +217,27 @@ export default function MapExplorer() {
                   : '—'}
               </div>
             </div>
-            
+
+            <div>
+              <div className="text-sm font-bold text-[color:rgba(255,255,255,0.78)]">
+                Comments
+              </div>
+              <div className="mt-2 max-h-56 overflow-auto rounded-2xl border border-[color:rgba(255,255,255,0.08)] bg-[color:rgba(255,255,255,0.04)] p-3">
+                {selectedFlight.comments?.trim() ? (
+                  <LexicalEditor
+                    value={selectedFlight.comments}
+                    placeholder="No comments yet."
+                    disabled
+                    showToolbar={false}
+                  />
+                ) : (
+                  <div className="text-sm font-semibold text-[color:rgba(255,255,255,0.62)]">
+                    —
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="pt-2">
               <Link
                 className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-[color:rgba(58,169,255,0.92)] px-4 text-sm font-extrabold text-white hover:bg-[color:rgba(58,169,255,1)]"
