@@ -1,12 +1,13 @@
 import MapView from '@/components/map/MapView';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Pencil, Trash2 } from 'lucide-react';
 import { useStore } from '@/store/store';
 import { readGpxAsLineString } from '@/lib/utils/gpxToGeojson';
 import * as FlightApi from '@/lib/api/flight.api';
-import ConfirmModal from '@/components/ui/ConfirmModal';
+import ConfirmModal from '@/components/Modal/ConfirmModal';
 import TrackChart from '@/components/track/TrackChart';
-import Modal from '@/components/ui/Modal';
+import Modal from '@/components/Modal/Modal';
 import LexicalEditor from '@/components/richtext/LexicalEditor';
 import { fmtFlightTimeRange } from '@/lib/utils/flightTimeFormat';
 import './FlightDetail.scss';
@@ -287,61 +288,34 @@ export default function FlightDetail() {
               )}
             </div>
             
-            <button
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[color:rgba(255,84,84,0.25)] bg-[color:rgba(255,84,84,0.08)] text-[color:rgba(255,84,84,0.95)] hover:bg-[color:rgba(255,84,84,0.12)] disabled:cursor-not-allowed disabled:opacity-60"
-              type="button"
-              aria-label="Delete flight"
-              title="Delete flight"
-              onClick={() => setConfirmDelete(true)}
-              disabled={deleting}>
-              <svg
-                viewBox="0 0 24 24"
-                width="18"
-                height="18"
-                aria-hidden="true"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round">
-                <path d="M3 6h18"/>
-                <path d="M8 6V4h8v2"/>
-                <path d="M19 6l-1 14H6L5 6"/>
-                <path d="M10 11v6"/>
-                <path d="M14 11v6"/>
-              </svg>
-            </button>
+	            <button
+	              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[color:rgba(255,84,84,0.25)] bg-[color:rgba(255,84,84,0.08)] text-[color:rgba(255,84,84,0.95)] hover:bg-[color:rgba(255,84,84,0.12)] disabled:cursor-not-allowed disabled:opacity-60"
+	              type="button"
+	              aria-label="Delete flight"
+	              title="Delete flight"
+	              onClick={() => setConfirmDelete(true)}
+	              disabled={deleting}>
+	              <Trash2 size={18} aria-hidden="true" />
+	            </button>
           </div>
         </div>
         
         <div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
-          <div className="flex items-start justify-between gap-3">
-            <div className="card-title text-base font-bold">Flight Details</div>
-            <button
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] hover:bg-[color:var(--panel)]"
-              type="button"
-              aria-label="Edit description"
-              title="Edit description"
-              onClick={() => {
-                setDescError(null);
-                setDescDraft(flight.description ?? '');
-                setDescOpen(true);
-              }}>
-              <svg
-                viewBox="0 0 24 24"
-                width="16"
-                height="16"
-                aria-hidden="true"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round">
-                <path d="M12 20h9"/>
-                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>
-              </svg>
-            </button>
-          </div>
+	          <div className="flex items-start justify-between gap-3">
+	            <div className="card-title text-base font-bold">Flight Details</div>
+	            <button
+	              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] hover:bg-[color:var(--panel)]"
+	              type="button"
+	              aria-label="Edit description"
+	              title="Edit description"
+	              onClick={() => {
+	                setDescError(null);
+	                setDescDraft(flight.description ?? '');
+	                setDescOpen(true);
+	              }}>
+	              <Pencil size={16} aria-hidden="true" />
+	            </button>
+	          </div>
           <div className="flightDetail-kvList mt-3 space-y-2 text-sm">
             <div className="flightDetail-kv flex justify-between gap-4">
               <span className="muted text-[var(--muted)]">Route</span>

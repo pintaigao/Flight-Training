@@ -1,38 +1,34 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useStore } from '@/store/store';
+import * as AuthApi from '@/lib/api/auth.api';
 
-const bypass =
-  import.meta.env.DEV && import.meta.env.VITE_BYPASS_AUTH === 'true';
-
-export default function RequireAuth({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const { state, dispatch } = useStore();
+export default function RequireAuth({children}: { children: React.ReactNode; }) {
+  const {state, dispatch} = useStore();
   const location = useLocation();
-
+  
+  // Bootstrap auth only when entering protected routes.
   useEffect(() => {
-    if (!bypass) return;
-    if (state.auth.user) return;
-
-    dispatch({
-      type: 'SET_AUTH_USER',
-      user: {
-        id: 'dev',
-        email: import.meta.env.VITE_DEV_USER_EMAIL || 'dev@local',
-      },
+    if (state.auth.user || state.auth.status === 'anon') return;
+    
+    let alive = true;
+    
+    if (state.auth.status === 'unknown')
+      dispatch({type: 'SET_AUTH_STATUS', status: 'checking'});
+    
+    AuthApi.getMe().then((me) => {
+      if (!alive) return;
+      dispatch({type: 'SET_AUTH_USER', user: me});
+    }).catch(() => {
+      if (!alive) return;
+      dispatch({type: 'SET_AUTH_STATUS', status: 'anon'});
     });
+    
+    return () => { alive = false; };
   }, [dispatch, state.auth.user]);
-
-  // dev bypass：等注入完成就放行；还没注入就先别跳转
-  if (bypass) return <>{children}</>;
-
+  
   // 正常逻辑
-  if (state.auth.status === 'checking' || state.auth.status === 'unknown')
-    return null;
-  if (!state.auth.user)
-    return <Navigate to="/register" replace state={{ from: location }} />;
+  if (state.auth.status === 'checking' || state.auth.status === 'unknown') return null;
+  if (!state.auth.user) return <Navigate to="/login" replace state={{from: location}}/>;
   return <>{children}</>;
 }

@@ -6,7 +6,7 @@ import { LayoutDashboard, Plane, Map as MapIcon, Waves } from 'lucide-react';
 import './Sidebar.scss';
 
 const nav = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/home', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/flights', label: 'Flights', icon: Plane },
   { to: '/map', label: 'Map', icon: MapIcon },
 ] as const;
@@ -64,7 +64,7 @@ export default function Sidebar() {
                   : 'text-[var(--muted)] hover:bg-[color:var(--panel2)] hover:text-[var(--text)]',
               ].join(' ')
             }
-            end={item.to === '/'}>
+            end={item.to === '/home'}>
             <item.icon
               aria-hidden="true"
               className="h-5 w-5 text-[color:var(--muted)] transition group-hover:text-[color:var(--text)]"

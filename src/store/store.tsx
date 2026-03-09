@@ -10,7 +10,7 @@ import { rootReducer } from './rootReducer';
 import { initState } from './initialState';
 import * as FlightApi from '@/lib/api/flight.api';
 
-const STORAGE_KEY = 'flightlog.ui.v1';
+const STORAGE_KEY = 'flightlog.Modal.v1';
 
 type Store = {
   state: AppState;
@@ -25,14 +25,8 @@ function loadInitialState(): AppState {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return base;
     const parsed = JSON.parse(raw) as any;
-    // Migrate older persisted shape: { filters, ui: { mapMode } } → { ui: { filters, mapMode } }.
-    const migratedUi =
-      parsed?.ui?.filters != null
-        ? parsed.ui
-        : {
-            filters: parsed?.filters ?? base.ui.filters,
-            mapMode: parsed?.ui?.mapMode ?? base.ui.mapMode,
-          };
+    // Migrate older persisted shape: { filters, Modal: { mapMode } } → { Modal: { filters, mapMode } }.
+    const migratedUi = parsed?.ui?.filters != null ? parsed.ui : {filters: parsed?.filters ?? base.ui.filters, mapMode: parsed?.ui?.mapMode ?? base.ui.mapMode};
     return {
       ...base,
       ui: migratedUi ?? base.ui,
@@ -42,39 +36,12 @@ function loadInitialState(): AppState {
   }
 }
 
-export function StoreProvider({ children }: { children: React.ReactNode }) {
+export function StoreProvider({children}: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(rootReducer, undefined, loadInitialState);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ ui: state.ui }),
-      );
-    } catch {
-      // ignore
-    }
-  }, [state.ui]);
-
-  // Load flights after auth resolves (and whenever the logged-in user changes).
-  useEffect(() => {
-    if (state.auth.status !== 'authed' || !state.auth.user) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const flights = await FlightApi.getFlights();
-        if (cancelled) return;
-        dispatch({ type: 'SET_FLIGHTS', flights });
-      } catch {
-        // ignore for now; UI will show empty state
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [state.auth.status, state.auth.user?.id]);
-
-  const value = useMemo(() => ({ state, dispatch }), [state]);
+  
+  useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify({ui: state.ui}))}, [state.ui]);
+  
+  const value = useMemo(() => ({state, dispatch}), [state]);
   return (
     <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
   );

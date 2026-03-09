@@ -32,6 +32,6 @@ export async function logout(): Promise<void> {
 }
 
 export async function getMe(): Promise<AuthUser> {
-  const res = await http.get<AuthUser>('/auth/me');
+  const res = await http.get<AuthUser>('/auth/me', { timeout: 5000 });
   return coerceAuthUser(res.data);
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Waves } from 'lucide-react';
 import { useStore } from '@/store/store';
 import * as AuthApi from '@/lib/api/auth.api';
 import './Auth.scss';
@@ -34,7 +35,7 @@ export default function Register() {
       }
       const me = await AuthApi.register({ email: normalized, password });
       dispatch({ type: 'SET_AUTH_USER', user: me });
-      navigate('/', { replace: true });
+      navigate('/home', { replace: true });
     } catch (err: any) {
       setError(err?.body?.message ?? 'Registration failed.');
     } finally {
@@ -49,33 +50,14 @@ export default function Register() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_circle_at_30%_20%,rgba(99,102,241,0.25),transparent_55%),radial-gradient(900px_circle_at_80%_70%,rgba(58,169,255,0.16),transparent_55%)]" />
 
           <div className="auth-card relative w-full max-w-md">
-            <div className="mb-10 flex items-center gap-3">
-              <div className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-indigo-400">
-                  <path
-                    d="M3 9.2c2.4 0 3.7-2.4 6.4-2.4 3.3 0 3.6 4.1 6.9 4.1 2.2 0 3.7-1.2 4.7-2.4"
-                    stroke="currentColor"
-                    strokeWidth="2.3"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M3 14.8c2.4 0 3.7-2.4 6.4-2.4 3.3 0 3.6 4.1 6.9 4.1 2.2 0 3.7-1.2 4.7-2.4"
-                    stroke="currentColor"
-                    strokeWidth="2.3"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
-              <div className="text-sm font-semibold text-white/70">
-                Flight Log
-              </div>
-            </div>
+	            <div className="mb-10 flex items-center gap-3">
+	              <div className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10">
+	                <Waves size={20} strokeWidth={2.3} className="text-indigo-400" aria-hidden="true" />
+	              </div>
+	              <div className="text-sm font-semibold text-white/70">
+	                Flight Log
+	              </div>
+	            </div>
 
             <div className="auth-head">
               <h1 className="auth-title text-3xl font-extrabold tracking-tight text-white">

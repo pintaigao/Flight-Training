@@ -39,7 +39,8 @@
   svg {
     width: 100%;
     height: 100%;
-    fill: rgba(120, 255, 120, 0.98);
+    fill: none;
+    stroke: rgba(120, 255, 120, 0.98);
     filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.75));
   }
 }

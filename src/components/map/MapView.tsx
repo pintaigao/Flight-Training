@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap, Marker } from 'react-leaflet';
 import type { Feature, FeatureCollection, LineString } from 'geojson';
 import L from 'leaflet';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { Plane } from 'lucide-react';
 import './MapView.scss';
 
 export type TrackItem = {
@@ -43,10 +45,34 @@ function InvalidateSize({invalidateKey}: { invalidateKey?: unknown }) {
   const map = useMap();
 
   useEffect(() => {
-    // Leaflet needs an explicit size invalidation when the container changes
-    // height due to layout (e.g. chart toggles below/overlay).
-    const t = window.setTimeout(() => map.invalidateSize(), 0);
-    return () => window.clearTimeout(t);
+    // Leaflet needs explicit size invalidation when the container changes size
+    // (e.g. sidebar collapse, chart toggles below/overlay).
+    const container = map.getContainer();
+
+    let raf = 0;
+    const scheduleInvalidate = () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        map.invalidateSize();
+      });
+    };
+
+    scheduleInvalidate();
+
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => scheduleInvalidate());
+      ro.observe(container);
+    } else {
+      window.addEventListener('resize', scheduleInvalidate, { passive: true });
+    }
+
+    return () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      if (ro) ro.disconnect();
+      else window.removeEventListener('resize', scheduleInvalidate as any);
+    };
   }, [map, invalidateKey]);
 
   return null;
@@ -61,9 +87,9 @@ function CursorMarker({
   lines: string[];
   headingDeg?: number | null;
 }) {
-  const icon = useMemo(() => {
-    const safeLines = (lines ?? []).filter(Boolean).slice(0, 4);
-    const heading = Number.isFinite(headingDeg as any) ? Number(headingDeg) : 0;
+	const icon = useMemo(() => {
+	  const safeLines = (lines ?? []).filter(Boolean).slice(0, 4);
+	  const heading = Number.isFinite(headingDeg as any) ? Number(headingDeg) : 0;
     const esc = (s: string) =>
       s
         .replace(/&/g, '&amp;')
@@ -74,16 +100,14 @@ function CursorMarker({
       .map((l) => `<div class="cursor-label-line">${esc(l)}</div>`)
       .join('');
 
-    const svg = `
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3-1 3 1v-1.5L13 19v-5.5L21 16z"></path>
-      </svg>
-    `;
+	  const svg = renderToStaticMarkup(
+	    <Plane size={18} strokeWidth={2} aria-hidden="true" />,
+	  );
 
-    const html = `
-      <div class="cursor-marker" style="--heading:${heading}deg">
-        <div class="cursor-dot"></div>
-        <div class="cursor-plane">${svg}</div>
+	  const html = `
+	      <div class="cursor-marker" style="--heading:${heading}deg">
+	        <div class="cursor-dot"></div>
+	        <div class="cursor-plane">${svg}</div>
         <div class="cursor-label">${labelHtml}</div>
       </div>
     `;
@@ -112,6 +136,8 @@ function MapView({
   cursorHeadingDeg = null,
 }: Props) {
   const selected = tracks.find((t) => t.id === selectedId);
+
+  const geoJsonKey = useMemo(() => tracks.map((t) => t.id).join('|'), [tracks]);
   
   const collection: FeatureCollection = useMemo(
     () => ({ type: 'FeatureCollection', features: tracks.map((t) => t.feature) }),
@@ -152,6 +178,7 @@ function MapView({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
         
         <GeoJSON
+          key={geoJsonKey}
           data={collection}
           style={geoJsonStyle}
           eventHandlers={geoJsonEvents}

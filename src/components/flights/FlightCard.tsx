@@ -1,5 +1,6 @@
 import type { Flight } from '@/store/types';
 import { Link } from 'react-router-dom';
+import { ChevronRight, Trash2 } from 'lucide-react';
 import { fmtTimeInZone, fmtTzAbbrev, fmtZuluTime } from '@/lib/utils/flightTimeFormat';
 import './FlightCard.scss';
 
@@ -93,50 +94,24 @@ export default function FlightCard({flight, selected, onDelete}: {
         </div>
         
         <div className="flex items-center gap-2">
-          {onDelete && (
-            <button
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[color:rgba(255,84,84,0.30)] bg-[color:rgba(255,84,84,0.10)] text-[color:rgba(255,84,84,0.95)] opacity-0 transition-opacity hover:bg-[color:rgba(255,84,84,0.14)] group-hover:opacity-100"
-              type="button"
-              aria-label="Delete flight"
-              title="Delete flight"
-              onClick={() => onDelete(flight.id)}>
-              <svg
-                viewBox="0 0 24 24"
-                width="18"
-                height="18"
-                aria-hidden="true"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round">
-                <path d="M3 6h18"/>
-                <path d="M8 6V4h8v2"/>
-                <path d="M19 6l-1 14H6L5 6"/>
-                <path d="M10 11v6"/>
-                <path d="M14 11v6"/>
-              </svg>
-            </button>
-          )}
-          <Link
-            to={`/flights/${flight.id}`}
-            className="inline-flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 py-2 text-sm font-semibold hover:bg-[color:var(--panel)]">
-            View Detail
-            <svg
-              viewBox="0 0 24 24"
-              width="16"
-              height="16"
-              aria-hidden="true"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
-          </Link>
-        </div>
-      </div>
-    </div>
+	          {onDelete && (
+	            <button
+	              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[color:rgba(255,84,84,0.30)] bg-[color:rgba(255,84,84,0.10)] text-[color:rgba(255,84,84,0.95)] opacity-0 transition-opacity hover:bg-[color:rgba(255,84,84,0.14)] group-hover:opacity-100"
+	              type="button"
+	              aria-label="Delete flight"
+	              title="Delete flight"
+	              onClick={() => onDelete(flight.id)}>
+	              <Trash2 size={18} aria-hidden="true" />
+	            </button>
+	          )}
+	          <Link
+	            to={`/flights/${flight.id}`}
+	            className="inline-flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 py-2 text-sm font-semibold hover:bg-[color:var(--panel)]">
+	            View Detail
+	            <ChevronRight size={16} aria-hidden="true" />
+	          </Link>
+	        </div>
+	      </div>
+	    </div>
   );
 }

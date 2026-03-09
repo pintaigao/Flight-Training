@@ -68,7 +68,7 @@ Expected: PASS.
 **Step 3: Commit**
 
 ```bash
-git add src/store/rootReducer.ts src/store/auth/reducer.ts src/store/flights/reducer.ts src/store/ui/reducer.ts
+git add src/store/rootReducer.ts src/store/auth/reducer.ts src/store/flights/reducer.ts src/store/Modal/reducer.ts
 git commit -m "chore(store): remove rootTypes imports"
 ```
 

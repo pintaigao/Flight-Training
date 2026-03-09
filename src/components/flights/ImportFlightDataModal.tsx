@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/store';
 import type { Flight } from '@/store/types';
 import * as FlightApi from '@/lib/api/flight.api';
-import ModalCloseButton from '@/components/ui/ModalCloseButton';
-import '../ui/Modal.scss';
-import '../map/MapList.scss';
+import Modal from '@/components/Modal/Modal';
 
 const CHICAGO_TZ = 'America/Chicago';
 const BUFFER_MINUTES = 60;
@@ -217,186 +215,244 @@ export default function ImportFlightDataModal({open, parsed, onClose}: { open: b
   const durationMin = minutesBetween(p.startTimeISO, p.endTimeISO);
   
   return (
-    <div className="modal-overlay" role="dialog" aria-modal="true">
-      <div className="modal-card">
-        <div className="modal-header">
-          <div>
-            <div style={{fontWeight: 900, fontSize: 16}}>
-              Import ForeFlight KML
-            </div>
-            <div className="muted" style={{marginTop: 4}}>
-              {p.originalFilename} · {fmtChicago(p.startTimeISO)} →{' '}
-              {fmtChicago(p.endTimeISO)} · ~{(durationMin / 60).toFixed(1)} hrs
-            </div>
-          </div>
-          <ModalCloseButton onClick={onClose} disabled={saving} />
+    <Modal
+      open
+      title="Import ForeFlight KML"
+      width="min(920px, 100%)"
+      disabled={saving}
+      onClose={() => {
+        if (saving) return;
+        onClose();
+      }}>
+      <div className="rounded-2xl border border-[var(--border)] bg-[color:var(--panel2)] px-4 py-3">
+        <div className="text-sm font-semibold text-[color:var(--text)]">
+          {p.originalFilename}
         </div>
-        
-        <div className="modal-body">
-          <div style={{display: 'flex', gap: 10, alignItems: 'center'}}>
-            <label style={{display: 'flex', gap: 8, alignItems: 'center'}}>
-              <input
-                type="radio"
-                checked={mode === 'existing'}
-                onChange={() => setMode('existing')}
-              />
-              <span>Attach to existing</span>
-            </label>
-            <label style={{display: 'flex', gap: 8, alignItems: 'center'}}>
-              <input
-                type="radio"
-                checked={mode === 'new'}
-                onChange={() => setMode('new')}
-              />
-              <span>Create new flight</span>
-            </label>
-            <div className="muted">
-              Candidates are matched by time overlap (±{BUFFER_MINUTES} min)
-            </div>
-          </div>
-          
-          {mode === 'existing' ? (
-            <div
-              style={{
-                marginTop: 14,
-                display: 'grid',
-                gridTemplateColumns: '1fr',
-                gap: 10,
-              }}>
-              <div className="card" style={{margin: 0}}>
-                <div className="card-title">Candidates</div>
-                {candidates.length === 0 ? (
-                  <div className="muted">No time-matched flights found.</div>
-                ) : (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 8,
-                    }}>
-                    {candidates.slice(0, 8).map((f) => (
-                      <button
-                        key={f.id}
-                        className={
-                          selectedExistingId === f.id
-                            ? 'map-list-item active'
-                            : 'map-list-item'
-                        }
-                        onClick={() => setSelectedExistingId(f.id)}
-                        type="button">
-                        <div className="map-list-main">
-                          {f.from} → {f.to}
-                        </div>
-                        <div className="muted">
-                          {f.dateISO} · {f.aircraftTail}
-                          {f.startTimeISO && f.endTimeISO
-                            ? ` · ${fmtChicago(f.startTimeISO)} → ${fmtChicago(f.endTimeISO)}`
-                            : ''}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
-              <div className="card" style={{margin: 0}}>
-                <div className="card-title">Pick any flight</div>
-                <select
-                  className="select"
-                  value={selectedExistingId}
-                  onChange={(e) => setSelectedExistingId(e.target.value)}>
-                  <option value="">Select a flight…</option>
-                  {allFlights.map((f) => (
-                    <option key={f.id} value={f.id}>
-                      {f.dateISO} {f.aircraftTail} {f.from}→{f.to}
-                    </option>
-                  ))}
-                </select>
-                
-                <div style={{height: 10}}/>
-                <button
-                  className="btn-primary"
-                  disabled={saving || !selectedExistingId}
-                  onClick={() => {
-                    const f = state.flights.flightsById[selectedExistingId];
-                    if (f) attachToFlight(f);
-                  }}>
-                  {saving ? 'Saving…' : 'Attach track'}
-                </button>
-                <div className="muted" style={{marginTop: 8}}>
-                  This sets the flight start/end time to the KML range.
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="card" style={{marginTop: 14}}>
-              <div className="card-title">New flight details</div>
-              <div className="grid-2">
-                <div>
-                  <div className="muted">Tail</div>
-                  <input
-                    className="input"
-                    value={newTail}
-                    onChange={(e) => setNewTail(e.target.value)}
-                    placeholder="N77GX"
-                  />
-                </div>
-                <div>
-                  <div className="muted">Date</div>
-                  <input
-                    className="input"
-                    value={dateISOInChicago(p.startTimeISO)}
-                    disabled
-                  />
-                </div>
-                <div>
-                  <div className="muted">From</div>
-                  <input
-                    className="input"
-                    value={newFrom}
-                    onChange={(e) => setNewFrom(e.target.value)}
-                    placeholder="KPAO"
-                  />
-                </div>
-                <div>
-                  <div className="muted">To</div>
-                  <input
-                    className="input"
-                    value={newTo}
-                    onChange={(e) => setNewTo(e.target.value)}
-                    placeholder="KMRY"
-                  />
-                </div>
-              </div>
-              <div style={{height: 10}}/>
-              <div className="muted">Description</div>
-              <input
-                className="input"
-                value={newDescription}
-                onChange={(e) => setNewDescription(e.target.value)}
-                placeholder="e.g. Steep turns + power-off stalls"
-              />
-              <div style={{height: 10}}/>
-              <div className="muted">Tags (comma separated)</div>
-              <input
-                className="input"
-                value={newTags}
-                onChange={(e) => setNewTags(e.target.value)}
-                placeholder="Training, Dual"
-              />
-              <div style={{height: 12}}/>
-              <button
-                className="btn-primary"
-                disabled={saving}
-                onClick={createAndAttach}>
-                {saving ? 'Saving…' : 'Create & attach track'}
-              </button>
-            </div>
-          )}
-          
-          {error && <div className="error">{error}</div>}
+        <div className="mt-1 text-sm text-[color:var(--muted)]">
+          {fmtChicago(p.startTimeISO)} → {fmtChicago(p.endTimeISO)} · ~
+          {(durationMin / 60).toFixed(1)} hrs · Candidates matched by time overlap
+          (±{BUFFER_MINUTES} min)
         </div>
       </div>
-    </div>
+
+      <div className="h-4"/>
+
+      <div className="inline-flex rounded-2xl border border-[var(--border)] bg-[color:var(--panel2)] p-1">
+        <button
+          className={[
+            'inline-flex h-10 items-center justify-center rounded-xl px-4 text-sm font-semibold transition-colors',
+            mode === 'existing'
+              ? 'bg-[var(--accent)] text-white'
+              : 'text-[color:var(--muted)] hover:text-[color:var(--text)]',
+          ].join(' ')}
+          type="button"
+          onClick={() => setMode('existing')}
+          disabled={saving}>
+          Attach to existing
+        </button>
+        <button
+          className={[
+            'inline-flex h-10 items-center justify-center rounded-xl px-4 text-sm font-semibold transition-colors',
+            mode === 'new'
+              ? 'bg-[var(--accent)] text-white'
+              : 'text-[color:var(--muted)] hover:text-[color:var(--text)]',
+          ].join(' ')}
+          type="button"
+          onClick={() => setMode('new')}
+          disabled={saving}>
+          Create new flight
+        </button>
+      </div>
+
+      {mode === 'existing' ? (
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
+            <div className="text-sm font-extrabold tracking-tight text-[color:var(--text)]">
+              Candidates
+            </div>
+            <div className="mt-1 text-sm text-[color:var(--muted)]">
+              Closest matches by time overlap.
+            </div>
+
+            <div className="mt-3 max-h-[320px] space-y-2 overflow-auto pr-1">
+              {candidates.length === 0 ? (
+                <div className="text-sm text-[color:var(--muted)]">
+                  No time-matched flights found.
+                </div>
+              ) : (
+                candidates.slice(0, 8).map((f) => {
+                  const active = selectedExistingId === f.id;
+                  return (
+                    <button
+                      key={f.id}
+                      className={[
+                        'w-full rounded-2xl border px-3 py-2 text-left transition-colors',
+                        active
+                          ? 'border-[color:color-mix(in_srgb,var(--accent)_55%,transparent)] bg-[color:color-mix(in_srgb,var(--accent)_14%,transparent)] ring-2 ring-[color:color-mix(in_srgb,var(--accent)_20%,transparent)]'
+                          : 'border-[var(--border)] bg-[color:var(--panel2)] hover:bg-[color:var(--panel)]',
+                      ].join(' ')}
+                      type="button"
+                      onClick={() => setSelectedExistingId(f.id)}
+                      disabled={saving}>
+                      <div className="text-base font-extrabold tracking-tight text-[color:var(--text)]">
+                        {f.from} → {f.to}
+                      </div>
+                      <div className="mt-1 text-sm text-[color:var(--muted)]">
+                        {f.dateISO} · TAIL #{' '}
+                        <span className="text-[color:var(--text)]">
+                          {f.aircraftTail}
+                        </span>
+                        {f.startTimeISO && f.endTimeISO
+                          ? ` · ${fmtChicago(f.startTimeISO)} → ${fmtChicago(f.endTimeISO)}`
+                          : ''}
+                      </div>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
+            <div className="text-sm font-extrabold tracking-tight text-[color:var(--text)]">
+              Pick any flight
+            </div>
+            <div className="mt-1 text-sm text-[color:var(--muted)]">
+              Attach the track to any flight in your list.
+            </div>
+
+            <select
+              className="mt-3 h-11 w-full rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-sm font-semibold text-[color:var(--text)] outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              value={selectedExistingId}
+              onChange={(e) => setSelectedExistingId(e.target.value)}
+              disabled={saving}>
+              <option value="">Select a flight…</option>
+              {allFlights.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.dateISO} {f.aircraftTail} {f.from}→{f.to}
+                </option>
+              ))}
+            </select>
+
+            <div className="h-3"/>
+
+            <button
+              className="btn-primary inline-flex h-11 w-full items-center justify-center rounded-xl bg-[var(--accent)] px-4 font-semibold text-white hover:bg-[var(--accent2)] disabled:cursor-not-allowed disabled:opacity-60"
+              type="button"
+              disabled={saving || !selectedExistingId}
+              onClick={() => {
+                const f = state.flights.flightsById[selectedExistingId];
+                if (f) attachToFlight(f);
+              }}>
+              {saving ? 'Saving…' : 'Attach track'}
+            </button>
+
+            <div className="mt-3 text-sm text-[color:var(--muted)]">
+              This sets the flight start/end time to the KML range.
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
+          <div className="text-sm font-extrabold tracking-tight text-[color:var(--text)]">
+            New flight details
+          </div>
+
+          <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <div>
+              <div className="text-xs font-semibold text-[color:var(--muted)]">
+                Tail
+              </div>
+              <input
+                className="mt-1 h-11 w-full rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-[color:var(--text)] placeholder:text-[color:var(--muted)] outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                value={newTail}
+                onChange={(e) => setNewTail(e.target.value)}
+                placeholder="N77GX"
+                disabled={saving}
+              />
+            </div>
+
+            <div>
+              <div className="text-xs font-semibold text-[color:var(--muted)]">
+                Date
+              </div>
+              <input
+                className="mt-1 h-11 w-full rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-[color:var(--text)] outline-none"
+                value={dateISOInChicago(p.startTimeISO)}
+                disabled
+              />
+            </div>
+
+            <div>
+              <div className="text-xs font-semibold text-[color:var(--muted)]">
+                From
+              </div>
+              <input
+                className="mt-1 h-11 w-full rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-[color:var(--text)] placeholder:text-[color:var(--muted)] outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                value={newFrom}
+                onChange={(e) => setNewFrom(e.target.value)}
+                placeholder="KPAO"
+                disabled={saving}
+              />
+            </div>
+
+            <div>
+              <div className="text-xs font-semibold text-[color:var(--muted)]">
+                To
+              </div>
+              <input
+                className="mt-1 h-11 w-full rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-[color:var(--text)] placeholder:text-[color:var(--muted)] outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                value={newTo}
+                onChange={(e) => setNewTo(e.target.value)}
+                placeholder="KMRY"
+                disabled={saving}
+              />
+            </div>
+          </div>
+
+          <div className="mt-3">
+            <div className="text-xs font-semibold text-[color:var(--muted)]">
+              Description
+            </div>
+            <input
+              className="mt-1 h-11 w-full rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-[color:var(--text)] placeholder:text-[color:var(--muted)] outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+              placeholder="e.g. Steep turns + soft-field landing"
+              disabled={saving}
+            />
+          </div>
+
+          <div className="mt-3">
+            <div className="text-xs font-semibold text-[color:var(--muted)]">
+              Tags (comma separated)
+            </div>
+            <input
+              className="mt-1 h-11 w-full rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 text-[color:var(--text)] placeholder:text-[color:var(--muted)] outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              value={newTags}
+              onChange={(e) => setNewTags(e.target.value)}
+              placeholder="Training, Dual"
+              disabled={saving}
+            />
+          </div>
+
+          <div className="h-4"/>
+
+          <button
+            className="btn-primary inline-flex h-11 w-full items-center justify-center rounded-xl bg-[var(--accent)] px-4 font-semibold text-white hover:bg-[var(--accent2)] disabled:cursor-not-allowed disabled:opacity-60"
+            type="button"
+            disabled={saving}
+            onClick={createAndAttach}>
+            {saving ? 'Saving…' : 'Create & attach track'}
+          </button>
+        </div>
+      )}
+
+      {error && (
+        <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+          {error}
+        </div>
+      )}
+    </Modal>
   );
 }

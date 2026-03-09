@@ -4,7 +4,7 @@ import FlightCard from '@/components/flights/FlightCard';
 import { useStore } from '@/store/store';
 import { readForeFlightKmlTimeRange } from '@/lib/utils/foreflightKmlTimeRange';
 import ImportFlightDataModal from '@/components/flights/ImportFlightDataModal';
-import ConfirmModal from '@/components/ui/ConfirmModal';
+import ConfirmModal from '@/components/Modal/ConfirmModal';
 import * as FlightApi from '@/lib/api/flight.api';
 import './Flights.scss';
 

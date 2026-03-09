@@ -1,22 +1,3 @@
-.input,
-.select {
-  height: $u5;
-  border-radius: $u2;
-  border: 1px solid var(--border);
-  background: var(--panel2);
-  color: var(--text);
-  padding: 0 $u2;
-
-  &::placeholder {
-    color: var(--muted);
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(58, 169, 255, 0.35);
-  }
-}
-
 .input {
   flex: 1;
 }
