@@ -56,7 +56,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state.ui]);
 
+  // Load flights after auth resolves (and whenever the logged-in user changes).
   useEffect(() => {
+    if (state.auth.status !== 'authed' || !state.auth.user) return;
     let cancelled = false;
     (async () => {
       try {
@@ -70,7 +72,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [state.auth.status, state.auth.user?.id]);
 
   const value = useMemo(() => ({ state, dispatch }), [state]);
   return (
