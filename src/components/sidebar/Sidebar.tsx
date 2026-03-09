@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/store';
 import * as AuthApi from '@/lib/api/auth.api';
 import { useTheme } from '@/lib/theme/ThemeProvider';
-import { LayoutDashboard, Plane, Map as MapIcon } from 'lucide-react';
+import { LayoutDashboard, Plane, Map as MapIcon, Waves } from 'lucide-react';
 import './Sidebar.scss';
 
 const nav = [
@@ -35,26 +35,11 @@ export default function Sidebar() {
 
       <div className="sidebar-brand relative flex items-center gap-3">
         <div className="sidebar-logo flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:rgba(99,102,241,0.14)] ring-1 ring-[color:rgba(99,102,241,0.22)]">
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
+          <Waves
             aria-hidden="true"
-            className="text-[color:rgba(129,140,248,0.95)]">
-            <path
-              d="M3 9.2c2.4 0 3.7-2.4 6.4-2.4 3.3 0 3.6 4.1 6.9 4.1 2.2 0 3.7-1.2 4.7-2.4"
-              stroke="currentColor"
-              strokeWidth="2.3"
-              strokeLinecap="round"
-            />
-            <path
-              d="M3 14.8c2.4 0 3.7-2.4 6.4-2.4 3.3 0 3.6 4.1 6.9 4.1 2.2 0 3.7-1.2 4.7-2.4"
-              stroke="currentColor"
-              strokeWidth="2.3"
-              strokeLinecap="round"
-            />
-          </svg>
+            className="h-6 w-6 text-[color:rgba(129,140,248,0.95)]"
+            strokeWidth={2.4}
+          />
         </div>
         <div>
           <div className="sidebar-title text-sm font-extrabold tracking-tight">
