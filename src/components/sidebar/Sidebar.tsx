@@ -138,7 +138,7 @@ export default function Sidebar() {
               ].join(' ')
             }
             end={item.to === '/'}>
-            <item.icon className="h-5 w-5 text-[color:rgba(255,255,255,0.62)] transition group-hover:text-[color:var(--text)] [data-theme='light']:[color:rgba(0,0,0,0.55)]" />
+            <item.icon className="h-5 w-5 text-[color:rgba(255,255,255,0.62)] transition group-hover:text-[color:var(--text)] [data-theme='light']:text-[color:rgba(0,0,0,0.55)]" />
             <span className="leading-5">{item.label}</span>
           </NavLink>
         ))}
