@@ -2,72 +2,14 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/store';
 import * as AuthApi from '@/lib/api/auth.api';
 import { useTheme } from '@/lib/theme/ThemeProvider';
+import { LayoutDashboard, Plane, Map as MapIcon } from 'lucide-react';
 import './Sidebar.scss';
 
 const nav = [
-  { to: '/', label: 'Dashboard', icon: HomeIcon },
-  { to: '/flights', label: 'Flights', icon: PlaneIcon },
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/flights', label: 'Flights', icon: Plane },
   { to: '/map', label: 'Map', icon: MapIcon },
 ] as const;
-
-function HomeIcon(props: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className={props.className}>
-      <path
-        d="M3 10.8 12 3l9 7.8v9.7a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 20.5v-9.7Z"
-        stroke="currentColor"
-        strokeWidth="1.9"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M9.2 22v-7.2c0-.7.6-1.3 1.3-1.3h3c.7 0 1.3.6 1.3 1.3V22"
-        stroke="currentColor"
-        strokeWidth="1.9"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function PlaneIcon(props: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className={props.className}>
-      <path
-        d="M2.8 12.3 21 6.4c.6-.2 1.1.4.9 1L18 20.6c-.2.7-1.1.9-1.6.4l-4.1-4.2-3.4 2c-.5.3-1.1 0-1.1-.6v-4.3l12.1-7.2"
-        stroke="currentColor"
-        strokeWidth="1.9"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function MapIcon(props: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className={props.className}>
-      <path
-        d="M9 18 3.8 20.2c-.5.2-1-.2-1-.7V6.1c0-.3.2-.6.5-.7L9 3.2m0 14.8 6 2.8m-6-2.8V3.2m6 17.6 5.2-2.2c.3-.1.5-.4.5-.7V4.5c0-.5-.5-.9-1-.7L15 6.2m0 14.6V6.2m0 14.6-6-2.8m6-11.8 6-2.6"
-        stroke="currentColor"
-        strokeWidth="1.9"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 
 export default function Sidebar() {
   const { state, dispatch } = useStore();
@@ -138,7 +80,11 @@ export default function Sidebar() {
               ].join(' ')
             }
             end={item.to === '/'}>
-            <item.icon className="h-5 w-5 text-[color:var(--muted)] transition group-hover:text-[color:var(--text)]" />
+            <item.icon
+              aria-hidden="true"
+              className="h-5 w-5 text-[color:var(--muted)] transition group-hover:text-[color:var(--text)]"
+              strokeWidth={2.2}
+            />
             <span className="leading-5">{item.label}</span>
           </NavLink>
         ))}
