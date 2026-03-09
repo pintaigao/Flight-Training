@@ -1,7 +1,5 @@
 import axios, {
   AxiosHeaders,
-  type AxiosRequestConfig,
-  type InternalAxiosRequestConfig,
 } from 'axios';
 
 // Prefer same-origin requests by default (works with Vite dev proxy and typical deployments).
@@ -39,30 +37,11 @@ function isFormData(value: any): value is FormData {
   return typeof FormData !== 'undefined' && value instanceof FormData;
 }
 
-function shouldSkipAuthRefresh(url?: string) {
-  if (!url) return false;
-  const path = url.split('?')[0];
-  return (
-    path === '/auth/refresh' ||
-    path === '/auth/login' ||
-    path === '/auth/register' ||
-    path === '/auth/logout'
-  );
-}
-
 export const http = axios.create({
   baseURL: API_URL,
   withCredentials: true,
   validateStatus: () => true,
 });
-
-const refreshHttp = axios.create({
-  baseURL: API_URL,
-  withCredentials: true,
-  validateStatus: () => true,
-});
-
-let refreshInFlight: Promise<void> | null = null;
 
 http.interceptors.request.use((config) => {
   if (isFormData(config.data)) return config;
@@ -88,35 +67,9 @@ http.interceptors.request.use((config) => {
 http.interceptors.response.use(async (res) => {
   const body = normalizeAxiosData(res.data);
 
-  if (res.status === 401) {
-    const config = res.config as InternalAxiosRequestConfig & {
-      _retry?: boolean;
-    };
-    if (!config._retry && !shouldSkipAuthRefresh(config.url)) {
-      config._retry = true;
-
-      if (!refreshInFlight) {
-        refreshInFlight = (async () => {
-          const refreshRes = await refreshHttp.request({
-            url: '/auth/refresh',
-            method: 'POST',
-          });
-          if (refreshRes.status < 200 || refreshRes.status >= 300) {
-            throw new ApiError(
-              refreshRes.status,
-              normalizeAxiosData(refreshRes.data),
-            );
-          }
-        })().finally(() => {
-          refreshInFlight = null;
-        });
-      }
-
-      await refreshInFlight;
-      return await http.request(config as unknown as AxiosRequestConfig);
-    }
+  if (res.status === 401 && typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('auth:unauthorized'));
   }
-
   if (res.status < 200 || res.status >= 300)
     throw new ApiError(res.status, body);
   res.data = body;

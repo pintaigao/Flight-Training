@@ -23,6 +23,7 @@ export default function Sidebar() {
       // ignore
     }
     dispatch({ type: 'SET_AUTH_USER', user: null });
+    dispatch({ type: 'SET_FLIGHTS', flights: [] });
     navigate('/login', { replace: true });
   }
 
