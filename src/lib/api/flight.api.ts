@@ -2,7 +2,7 @@ import type { Feature, LineString } from 'geojson';
 import { http } from './client';
 import type { Flight } from '@/store/types';
 
-export type FlightTrackSource = 'FORE_FLIGHT' | 'FLIGHTAWARE';
+export type FlightTrackSource = 'FORE_FLIGHT';
 
 export type FlightListItem = Flight & {
   track?: Feature<LineString> | null;

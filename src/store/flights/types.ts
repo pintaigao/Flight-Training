@@ -12,7 +12,7 @@ export type Flight = {
   description?: string | null;
   tags: string[];
   track?: Feature<LineString>;
-  trackSource?: 'FORE_FLIGHT' | 'FLIGHTAWARE' | null;
+  trackSource?: 'FORE_FLIGHT' | null;
   trackMeta?: any;
   comments: string;
 };
@@ -30,4 +30,3 @@ export type FlightsAction =
   | { type: 'DELETE_FLIGHT'; id: string }
   | { type: 'UPDATE_COMMENTS'; id: string; comments: string }
   | { type: 'IMPORT_TRACK'; id: string; track: Feature<LineString> };
-
