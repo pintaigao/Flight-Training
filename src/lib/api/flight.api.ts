@@ -1,6 +1,7 @@
 import type { Feature, LineString } from 'geojson';
 import { http } from './client';
 import type { Flight } from '@/store/types';
+import { graphql } from './graphql.client';
 
 export type FlightTrackSource = 'FORE_FLIGHT';
 
@@ -11,6 +12,37 @@ export type FlightListItem = Flight & {
 };
 
 export function getFlights() {
+  const transport = import.meta.env.VITE_API_TRANSPORT ?? 'rest';
+  if (transport === 'graphql') {
+    return graphql<{ flights: FlightListItem[] }>(
+      `query {
+        flights {
+          id
+          dateISO
+          startTimeISO
+          endTimeISO
+          aircraftTail
+          from
+          to
+          durationMin
+          description
+          tags
+          comments
+          track
+          trackSource
+          trackMeta
+        }
+      }`,
+    ).then((data) =>
+      data.flights.map((f) => ({
+        ...f,
+        track: f.track ?? undefined,
+        trackSource: f.trackSource ?? undefined,
+        trackMeta: f.trackMeta ?? undefined,
+      })),
+    );
+  }
+
   return http.get<FlightListItem[]>('/flight').then((res) =>
     res.data.map((f) => ({
       ...f,
