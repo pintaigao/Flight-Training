@@ -4,11 +4,7 @@ import { ChevronRight, Trash2 } from 'lucide-react';
 import { fmtTimeInZone, fmtTzAbbrev, fmtZuluTime } from '@/lib/utils/flightTimeFormat';
 import './FlightCard.scss';
 
-export default function FlightCard({flight, selected, onDelete}: {
-  flight: Flight;
-  selected?: boolean;
-  onDelete?: (id: string) => void;
-}) {
+export default function FlightCard({flight, selected, onDelete}: { flight: Flight; selected?: boolean; onDelete?: (id: string) => void; }) {
   const hrs = (flight.durationMin / 60).toFixed(1);
   const departureTimeZone = (flight as any)?.trackMeta?.departureTimeZone ?? null;
   const startLocal = fmtTimeInZone(flight.startTimeISO ?? null, departureTimeZone);
@@ -21,10 +17,7 @@ export default function FlightCard({flight, selected, onDelete}: {
   
   return (
     <div
-      className={[
-        'card flightCard group rounded-3xl bg-[color:var(--modal)] p-4 shadow-[0_14px_40px_color-mix(in_srgb,#000_22%,transparent)] transition-colors hover:bg-[color:var(--panel)]',
-        selected ? 'flightCard--selected ring-2 ring-[color:rgba(58,169,255,0.35)]' : '',
-      ].join(' ')}>
+      className={['card flightCard group rounded-3xl bg-[color:var(--modal)] p-4 shadow-[0_14px_40px_color-mix(in_srgb,#000_22%,transparent)] transition-colors hover:bg-[color:var(--panel)]', selected ? 'flightCard--selected ring-2 ring-[color:rgba(58,169,255,0.35)]' : ''].join(' ')}>
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start gap-4">
         <div className="min-w-0">
           <div className="text-base font-extrabold tracking-tight text-[color:var(--text)]">
@@ -94,24 +87,24 @@ export default function FlightCard({flight, selected, onDelete}: {
         </div>
         
         <div className="flex items-center gap-2">
-	          {onDelete && (
-	            <button
-	              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[color:rgba(255,84,84,0.30)] bg-[color:rgba(255,84,84,0.10)] text-[color:rgba(255,84,84,0.95)] opacity-0 transition-opacity hover:bg-[color:rgba(255,84,84,0.14)] group-hover:opacity-100"
-	              type="button"
-	              aria-label="Delete flight"
-	              title="Delete flight"
-	              onClick={() => onDelete(flight.id)}>
-	              <Trash2 size={18} aria-hidden="true" />
-	            </button>
-	          )}
-	          <Link
-	            to={`/flights/${flight.id}`}
-	            className="inline-flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 py-2 text-sm font-semibold hover:bg-[color:var(--panel)]">
-	            View Detail
-	            <ChevronRight size={16} aria-hidden="true" />
-	          </Link>
-	        </div>
-	      </div>
-	    </div>
+          {onDelete && (
+            <button
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[color:rgba(255,84,84,0.30)] bg-[color:rgba(255,84,84,0.10)] text-[color:rgba(255,84,84,0.95)] opacity-0 transition-opacity hover:bg-[color:rgba(255,84,84,0.14)] group-hover:opacity-100"
+              type="button"
+              aria-label="Delete flight"
+              title="Delete flight"
+              onClick={() => onDelete(flight.id)}>
+              <Trash2 size={18} aria-hidden="true"/>
+            </button>
+          )}
+          <Link
+            to={`/flights/${flight.id}`}
+            className="inline-flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[color:var(--panel2)] px-3 py-2 text-sm font-semibold hover:bg-[color:var(--panel)]">
+            View Detail
+            <ChevronRight size={16} aria-hidden="true"/>
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }

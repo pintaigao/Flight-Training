@@ -16,7 +16,7 @@ export default function RequireAuth({children}: { children: React.ReactNode; }) 
     if (state.auth.status === 'unknown')
       dispatch({type: 'SET_AUTH_STATUS', status: 'checking'});
     
-    AuthApi.getMe().then((me) => {
+    AuthApi.getProfile().then((me) => {
       if (!alive) return;
       dispatch({type: 'SET_AUTH_USER', user: me});
     }).catch(() => {

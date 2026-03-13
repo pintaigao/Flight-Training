@@ -4,7 +4,7 @@
 
 **Goal:** Replace JWT auth with session-cookie auth (no Redis) across backend + frontend, and scope flights/tracks by logged-in user.
 
-**Architecture:** Backend uses `express-session` and authorizes via `req.session.userId`. Frontend uses cookie credentials only and bootstraps with `/auth/me`.
+**Architecture:** Backend uses `express-session` and authorizes via `req.session.userId`. Frontend uses cookie credentials only and bootstraps with `/auth/profile`.
 
 **Tech Stack:** NestJS (Express), TypeORM (MySQL), React (Vite), Axios.
 
@@ -59,11 +59,11 @@ Expected: PASS.
 - `POST /auth/register` returns `{ id, email }` and sets `req.session.userId`
 - `POST /auth/login` returns `{ id, email }` and sets `req.session.userId`
 - `POST /auth/logout` destroys session
-- `GET /auth/me` returns current user from session (401 if not logged in)
+- `GET /auth/profile` returns current user from session (401 if not logged in)
 
 **Step 2: Remove JWT-only profile**
 
-- Remove `/auth/profile` protected by `AuthGuard('jwt')` (or repurpose to session-based `/auth/me`).
+- Remove the JWT-only profile (or repurpose to session-based `/auth/profile`).
 
 **Step 3: Verify build/tests**
 
@@ -136,9 +136,9 @@ Run:
 - Modify: `Flight-Training/src/components/sidebar/Sidebar.tsx`
 - Modify: `Flight-Training/src/store/flights/*` (as needed)
 
-**Step 1: Bootstrap stays `/auth/me`**
+**Step 1: Bootstrap stays `/auth/profile`**
 
-- Keep `GET /auth/me` call on app start.
+- Keep `GET /auth/profile` call on app start.
 
 **Step 2: Logout clears flights**
 
@@ -165,5 +165,4 @@ Run:
 - Confirm:
   - logged-in users can access Dashboard/Flights/Map and edit flows
   - logged-out users are redirected to `/register`
-  - backend restart invalidates session (next `/auth/me` returns 401)
-
+  - backend restart invalidates session (next `/auth/profile` returns 401)

@@ -48,7 +48,7 @@ export default function MainLayout() {
           </button>
         )}
         <div className={['private-inner w-full', isMapPage ? 'h-full max-w-none' : 'mx-auto max-w-6xl'].join(' ')}>
-          <Outlet/>666060
+          <Outlet/>
         </div>
       </main>
     </div>

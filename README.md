@@ -54,5 +54,5 @@ Endpoints expected:
 - `POST /auth/register` -> returns `{ id, email }` and sets cookies
 - `POST /auth/login` -> returns `{ id, email }` and sets cookies
 - `POST /auth/logout` -> clears cookies
-- `GET /auth/me` -> returns `{ id, email }` if logged in
+- `GET /auth/profile` -> returns `{ id, email }` if logged in
 - `POST /auth/refresh` (optional) -> refresh cookies

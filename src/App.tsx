@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useStore } from '@/store/store';
+import { clearAccessToken } from '@/lib/auth/accessToken';
 
 export default function App() {
   const {dispatch} = useStore();
   
   useEffect(() => {
     const onUnauthorized = () => {
+      clearAccessToken();
       dispatch({type: 'SET_AUTH_USER', user: null});
       dispatch({type: 'SET_AUTH_STATUS', status: 'anon'});
       dispatch({type: 'SET_FLIGHTS', flights: []});

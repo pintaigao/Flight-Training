@@ -17,7 +17,7 @@ Switch the app from JWT (Authorization: Bearer) to **session-cookie auth** so:
 ## Current State (Observed)
 
 - Backend (`flight-training-server`) includes `passport-jwt` and returns `{ access_token }` from `POST /auth/login`.
-- Frontend (`flight-training`) already uses `withCredentials: true` and bootstraps by calling `GET /auth/me`.
+- Frontend (`flight-training`) already uses `withCredentials: true` and bootstraps by calling `GET /auth/profile`.
 - Vite dev proxy strips `/api/v1` and forwards to backend root (so backend routes are `/auth/*`, `/flight/*`, ...).
 
 ## Approach
@@ -29,7 +29,7 @@ Switch the app from JWT (Authorization: Bearer) to **session-cookie auth** so:
    - `POST /auth/register`: create user, set `req.session.userId`, return `{ id, email }`.
    - `POST /auth/login`: validate user, set `req.session.userId`, return `{ id, email }`.
    - `POST /auth/logout`: destroy session (best-effort), return `{ ok: true }`.
-   - `GET /auth/me`: if session present, return `{ id, email }`, else `401`.
+   - `GET /auth/profile`: if session present, return `{ id, email }`, else `401`.
 3) Add a `SessionAuthGuard` and apply it to:
    - all `flight/*` endpoints
    - all `track/*` endpoints (and any other private APIs)
@@ -45,7 +45,7 @@ Switch the app from JWT (Authorization: Bearer) to **session-cookie auth** so:
    - no automatic retry
 2) Keep:
    - `withCredentials: true` globally
-   - App bootstrap via `GET /auth/me` (already exists)
+  - App bootstrap via `GET /auth/profile` (already exists)
 3) On logout:
    - call `POST /auth/logout`
    - clear auth user in store (already implemented)
@@ -76,7 +76,7 @@ User will clear database before using this change. No backfill is needed.
 ## Verification
 
 - Manual:
-  - Register → redirected into private pages, `/auth/me` returns user.
+  - Register → redirected into private pages, `/auth/profile` returns user.
   - Logout → private pages redirect to `/register`.
-  - Backend restart → next `/auth/me` returns 401 → redirect to `/register`.
+  - Backend restart → next `/auth/profile` returns 401 → redirect to `/register`.
   - Flights endpoint returns different results per user (scoped by `userId`).

@@ -46,6 +46,15 @@ export async function logout(): Promise<void> {
   clearAccessToken();
 }
 
+export async function refresh(): Promise<string> {
+  const authMode = import.meta.env.VITE_AUTH_MODE ?? 'session';
+  if (authMode !== 'jwt') throw new Error('Refresh is only supported in jwt mode');
+  const res = await http.post<any>('/auth/refresh');
+  if (typeof res.data?.accessToken !== 'string') throw new Error('Missing accessToken');
+  setAccessToken(res.data.accessToken);
+  return res.data.accessToken;
+}
+
 export async function getProfile(): Promise<AuthUser> {
   const transport = import.meta.env.VITE_API_TRANSPORT ?? 'rest';
   if (transport === 'graphql') {

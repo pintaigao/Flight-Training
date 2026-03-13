@@ -158,9 +158,8 @@ Run: `npm run dev`
 
 **Step 2: Quick checks**
 
-- Auth bootstrap still runs (`/auth/me`)
+- Auth bootstrap still runs (`/auth/profile`)
 - Flights list loads
 - Selecting flights works
 - Filters persist after refresh
 - Flight detail comments save still works
-

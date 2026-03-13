@@ -1,4 +1,4 @@
-export type Filters = {
+ export type Filters = {
   q: string;
   aircraft: string | 'ALL';
   tag: string | 'ALL';

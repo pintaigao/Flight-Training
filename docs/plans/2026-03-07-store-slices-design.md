@@ -100,8 +100,7 @@ Keep the same storage key and persistence intent (persist UI-only preferences):
 
 - Typecheck/build succeeds (`tsc` + `vite build`).
 - Smoke-check key flows:
-  - App bootstraps `getMe()` and auth gating still works.
+  - App bootstraps `getProfile()` and auth gating still works.
   - Flights list loads and selection works.
   - Import flow and map explorer still work.
   - UI filter state persists across refresh (localStorage).
-

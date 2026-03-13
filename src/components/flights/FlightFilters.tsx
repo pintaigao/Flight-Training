@@ -7,8 +7,8 @@ export default function FlightFilters() {
 
   const aircraftOptions = useMemo(() => {
     const set = new Set<string>();
-    for (const id of state.flights.flightIds)
-      set.add(state.flights.flightsById[id].aircraftTail);
+    
+    for (const id of state.flights.flightIds) set.add(state.flights.flightsById[id].aircraftTail);
     return ['ALL', ...Array.from(set).sort()];
   }, [state.flights.flightIds, state.flights.flightsById]);
 
