@@ -13,12 +13,18 @@ export default function Flights() {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
-  const [parsed, setParsed] = useState<{
-    originalFilename: string;
-    startTimeISO: string;
-    endTimeISO: string;
-    file: File;
-  } | null>(null);
+  const [importItems, setImportItems] = useState<
+    {
+      id: string;
+      originalFilename: string;
+      file: File;
+      parse:
+        | { ok: true; startTimeISO: string; endTimeISO: string }
+        | { ok: false; error: string };
+      enabled: boolean;
+    }[]
+    | null
+  >(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -65,6 +71,9 @@ export default function Flights() {
             type="button"
             onClick={() => {
               setImportError(null);
+              // If the user selects the same file twice, most browsers won't fire `change`
+              // unless we clear the input value first.
+              if (fileRef.current) fileRef.current.value = '';
               fileRef.current?.click();
             }}>
             Import ForeFlight KML
@@ -72,20 +81,44 @@ export default function Flights() {
           <input
             ref={fileRef}
             type="file"
+            multiple
             accept=".kml,application/vnd.google-earth.kml+xml,text/xml"
             style={{display: 'none'}}
             onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
+              const files = Array.from(e.target.files ?? []);
+              if (files.length === 0) return;
               setImportError(null);
               try {
-                const res = await readForeFlightKmlTimeRange(file);
-                setParsed({
-                  originalFilename: file.name,
-                  startTimeISO: res.startTimeISO,
-                  endTimeISO: res.endTimeISO,
-                  file,
-                });
+                const seed = await Promise.all(
+                  files.map(async (file, idx) => {
+                    try {
+                      const res = await readForeFlightKmlTimeRange(file);
+                      return {
+                        id: `kml-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 8)}`,
+                        originalFilename: file.name,
+                        file,
+                        parse: {
+                          ok: true as const,
+                          startTimeISO: res.startTimeISO,
+                          endTimeISO: res.endTimeISO,
+                        },
+                        enabled: true,
+                      };
+                    } catch (err: any) {
+                      return {
+                        id: `kml-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 8)}`,
+                        originalFilename: file.name,
+                        file,
+                        parse: {
+                          ok: false as const,
+                          error: err?.message ?? 'Failed to parse KML',
+                        },
+                        enabled: false,
+                      };
+                    }
+                  }),
+                );
+                setImportItems(seed);
                 setImportOpen(true);
               } catch (err: any) {
                 setImportError(err?.message ?? 'Failed to parse KML');
@@ -131,10 +164,10 @@ export default function Flights() {
       {/* prettier-ignore */}
       <ImportFlightDataModal
         open={importOpen}
-        parsed={parsed}
+        items={importItems}
         onClose={() => {
           setImportOpen(false);
-          setParsed(null);
+          setImportItems(null);
         }}/>
       
       {/* prettier-ignore */}
