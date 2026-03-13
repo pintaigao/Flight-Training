@@ -12,13 +12,23 @@
 
   .modal-card {
     width: min($u115, 100%);
-    max-height: min(86vh, $u108);
-    overflow: auto;
     border-radius: var(--radius2);
     background: var(--modal);
     backdrop-filter: blur($u1);
     -webkit-backdrop-filter: blur($u1);
     box-shadow: 0 18px 70px rgba(0, 0, 0, 0.35);
+
+    &.modal-card--scroll {
+      max-height: min(86vh, $u108);
+      overflow: auto;
+    }
+
+    &.modal-card--no-scroll {
+      // Let the modal grow with its content. Prefer no internal scrollbars.
+      // Keep a viewport cap so it doesn't explode beyond the screen.
+      max-height: 94vh;
+      overflow: visible;
+    }
 
     .modal-header {
       display: flex;

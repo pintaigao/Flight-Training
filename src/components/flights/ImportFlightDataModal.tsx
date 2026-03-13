@@ -502,6 +502,7 @@ export default function ImportFlightDataModal({open, items, onClose}: { open: bo
       open
       title="Import ForeFlight KML (Batch)"
       width="min(920px, 100%)"
+      scroll="none"
       disabled={running}
       onClose={() => {
         if (running) return;
