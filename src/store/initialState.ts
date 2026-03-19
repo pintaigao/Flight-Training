@@ -1,4 +1,4 @@
-import type { AppState } from './types';
+import type { AppState } from '@/lib/types/state';
 import { initialAuthState } from './auth/initial';
 import { initialFlightsState } from './flights/initial';
 import { initialUiState } from './ui/initial';
@@ -10,4 +10,3 @@ export function initState(): AppState {
     ui: initialUiState,
   };
 }
-

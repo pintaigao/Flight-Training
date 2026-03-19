@@ -1,21 +1,10 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useReducer,
-} from 'react';
-import type { AppState, Action } from './types';
+import React, { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
+import type { Store } from '@/lib/types/store';
+import type { AppState } from '@/lib/types/state';
 import { rootReducer } from './rootReducer';
 import { initState } from './initialState';
-import * as FlightApi from '@/lib/api/flight.api';
 
 const STORAGE_KEY = 'flightlog.Modal.v1';
-
-type Store = {
-  state: AppState;
-  dispatch: React.Dispatch<Action>;
-};
 
 const StoreContext = createContext<Store | null>(null);
 

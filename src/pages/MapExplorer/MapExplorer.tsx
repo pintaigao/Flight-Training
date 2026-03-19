@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plane, X } from 'lucide-react';
 import MapView from '@/components/map/MapView';
 import { useStore } from '@/store/store';
-import type { TrackItem } from '@/components/map/MapView';
+import type { TrackItem } from '@/lib/types/flight';
 import { fmtFlightTimeRange } from '@/lib/utils/flightTimeFormat';
 import { fmtTimeInZone, fmtTzAbbrev } from '@/lib/utils/flightTimeFormat';
 import LexicalEditor from '@/components/richtext/LexicalEditor';

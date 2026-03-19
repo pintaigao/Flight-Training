@@ -1,11 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import type { Theme } from './theme';
+import type { Theme, ThemeContextValue } from '@/lib/types/ui';
 import { applyTheme, getInitialTheme, persistTheme, toggleTheme } from './theme';
-
-type ThemeContextValue = {
-  theme: Theme;
-  toggle: () => void;
-};
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
@@ -40,4 +35,3 @@ export function useTheme() {
   if (!ctx) throw new Error('useTheme must be used within ThemeProvider');
   return ctx;
 }
-

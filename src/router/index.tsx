@@ -8,6 +8,7 @@ import Dashboard from '@/pages/Dashboard/Dashboard';
 import Flights from '@/pages/Flights/Flights';
 import FlightDetail from '@/pages/Flights/FlightDetail/FlightDetail';
 import MapExplorer from '@/pages/MapExplorer/MapExplorer';
+import Notes from '@/pages/Notes/Notes';
 import Login from '@/pages/Auth/Login';
 import Register from '@/pages/Auth/Register';
 
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
           { path: '/flights', element: <Flights /> },
           { path: '/flights/:id', element: <FlightDetail /> },
           { path: '/map', element: <MapExplorer /> },
+          { path: '/notes', element: <Notes /> },
         ],
       },
       { path: '*', element: <Navigate to="/home" replace /> },

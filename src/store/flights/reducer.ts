@@ -1,5 +1,6 @@
-import type { Action } from '../types';
-import type { FlightsState, Flight } from './types';
+import type { Action } from '@/lib/types/actions';
+import type { Flight } from '@/lib/types/flight';
+import type { FlightsState } from '@/lib/types/state';
 
 export function flightsReducer(state: FlightsState, action: Action): FlightsState {
   switch (action.type) {

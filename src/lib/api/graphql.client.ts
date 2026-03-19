@@ -1,11 +1,9 @@
 import axios, { AxiosHeaders } from 'axios';
-import { ApiError, getOrStartRefresh } from './client';
-import { getAccessToken } from '@/lib/auth/accessToken';
+import { ApiError, getAccessToken, getOrStartRefresh } from './client';
+import type { GraphqlResponse } from '@/lib/types/api';
 
 const API_ORIGIN = import.meta.env.VITE_API_URL ?? '';
 const GRAPHQL_URL = API_ORIGIN ? `${API_ORIGIN}/graphql` : '/graphql';
-
-type GraphqlResponse<T> = { data?: T; errors?: Array<{ message?: string; extensions?: any }> };
 
 function buildAuthHeaders() {
   const authMode = import.meta.env.VITE_AUTH_MODE ?? 'session';
@@ -17,13 +15,13 @@ function buildAuthHeaders() {
   return headers;
 }
 
-function isUnauthorized(errors: GraphqlResponse<any>['errors']) {
+function isUnauthorized(errors: GraphqlResponse<unknown>['errors']) {
   return (errors ?? []).some((e) => (e?.message ?? '').toLowerCase() === 'unauthorized');
 }
 
 export async function graphql<TData>(
   query: string,
-  variables?: Record<string, any>,
+  variables?: Record<string, unknown>,
 ): Promise<TData> {
   async function runOnce() {
     const res = await axios.post<GraphqlResponse<TData>>(
@@ -43,7 +41,7 @@ export async function graphql<TData>(
 
   try {
     return await runOnce();
-  } catch (e: any) {
+  } catch (e) {
     const authMode = import.meta.env.VITE_AUTH_MODE ?? 'session';
     if (authMode === 'jwt' && e instanceof ApiError && e.status === 401) {
       await getOrStartRefresh();

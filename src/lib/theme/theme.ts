@@ -1,4 +1,4 @@
-export type Theme = 'light' | 'dark';
+import type { Theme } from '@/lib/types/ui';
 
 const STORAGE_KEY = 'flightlog.theme';
 
@@ -44,4 +44,3 @@ export function persistTheme(theme: Theme) {
 export function toggleTheme(current: Theme): Theme {
   return current === 'dark' ? 'light' : 'dark';
 }
-

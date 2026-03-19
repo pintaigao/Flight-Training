@@ -1,4 +1,4 @@
-import type { Flight } from '@/store/types';
+import type { Flight } from '@/lib/types/flight';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Trash2 } from 'lucide-react';
 import { fmtTimeInZone, fmtTzAbbrev, fmtZuluTime } from '@/lib/utils/flightTimeFormat';

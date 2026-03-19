@@ -1,7 +1,5 @@
-import axios, {
-  AxiosHeaders,
-} from 'axios';
-import { getAccessToken, setAccessToken } from '@/lib/auth/accessToken';
+import axios, { AxiosHeaders } from 'axios';
+import type { TokenPayload } from '@/lib/types/api';
 
 // Prefer same-origin requests by default (works with Vite dev proxy and typical deployments).
 // If your API is hosted on a different origin, set `VITE_API_URL`.
@@ -9,12 +7,31 @@ const API_ORIGIN = import.meta.env.VITE_API_URL ?? '';
 const API_PREFIX = '/api/v1';
 export const API_URL = API_ORIGIN ? `${API_ORIGIN}${API_PREFIX}` : API_PREFIX;
 
+let accessToken: string | null = null;
 let refreshPromise: Promise<string> | null = null;
+
+function readAccessToken(data: unknown) {
+  if (!data || typeof data !== 'object') return null;
+  const token = (data as TokenPayload).accessToken;
+  return typeof token === 'string' ? token : null;
+}
+
+export function getAccessToken() {
+  return accessToken;
+}
+
+export function setAccessToken(next: string | null) {
+  accessToken = next;
+}
+
+export function clearAccessToken() {
+  accessToken = null;
+}
 
 export class ApiError extends Error {
   status: number;
-  body: any;
-  constructor(status: number, body: any) {
+  body: unknown;
+  constructor(status: number, body: unknown) {
     super(`API error ${status}`);
     this.status = status;
     this.body = body;
@@ -30,13 +47,13 @@ function parseTextBody(text: string | undefined | null) {
   }
 }
 
-function normalizeAxiosData(data: any) {
+function normalizeAxiosData(data: unknown) {
   if (data == null || data === '') return null;
   if (typeof data === 'string') return parseTextBody(data);
   return data;
 }
 
-function isFormData(value: any): value is FormData {
+function isFormData(value: unknown): value is FormData {
   return typeof FormData !== 'undefined' && value instanceof FormData;
 }
 
@@ -47,13 +64,13 @@ export const http = axios.create({
 });
 
 export async function refreshAccessToken(): Promise<string> {
-  const res = await axios.post<any>(
+  const res = await axios.post<TokenPayload>(
     `${API_URL}/auth/refresh`,
     null,
     { withCredentials: true, validateStatus: () => true },
   );
   const body = normalizeAxiosData(res.data);
-  const token = (body as any)?.accessToken;
+  const token = readAccessToken(body);
   if (res.status >= 200 && res.status < 300 && typeof token === 'string') {
     setAccessToken(token);
     return token;
@@ -106,7 +123,7 @@ http.interceptors.response.use(async (res) => {
   if (res.status === 401 && typeof window !== 'undefined') {
     const authMode = import.meta.env.VITE_AUTH_MODE ?? 'session';
     if (authMode === 'jwt') {
-      const cfg: any = res.config ?? {};
+      const cfg = (res.config ?? {}) as typeof res.config & { _retry?: boolean };
       const url = String(cfg.url ?? '');
       const isRefresh = url.includes('/auth/refresh');
       if (!isRefresh && !cfg._retry) {

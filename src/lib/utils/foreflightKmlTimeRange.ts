@@ -12,7 +12,7 @@ function extractBetween(text: string, startIdx: number) {
   if (!raw) return null;
 
   const iso = new Date(raw).toISOString();
-  return { iso, endIdx: b + WHEN_CLOSE.length };
+  return { iso };
 }
 
 export async function readForeFlightKmlTimeRange(

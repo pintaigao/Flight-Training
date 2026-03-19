@@ -4,27 +4,8 @@ import type { Feature, FeatureCollection, LineString } from 'geojson';
 import L from 'leaflet';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Plane } from 'lucide-react';
+import type { MapViewProps } from '@/lib/types/flight';
 import './MapView.scss';
-
-export type TrackItem = {
-  id: string;
-  title: string;
-  subtitle?: string;
-  feature: Feature<LineString>;
-};
-
-type Props = {
-  tracks: TrackItem[];
-  selectedId?: string | null;
-  height?: number | string;
-  onSelect?: (id: string) => void;
-  showTileAttribution?: boolean;
-  showZoomControl?: boolean;
-  cursor?: { lat: number; lng: number } | null;
-  invalidateKey?: unknown;
-  cursorLabelLines?: string[] | null;
-  cursorHeadingDeg?: number | null;
-};
 
 function FitBounds({feature}: { feature?: Feature<LineString> }) {
   const map = useMap();
@@ -134,7 +115,7 @@ function MapView({
   invalidateKey,
   cursorLabelLines = null,
   cursorHeadingDeg = null,
-}: Props) {
+}: MapViewProps) {
   const selected = tracks.find((t) => t.id === selectedId);
 
   const geoJsonKey = useMemo(() => tracks.map((t) => t.id).join('|'), [tracks]);

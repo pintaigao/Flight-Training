@@ -1,5 +1,5 @@
-import type { Action } from '../types';
-import type { AuthState } from './types';
+import type { Action } from '@/lib/types/actions';
+import type { AuthState } from '@/lib/types/state';
 
 export function authReducer(state: AuthState, action: Action): AuthState {
   switch (action.type) {

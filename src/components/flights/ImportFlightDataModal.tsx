@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/store';
-import type { Flight } from '@/store/types';
 import * as FlightApi from '@/lib/api/flight.api';
 import Modal from '@/components/Modal/Modal';
+import type { BatchItem, Flight, ItemConfig, SeedItem } from '@/lib/types/flight';
 
 const CHICAGO_TZ = 'America/Chicago';
 const BUFFER_MINUTES = 60;
@@ -36,45 +36,6 @@ async function sha256Hex(file: File) {
   const bytes = Array.from(new Uint8Array(digest));
   return bytes.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
-
-type SeedItem = {
-  id: string;
-  originalFilename: string;
-  file: File;
-  parse:
-    | { ok: true; startTimeISO: string; endTimeISO: string }
-    | { ok: false; error: string };
-  enabled: boolean;
-};
-
-type BatchItem = SeedItem & {
-  mode: 'existing' | 'new';
-  selectedExistingId: string;
-  newTail: string;
-  newFrom: string;
-  newTo: string;
-  newDescription: string;
-  newTags: string;
-  validationError: string | null;
-  run:
-    | { status: 'pending' }
-    | { status: 'running' }
-    | { status: 'success'; flightId: string }
-    | { status: 'error'; message: string }
-    | { status: 'skipped' };
-};
-
-type ItemConfig = Pick<
-  BatchItem,
-  | 'enabled'
-  | 'mode'
-  | 'selectedExistingId'
-  | 'newTail'
-  | 'newFrom'
-  | 'newTo'
-  | 'newDescription'
-  | 'newTags'
->;
 
 function statusBadge(status: BatchItem['run']['status']) {
   switch (status) {

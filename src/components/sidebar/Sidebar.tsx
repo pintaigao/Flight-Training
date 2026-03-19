@@ -2,12 +2,13 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/store';
 import * as AuthApi from '@/lib/api/auth.api';
 import { useTheme } from '@/lib/theme/ThemeProvider';
-import { LayoutDashboard, Plane, Map as MapIcon, Waves } from 'lucide-react';
+import { LayoutDashboard, Plane, Map as MapIcon, StickyNote, Waves } from 'lucide-react';
 import './Sidebar.scss';
 
 const nav = [
   { to: '/home', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/flights', label: 'Flights', icon: Plane },
+  { to: '/notes', label: 'Notes', icon: StickyNote },
   { to: '/map', label: 'Map', icon: MapIcon },
 ] as const;
 

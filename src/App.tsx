@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useStore } from '@/store/store';
-import { clearAccessToken } from '@/lib/auth/accessToken';
+import { clearAccessToken } from '@/lib/api/client';
 
 export default function App() {
   const {dispatch} = useStore();

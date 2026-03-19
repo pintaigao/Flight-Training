@@ -1,7 +1,13 @@
-export function fmtZuluTime(iso: string | null | undefined) {
-  if (!iso) return '—';
+function toValidDate(iso: string | null | undefined) {
+  if (!iso) return null;
   const d = new Date(iso);
-  if (!Number.isFinite(d.getTime())) return '—';
+  if (!Number.isFinite(d.getTime())) return null;
+  return d;
+}
+
+export function fmtZuluTime(iso: string | null | undefined) {
+  const d = toValidDate(iso);
+  if (!d) return '—';
   const hhmm = d.toLocaleTimeString('en-US', {
     timeZone: 'UTC',
     hour: '2-digit',
@@ -15,9 +21,8 @@ export function fmtTimeInZone(
   iso: string | null | undefined,
   timeZone?: string | null,
 ) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  if (!Number.isFinite(d.getTime())) return '—';
+  const d = toValidDate(iso);
+  if (!d) return '—';
   return d.toLocaleTimeString('en-US', {
     timeZone: timeZone || undefined,
     hour: 'numeric',
@@ -29,9 +34,8 @@ export function fmtTzAbbrev(
   iso: string | null | undefined,
   timeZone?: string | null,
 ) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  if (!Number.isFinite(d.getTime())) return '—';
+  const d = toValidDate(iso);
+  if (!d) return '—';
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: timeZone || undefined,
     timeZoneName: 'short',
@@ -56,4 +60,3 @@ export function fmtFlightTimeRange(
       : `(${startLocal} ${tzStart} → ${endLocal} ${tzEnd})`;
   return `${startZ} → ${endZ} ${local}`;
 }
-

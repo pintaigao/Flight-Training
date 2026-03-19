@@ -9,6 +9,7 @@ import ConfirmModal from '@/components/Modal/ConfirmModal';
 import TrackChart from '@/components/track/TrackChart';
 import Modal from '@/components/Modal/Modal';
 import LexicalEditor from '@/components/richtext/LexicalEditor';
+import type { TrackSample } from '@/lib/types/flight';
 import { fmtFlightTimeRange } from '@/lib/utils/flightTimeFormat';
 import './FlightDetail.scss';
 
@@ -51,7 +52,7 @@ export default function FlightDetail() {
   const [savingDesc, setSavingDesc] = useState(false);
   const [descError, setDescError] = useState<string | null>(null);
   
-  const [samples, setSamples] = useState<FlightApi.TrackSample[] | null>(null);
+  const [samples, setSamples] = useState<TrackSample[] | null>(null);
   const [samplesError, setSamplesError] = useState<string | null>(null);
   const [loadingSamples, setLoadingSamples] = useState(false);
   const [cursorIdx, setCursorIdx] = useState(0);

@@ -10,18 +10,38 @@ import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
-import { FORMAT_TEXT_COMMAND, REDO_COMMAND, UNDO_COMMAND, $getSelection, $isRangeSelection, $getRoot, $createParagraphNode } from 'lexical';
-import {
-  INSERT_ORDERED_LIST_COMMAND,
-  INSERT_UNORDERED_LIST_COMMAND,
-  REMOVE_LIST_COMMAND,
-  ListItemNode,
-  ListNode,
-} from '@lexical/list';
+import { FORMAT_TEXT_COMMAND, REDO_COMMAND, UNDO_COMMAND, $getSelection, $isRangeSelection, $getRoot, $createParagraphNode, $createTextNode, type LexicalEditor as LexicalInstance } from 'lexical';
+import { INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, REMOVE_LIST_COMMAND, ListItemNode, ListNode } from '@lexical/list';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { $isLinkNode, LinkNode } from '@lexical/link';
 import { CodeNode } from '@lexical/code';
 import './LexicalEditor.scss';
+import { emptyLexicalStateJson, lexicalToPlainText } from '@/lib/utils/lexicalPlainText';
+
+const EXTERNAL_SYNC_TAG = 'external-sync';
+
+function applySerializedValue(editor: LexicalInstance, value: string) {
+  const nextValue = value || emptyLexicalStateJson();
+
+  try {
+    const parsed = editor.parseEditorState(nextValue);
+    editor.setEditorState(parsed, {tag: EXTERNAL_SYNC_TAG});
+  } catch {
+    const plain =
+      lexicalToPlainText(nextValue) ||
+      (typeof nextValue === 'string' ? nextValue : '');
+    editor.update(
+      () => {
+        const root = $getRoot();
+        root.clear();
+        const paragraph = $createParagraphNode();
+        if (plain) paragraph.append($createTextNode(plain));
+        root.append(paragraph);
+      },
+      {tag: EXTERNAL_SYNC_TAG},
+    );
+  }
+}
 
 function Icon({title, children}: { title: string; children: ReactNode }) {
   return (
@@ -169,22 +189,8 @@ function SyncFromValue({
     // `lastEmittedJsonRef.current`.
     if ((lastAppliedRef.current != null && value === lastAppliedRef.current) || (lastEmittedJsonRef.current != null && value === lastEmittedJsonRef.current)) return;
     
-    if (!value) {
-      editor.update(() => {
-        const root = $getRoot();
-        root.clear();
-        root.append($createParagraphNode());
-      });
-      lastAppliedRef.current = '';
-      return;
-    }
-    try {
-      const parsed = editor.parseEditorState(value);
-      editor.setEditorState(parsed);
-      lastAppliedRef.current = value;
-    } catch {
-      // ignore malformed stored data
-    }
+    applySerializedValue(editor, value);
+    lastAppliedRef.current = value;
   }, [editor, enabled, lastEmittedJsonRef, value]);
   
   return null;
@@ -204,6 +210,7 @@ export default function LexicalEditor({
                                         placeholder = 'Write comments…',
                                         disabled = false,
                                         showToolbar = true,
+                                        className = '',
                                       }: {
   // Serialized Lexical editorState JSON string.
   value: string;
@@ -211,11 +218,15 @@ export default function LexicalEditor({
   placeholder?: string;
   disabled?: boolean;
   showToolbar?: boolean;
+  className?: string;
 }) {
   const initialConfig = useMemo(() => {
     return {
       namespace: 'CommentsEditor',
       editable: !disabled,
+      editorState(editor: LexicalInstance) {
+        applySerializedValue(editor, value);
+      },
       onError(error: Error) {
         // eslint-disable-next-line no-console
         console.error(error);
@@ -229,12 +240,19 @@ export default function LexicalEditor({
         CodeNode,
       ],
     };
-  }, [disabled]);
+  }, [disabled, value]);
   
   const lastEmittedJsonRef = useRef<string | null>(null);
   
   return (
-    <div className={showToolbar ? 'lx-editor' : 'lx-editor lx-readonly'}>
+    <div
+      className={[
+        'lx-editor',
+        showToolbar ? '' : 'lx-readonly',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}>
       <LexicalComposer initialConfig={initialConfig}>
         {showToolbar && <Toolbar disabled={disabled}/>}
         <div className="lx-content">
@@ -247,20 +265,22 @@ export default function LexicalEditor({
           <ListPlugin/>
           <LinkPlugin/>
           <SetEditable disabled={disabled}/>
+          <SyncFromValue
+            value={value || ''}
+            enabled={true}
+            lastEmittedJsonRef={lastEmittedJsonRef}
+          />
           {onChange && (
             <OnChangePlugin
-              onChange={(editorState) => {
+              ignoreSelectionChange={true}
+              onChange={(editorState, _editor, tags) => {
+                if (tags.has(EXTERNAL_SYNC_TAG)) return;
                 const json = JSON.stringify(editorState.toJSON());
                 lastEmittedJsonRef.current = json;
                 onChange(json);
               }}
             />
           )}
-          <SyncFromValue
-            value={value || ''}
-            enabled={true}
-            lastEmittedJsonRef={lastEmittedJsonRef}
-          />
         </div>
       </LexicalComposer>
     </div>

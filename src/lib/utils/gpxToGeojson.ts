@@ -1,5 +1,20 @@
 import { gpx } from '@tmcw/togeojson';
-import type { Feature, FeatureCollection, LineString } from 'geojson';
+import type { Feature, FeatureCollection, LineString, MultiLineString } from 'geojson';
+
+function toFirstLineString(
+  feature: Feature<LineString | MultiLineString>,
+): Feature<LineString> {
+  if (feature.geometry.type === 'LineString') {
+    return feature as Feature<LineString>;
+  }
+
+  const coords = feature.geometry.coordinates[0] || [];
+  return {
+    type: 'Feature',
+    properties: feature.properties ?? {},
+    geometry: { type: 'LineString', coordinates: coords },
+  };
+}
 
 export async function readGpxAsLineString(
   file: File,
@@ -10,17 +25,8 @@ export async function readGpxAsLineString(
 
   // Find the first LineString in the collection
   for (const f of geo.features) {
-    if (f.geometry?.type === 'LineString') {
-      return f as Feature<LineString>;
-    }
-    // Some GPX exports have MultiLineString
-    if (f.geometry?.type === 'MultiLineString') {
-      const coords = (f.geometry.coordinates as any[][][])[0] || [];
-      return {
-        type: 'Feature',
-        properties: f.properties ?? {},
-        geometry: { type: 'LineString', coordinates: coords },
-      };
+    if (f.geometry?.type === 'LineString' || f.geometry?.type === 'MultiLineString') {
+      return toFirstLineString(f as Feature<LineString | MultiLineString>);
     }
   }
 

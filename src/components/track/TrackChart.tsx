@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type * as FlightApi from '@/lib/api/flight.api';
+import type { TrackChartProps } from '@/lib/types/flight';
 import './TrackChart.scss';
 
 const CHICAGO_TZ = 'America/Chicago';
@@ -32,21 +32,13 @@ function downsampleKeepEnds<T>(arr: T[], max: number): T[] {
   return out;
 }
 
-type Props = {
-  samples: FlightApi.TrackSample[];
-  cursorIdx: number;
-  onCursorChange: (idx: number) => void;
-  height?: number;
-  maxRenderPoints?: number;
-};
-
 export default function TrackChart({
   samples,
   cursorIdx,
   onCursorChange,
   height = 210,
   maxRenderPoints = 2200,
-}: Props) {
+}: TrackChartProps) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const [w, setW] = useState(800);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);

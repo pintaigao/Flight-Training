@@ -1,15 +1,16 @@
 import type { Feature, LineString } from 'geojson';
 import { http } from './client';
-import type { Flight } from '@/store/types';
 import { graphql } from './graphql.client';
+import type { Flight, FlightListItem, FlightTrackSource, GetFlightTrackResponse, TrackSample } from '@/lib/types/flight';
 
-export type FlightTrackSource = 'FORE_FLIGHT';
-
-export type FlightListItem = Flight & {
-  track?: Feature<LineString> | null;
-  trackSource?: FlightTrackSource | null;
-  trackMeta?: any | null;
-};
+function normalizeFlightListItem(flight: FlightListItem): FlightListItem {
+  return {
+    ...flight,
+    track: flight.track ?? undefined,
+    trackSource: flight.trackSource ?? undefined,
+    trackMeta: flight.trackMeta ?? undefined,
+  };
+}
 
 export function getFlights() {
   const transport = import.meta.env.VITE_API_TRANSPORT ?? 'rest';
@@ -34,23 +35,13 @@ export function getFlights() {
         }
       }`,
     ).then((data) =>
-      data.flights.map((f) => ({
-        ...f,
-        track: f.track ?? undefined,
-        trackSource: f.trackSource ?? undefined,
-        trackMeta: f.trackMeta ?? undefined,
-      })),
+      data.flights.map(normalizeFlightListItem),
     );
   }
 
-  return http.get<FlightListItem[]>('/flight').then((res) =>
-    res.data.map((f) => ({
-      ...f,
-      track: f.track ?? undefined,
-      trackSource: f.trackSource ?? undefined,
-      trackMeta: f.trackMeta ?? undefined,
-    })),
-  );
+  return http
+    .get<FlightListItem[]>('/flight')
+    .then((res) => res.data.map(normalizeFlightListItem));
 }
 
 export function upsertFlight(id: string, flight: Omit<Flight, 'id'>) {
@@ -81,25 +72,12 @@ export function upsertFlightTrack(
   id: string,
   source: FlightTrackSource,
   feature: Feature<LineString>,
-  meta?: any,
+  meta?: unknown,
 ) {
   return http
     .put(`/flight/${encodeURIComponent(id)}/track`, { source, feature, meta })
     .then((res) => res.data);
 }
-
-export type GetFlightTrackResponse = {
-  id: number;
-  flightId: string;
-  source: FlightTrackSource;
-  feature: Feature<LineString>;
-  meta: any | null;
-  rawText?: string | null;
-  rawFormat?: string | null;
-  rawFilename?: string | null;
-  rawMime?: string | null;
-  createdAt: string;
-};
 
 export function getFlightTrack(
   id: string,
@@ -133,14 +111,6 @@ export function uploadFlightTrackFile(
     .then((res) => res.data);
 }
 
-export type TrackSample = {
-  t: string;
-  lng: number;
-  lat: number;
-  altAglFt: number | null;
-  gsKt: number | null;
-};
-
 export function getFlightTrackSamples(
   id: string,
   source: FlightTrackSource = 'FORE_FLIGHT',
@@ -150,7 +120,7 @@ export function getFlightTrackSamples(
       flightId: string;
       source: FlightTrackSource;
       samples: TrackSample[];
-      meta?: any;
+      meta?: unknown;
     }>(
       `/flight/${encodeURIComponent(id)}/track/samples?source=${encodeURIComponent(source)}`,
     )

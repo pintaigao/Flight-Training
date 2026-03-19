@@ -1,11 +1,20 @@
 import './Modal.scss';
-import type { ReactNode } from 'react';
+import type { MouseEvent } from 'react';
 import ModalCloseButton from '@/components/buttons/ModalCloseButton';
+import type { ModalProps } from '@/lib/types/ui';
 
-export default function Modal({open, title, width = 'min(760px, 100%)', disabled = false, scroll = 'auto', onClose, children}: any) {
+export default function Modal({
+  open,
+  title,
+  width = 'min(760px, 100%)',
+  disabled = false,
+  scroll = 'auto',
+  onClose,
+  children,
+}: ModalProps) {
   if (!open) return null;
   
-  function onMouseDown(e: any) {
+  function onMouseDown(e: MouseEvent<HTMLDivElement>) {
     if (disabled) return;
     if (e.target === e.currentTarget) onClose();
   }

@@ -143,6 +143,28 @@
     var(--shadow);
 }
 
+.lx-editor--plain {
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+
+  .lx-toolbar {
+    padding: 0 0 18px;
+    background: transparent;
+  }
+
+  .lx-content {
+    padding: 0;
+    min-height: 420px;
+  }
+
+  .lx-editable,
+  .lx-placeholder {
+    max-width: none;
+    margin: 0;
+  }
+}
+
 .lx-readonly {
   .lx-toolbar {
     display: none;
