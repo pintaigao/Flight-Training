@@ -1,0 +1,280 @@
+.trackSchedules {
+  .trackSchedulesHero {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .trackSchedulesZuluClock {
+    min-width: 11rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.15rem;
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    background: var(--panel);
+    padding: 0.8rem 1rem;
+    box-shadow: var(--shadow);
+  }
+
+  .trackSchedulesZuluLabel {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .trackSchedulesZuluTime {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--text);
+  }
+
+  .trackSchedulesZuluDate {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .trackSchedulesTitle {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--text);
+  }
+
+  .trackSchedulesSubtitle {
+    margin-top: 0.5rem;
+    max-width: 52rem;
+    color: var(--muted);
+  }
+
+  .trackSchedulesError {
+    border: 1px solid rgba(248, 113, 113, 0.35);
+    background: rgba(127, 29, 29, 0.18);
+    color: #fecaca;
+    border-radius: 1rem;
+    padding: 0.85rem 1rem;
+  }
+
+  .trackSchedulesPanel {
+    border: 1px solid var(--border);
+    border-radius: 1.5rem;
+    background: var(--panel);
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+
+  .trackSchedulesPanelHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+
+    h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    span {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+  }
+
+  .trackSchedulesForm {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    span {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    input,
+    select {
+      height: 2.85rem;
+      border-radius: 0.95rem;
+      border: 1px solid var(--border);
+      background: var(--panel2);
+      padding: 0 0.9rem;
+      color: var(--text);
+    }
+  }
+
+  .trackSchedulesFormActions {
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .trackSchedulesPrimary,
+  .trackSchedulesGhost {
+    height: 2.85rem;
+    border-radius: 0.95rem;
+    padding: 0 1rem;
+    font-weight: 700;
+    transition: 160ms ease;
+  }
+
+  .trackSchedulesPrimary {
+    border: none;
+    background: var(--accent);
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: var(--accent2);
+    }
+  }
+
+  .trackSchedulesGhost {
+    border: 1px solid var(--border);
+    background: var(--panel2);
+    color: var(--text);
+
+    &:hover:not(:disabled) {
+      background: var(--panel);
+    }
+  }
+
+  .trackSchedulesEmpty {
+    padding: 1rem 0;
+    color: var(--muted);
+  }
+
+  .trackSchedulesList {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .trackSchedulesCard {
+    border: 1px solid var(--border);
+    border-radius: 1.25rem;
+    background: var(--panel2);
+    padding: 1rem;
+  }
+
+  .trackSchedulesCardTop {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .trackSchedulesName {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .trackSchedulesMeta {
+    margin-top: 0.2rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .trackSchedulesStatus {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: capitalize;
+  }
+
+  .trackSchedulesStatus--scheduled {
+    background: rgba(59, 130, 246, 0.16);
+    color: #bfdbfe;
+  }
+
+  .trackSchedulesStatus--running {
+    background: rgba(250, 204, 21, 0.16);
+    color: #fde68a;
+  }
+
+  .trackSchedulesStatus--completed {
+    background: rgba(34, 197, 94, 0.16);
+    color: #bbf7d0;
+  }
+
+  .trackSchedulesStatus--failed {
+    background: rgba(248, 113, 113, 0.16);
+    color: #fecaca;
+  }
+
+  .trackSchedulesStatus--noData,
+  .trackSchedulesStatus--cancelled {
+    background: rgba(148, 163, 184, 0.16);
+    color: #cbd5e1;
+  }
+
+  .trackSchedulesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 0.9rem;
+    margin-top: 1rem;
+
+    span {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+
+    strong {
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+  }
+
+  .trackSchedulesExecution {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.9rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+
+    span {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+
+    strong {
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+  }
+
+  .trackSchedulesExecutionError {
+    grid-column: 1 / -1;
+    color: #fecaca;
+    font-size: 0.9rem;
+  }
+
+  .trackSchedulesActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+}
