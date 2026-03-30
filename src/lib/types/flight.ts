@@ -1,6 +1,6 @@
 import type { Feature, LineString } from 'geojson';
 
-export type FlightTrackSource = 'FORE_FLIGHT';
+export type FlightTrackSource = 'FORE_FLIGHT' | 'ADSB_TRACK';
 export type FlightTrackMeta = object;
 
 export type Flight = {

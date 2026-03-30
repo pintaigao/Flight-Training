@@ -4,6 +4,14 @@ import { ChevronRight, Trash2 } from 'lucide-react';
 import { fmtTimeInZone, fmtTzAbbrev, fmtZuluTime } from '@/lib/utils/flightTimeFormat';
 import './FlightCard.scss';
 
+function formatTagLabel(tag: string) {
+  return tag === 'PENDING_EDIT' ? 'Pending Edit' : tag;
+}
+
+function isPendingEditTag(tag: string) {
+  return tag === 'PENDING_EDIT';
+}
+
 export default function FlightCard({flight, selected, onDelete}: { flight: Flight; selected?: boolean; onDelete?: (id: string) => void; }) {
   const hrs = (flight.durationMin / 60).toFixed(1);
   const departureTimeZone = (flight as any)?.trackMeta?.departureTimeZone ?? null;
@@ -80,8 +88,11 @@ export default function FlightCard({flight, selected, onDelete}: { flight: Fligh
           {flight.tags.map((t) => (
             <span
               key={t}
-              className="inline-flex items-center rounded-full border border-[color:rgba(58,169,255,0.25)] bg-[color:rgba(58,169,255,0.12)] px-3 py-1 text-xs font-bold uppercase tracking-wide">
-              {t}
+              className={[
+                'inline-flex items-center rounded-full border border-[color:rgba(58,169,255,0.25)] bg-[color:rgba(58,169,255,0.12)] px-3 py-1 text-xs font-bold tracking-wide',
+                isPendingEditTag(t) ? '' : 'uppercase',
+              ].join(' ')}>
+              {formatTagLabel(t)}
             </span>
           ))}
         </div>
