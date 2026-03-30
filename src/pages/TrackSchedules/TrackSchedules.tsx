@@ -33,6 +33,15 @@ function statusTone(status: string) {
   }
 }
 
+function canArchive(status: string) {
+  return (
+    status === 'completed' ||
+    status === 'failed' ||
+    status === 'no_data' ||
+    status === 'cancelled'
+  );
+}
+
 function formatZuluDate(date: Date) {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'UTC',
@@ -116,6 +125,19 @@ export default function TrackSchedules() {
       await loadSchedules();
     } catch (err: any) {
       setError(err?.body?.detail || err?.body?.message || err?.message || 'Failed to cancel schedule');
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function archiveSchedule(id: number) {
+    setBusyId(id);
+    setError(null);
+    try {
+      await TrackScheduleApi.archiveTrackSchedule(id);
+      setItems((current) => current.filter((item) => item.id !== id));
+    } catch (err: any) {
+      setError(err?.body?.detail || err?.body?.message || err?.message || 'Failed to archive schedule');
     } finally {
       setBusyId(null);
     }
@@ -341,6 +363,15 @@ export default function TrackSchedules() {
                         onClick={() => cancelSchedule(item.id)}
                         disabled={busyId === item.id}>
                         {busyId === item.id ? 'Cancelling…' : 'Cancel'}
+                      </button>
+                    )}
+                    {canArchive(item.status) && (
+                      <button
+                        className="trackSchedulesGhost"
+                        type="button"
+                        onClick={() => archiveSchedule(item.id)}
+                        disabled={busyId === item.id}>
+                        {busyId === item.id ? 'Archiving…' : 'Archive'}
                       </button>
                     )}
                   </div>
