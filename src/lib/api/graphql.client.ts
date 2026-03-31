@@ -3,7 +3,7 @@ import { ApiError, getAccessToken, getOrStartRefresh } from './client';
 import type { GraphqlResponse } from '@/lib/types/api';
 
 const API_ORIGIN = import.meta.env.VITE_API_URL ?? '';
-const GRAPHQL_URL = API_ORIGIN ? `${API_ORIGIN}/graphql` : '/graphql';
+const GRAPHQL_URL = API_ORIGIN ? `${API_ORIGIN}/api/v1/graphql` : '/api/v1/graphql';
 
 function buildAuthHeaders() {
   const authMode = import.meta.env.VITE_AUTH_MODE ?? 'session';
