@@ -2,13 +2,14 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useStore } from '@/store/store';
 import * as AuthApi from '@/lib/api/auth.api';
 import { useTheme } from '@/lib/theme/ThemeProvider';
-import { Activity, LayoutDashboard, Plane, Map as MapIcon, StickyNote, Waves } from 'lucide-react';
+import { Activity, LayoutDashboard, Plane, Map as MapIcon, StickyNote, Waves, Radar } from 'lucide-react';
 import './Sidebar.scss';
 
 const nav = [
   { to: '/home', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/flights', label: 'Flights', icon: Plane },
   { to: '/live-aircraft', label: 'Live Aircraft', icon: Activity },
+  { to: '/track-schedules', label: 'Track Monitor', icon: Radar },
   { to: '/notes', label: 'Notes', icon: StickyNote },
   { to: '/map', label: 'Map', icon: MapIcon },
 ] as const;

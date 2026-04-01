@@ -10,6 +10,7 @@ import FlightDetail from '@/pages/Flights/FlightDetail/FlightDetail';
 import LiveAircraft from '@/pages/LiveAircraft/LiveAircraft';
 import MapExplorer from '@/pages/MapExplorer/MapExplorer';
 import Notes from '@/pages/Notes/Notes';
+import TrackSchedules from '@/pages/TrackSchedules/TrackSchedules';
 import Login from '@/pages/Auth/Login';
 import Register from '@/pages/Auth/Register';
 
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
           { path: '/home', element: <Dashboard /> },
           { path: '/flights', element: <Flights /> },
           { path: '/live-aircraft', element: <LiveAircraft /> },
+          { path: '/track-schedules', element: <TrackSchedules /> },
           { path: '/flights/:id', element: <FlightDetail /> },
           { path: '/map', element: <MapExplorer /> },
           { path: '/notes', element: <Notes /> },
