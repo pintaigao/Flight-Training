@@ -22,17 +22,17 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    proxy: {
-      // Frontend talks to `/api/v1/*`; proxy strips the prefix and forwards to the backend.
-      '/api/v1': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-        rewrite: (p) => p.replace(/^\/api\/v1/, ''),
-      },
-      '/graphql': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-      },
-    },
+    // proxy: {
+    //   // Frontend used to talk to `/api/v1/*` through the Vite proxy.
+    //   '/api/v1': {
+    //     target: 'http://localhost:3000',
+    //     changeOrigin: true,
+    //     rewrite: (p) => p.replace(/^\/api\/v1/, ''),
+    //   },
+    //   '/graphql': {
+    //     target: 'http://localhost:3000',
+    //     changeOrigin: true,
+    //   },
+    // },
   },
 });
