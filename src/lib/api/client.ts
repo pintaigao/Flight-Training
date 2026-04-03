@@ -31,6 +31,7 @@ export function clearAccessToken() {
 export class ApiError extends Error {
   status: number;
   body: unknown;
+  
   constructor(status: number, body: unknown) {
     super(`API error ${status}`);
     this.status = status;
@@ -67,7 +68,7 @@ export async function refreshAccessToken(): Promise<string> {
   const res = await axios.post<TokenPayload>(
     `${API_URL}/auth/refresh`,
     null,
-    { withCredentials: true, validateStatus: () => true },
+    {withCredentials: true, validateStatus: () => true},
   );
   const body = normalizeAxiosData(res.data);
   const token = readAccessToken(body);
@@ -96,15 +97,15 @@ http.interceptors.request.use((config) => {
       else (headers as any).Authorization = `Bearer ${token}`;
     }
   }
-
+  
   config.headers = headers as any;
   if (isFormData(config.data)) return config;
-
+  
   const currentContentType =
     headers instanceof AxiosHeaders
       ? headers.get('Content-Type')
       : ((headers as any)['Content-Type'] ?? (headers as any)['content-type']);
-
+  
   if (currentContentType == null) {
     if (headers instanceof AxiosHeaders) {
       headers.set('Content-Type', 'application/json');
@@ -112,14 +113,14 @@ http.interceptors.request.use((config) => {
       (headers as any)['Content-Type'] = 'application/json';
     }
   }
-
+  
   config.headers = headers as any;
   return config;
 });
 
 http.interceptors.response.use(async (res) => {
   const body = normalizeAxiosData(res.data);
-
+  
   if (res.status === 401 && typeof window !== 'undefined') {
     const authMode = import.meta.env.VITE_AUTH_MODE ?? 'session';
     if (authMode === 'jwt') {
