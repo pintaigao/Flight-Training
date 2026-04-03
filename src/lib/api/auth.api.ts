@@ -19,8 +19,8 @@ function persistJwtAccessToken(data: { accessToken?: unknown }) {
   setAccessToken(data.accessToken);
 }
 
-export async function register(dto: RegisterDto): Promise<AuthUser> {
-  const res = await http.post<AuthPayload>('/auth/register', dto);
+export async function register(payload: RegisterDto): Promise<AuthUser> {
+  const res = await http.post<AuthPayload>('/auth/register', payload);
   persistJwtAccessToken(res.data);
   return coerceAuthUser(res.data);
 }

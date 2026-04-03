@@ -4,7 +4,7 @@ export type AuthUser = {
 };
 
 export type LoginDto = { email: string; password: string };
-export type RegisterDto = { email: string; password: string };
+export type RegisterDto = { email: string; password: string; inviteCode: string };
 
 export type AuthPayload = {
   id?: unknown;
