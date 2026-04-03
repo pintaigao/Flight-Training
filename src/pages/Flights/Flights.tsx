@@ -1,10 +1,10 @@
-import { useMemo, useRef, useState } from 'react';
-import FlightFilters from '@/components/flights/FlightFilters';
-import FlightCard from '@/components/flights/FlightCard';
+import { ChangeEvent, useMemo, useRef, useState } from 'react';
 import { useStore } from '@/store/store';
 import { readForeFlightKmlTimeRange } from '@/lib/utils/foreflightKmlTimeRange';
-import ImportFlightDataModal from '@/components/flights/ImportFlightDataModal';
 import ConfirmModal from '@/components/Modal/ConfirmModal';
+import FlightFilters from '@/components/flights/FlightFilters';
+import FlightCard from '@/components/flights/FlightCard';
+import ImportFlightDataModal from '@/components/flights/ImportFlightDataModal';
 import * as FlightApi from '@/lib/api/flight.api';
 import './Flights.scss';
 
@@ -13,45 +13,77 @@ export default function Flights() {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
-  const [importItems, setImportItems] = useState<
-    {
-      id: string;
-      originalFilename: string;
-      file: File;
-      parse:
-        | { ok: true; startTimeISO: string; endTimeISO: string }
-        | { ok: false; error: string };
-      enabled: boolean;
-    }[]
-    | null
-  >(null);
+  const [importItems, setImportItems] = useState<{
+    id: string;
+    originalFilename: string;
+    file: File;
+    parse: | { ok: true; startTimeISO: string; endTimeISO: string } | { ok: false; error: string };
+    enabled: boolean;
+  }[] | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   
   const flights = useMemo(() => {
-    const list = state.flights.flightIds.map(
-      (id) => state.flights.flightsById[id],
-    );
+    const list = state.flights.flightIds.map((id) => state.flights.flightsById[id]);
     const q = state.ui.filters.q.trim().toLowerCase();
     
     return list.filter((f) => {
-      if (
-        state.ui.filters.aircraft !== 'ALL' &&
-        f.aircraftTail !== state.ui.filters.aircraft
-      )
+      if (state.ui.filters.aircraft !== 'ALL' && f.aircraftTail !== state.ui.filters.aircraft)
         return false;
-      if (
-        state.ui.filters.tag !== 'ALL' &&
-        !f.tags.includes(state.ui.filters.tag)
-      )
+      if (state.ui.filters.tag !== 'ALL' && !f.tags.includes(state.ui.filters.tag))
         return false;
       if (!q) return true;
-      const hay =
-        `${f.dateISO} ${f.from} ${f.to} ${f.aircraftTail} ${f.tags.join(' ')}`.toLowerCase();
+      const hay = `${f.dateISO} ${f.from} ${f.to} ${f.aircraftTail} ${f.tags.join(' ')}`.toLowerCase();
       return hay.includes(q);
     });
   }, [state]);
+  
+  const handleImport = async (e: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    
+    if (files.length === 0) return;
+    
+    setImportError(null);
+    
+    try {
+      const seed = await Promise.all(
+        files.map(async (file, idx) => {
+          try {
+            const res = await readForeFlightKmlTimeRange(file);
+            return {
+              id: `kml-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 8)}`,
+              originalFilename: file.name,
+              file,
+              parse: {
+                ok: true as const,
+                startTimeISO: res.startTimeISO,
+                endTimeISO: res.endTimeISO,
+              },
+              enabled: true,
+            };
+          } catch (err: any) {
+            return {
+              id: `kml-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 8)}`,
+              originalFilename: file.name,
+              file,
+              parse: {
+                ok: false as const,
+                error: err?.message ?? 'Failed to parse KML',
+              },
+              enabled: false,
+            };
+          }
+        }),
+      );
+      setImportItems(seed);
+      setImportOpen(true);
+    } catch (err: any) {
+      setImportError(err?.message ?? 'Failed to parse KML');
+    } finally {
+      e.currentTarget.value = '';
+    }
+  }
   
   return (
     <div className="flightsPage space-y-6">
@@ -84,64 +116,18 @@ export default function Flights() {
             multiple
             accept=".kml,application/vnd.google-earth.kml+xml,text/xml"
             style={{display: 'none'}}
-            onChange={async (e) => {
-              const files = Array.from(e.target.files ?? []);
-              if (files.length === 0) return;
-              setImportError(null);
-              try {
-                const seed = await Promise.all(
-                  files.map(async (file, idx) => {
-                    try {
-                      const res = await readForeFlightKmlTimeRange(file);
-                      return {
-                        id: `kml-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 8)}`,
-                        originalFilename: file.name,
-                        file,
-                        parse: {
-                          ok: true as const,
-                          startTimeISO: res.startTimeISO,
-                          endTimeISO: res.endTimeISO,
-                        },
-                        enabled: true,
-                      };
-                    } catch (err: any) {
-                      return {
-                        id: `kml-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 8)}`,
-                        originalFilename: file.name,
-                        file,
-                        parse: {
-                          ok: false as const,
-                          error: err?.message ?? 'Failed to parse KML',
-                        },
-                        enabled: false,
-                      };
-                    }
-                  }),
-                );
-                setImportItems(seed);
-                setImportOpen(true);
-              } catch (err: any) {
-                setImportError(err?.message ?? 'Failed to parse KML');
-              } finally {
-                e.currentTarget.value = '';
-              }
-            }}
-          />
+            onChange={(event) => handleImport(event)}/>
         </div>
       </div>
       
       {(importError || deleteError) && (
         <div className="space-y-2">
-          {importError && (
-            <div className="text-sm text-red-400">{importError}</div>
-          )}
-          {deleteError && (
-            <div className="text-sm text-red-400">{deleteError}</div>
-          )}
+          {importError && (<div className="text-sm text-red-400">{importError}</div>)}
+          {deleteError && (<div className="text-sm text-red-400">{deleteError}</div>)}
         </div>
       )}
       
-      <FlightFilters/>
+      {/*<FlightFilters/>*/}
       
       <div className="flightsList grid grid-cols-1 gap-3 sm:grid-cols-2">
         {flights.map((f) => (
@@ -192,9 +178,7 @@ export default function Flights() {
             // optimistic local update
             dispatch({type: 'DELETE_FLIGHT', id: deleteId});
           } catch (e: any) {
-            setDeleteError(
-              e?.body?.message || e?.message || 'Failed to delete flight',
-            );
+            setDeleteError(e?.body?.message || e?.message || 'Failed to delete flight');
           } finally {
             setDeleting(false);
           }
