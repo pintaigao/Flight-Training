@@ -41,18 +41,31 @@ Flights/comments are stored in `localStorage` for now (so your notes persist).
 
 ## Backend auth
 
-1. Create `.env.local` from `.env.example` and point it to your NestJS API:
+This app supports both session cookies and `AUTH_MODE=jwt` (access token + refresh cookie).
+
+### API origin (dev)
+
+By default, the frontend calls the API under `/api/v1` on the same origin. For local dev, set:
 
 ```bash
-cp .env.example .env.local
+VITE_API_URL=http://localhost:3000
 ```
 
-2. Make sure your backend sets **HttpOnly cookies** and enables CORS with `credentials: true`.
+In this repo, it already exists in `.env.development.local`.
 
 Endpoints expected:
 
 - `POST /auth/register` -> returns `{ id, email }` and sets cookies
 - `POST /auth/login` -> returns `{ id, email }` and sets cookies
+- `POST /auth/google` -> returns `{ id, email }` (and `accessToken` in jwt mode)
 - `POST /auth/logout` -> clears cookies
 - `GET /auth/profile` -> returns `{ id, email }` if logged in
 - `POST /auth/refresh` (optional) -> refresh cookies
+
+### Google login
+
+Set `VITE_GOOGLE_CLIENT_ID` to your Google OAuth Web Client ID (must match the backend):
+
+```bash
+VITE_GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
+```

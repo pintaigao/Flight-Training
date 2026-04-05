@@ -1,9 +1,40 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Waves } from 'lucide-react';
 import { useStore } from '@/store/store';
 import * as AuthApi from '@/lib/api/auth.api';
 import './Auth.scss';
+
+let gsiLoadPromise: Promise<void> | null = null;
+function loadGoogleIdentityServices(): Promise<void> {
+  if (typeof window === 'undefined') return Promise.resolve();
+  if (window.google?.accounts?.id) return Promise.resolve();
+  if (gsiLoadPromise) return gsiLoadPromise;
+
+  gsiLoadPromise = new Promise<void>((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>(
+      'script[src="https://accounts.google.com/gsi/client"]',
+    );
+    if (existing) {
+      existing.addEventListener('load', () => resolve(), { once: true });
+      existing.addEventListener('error', () => reject(new Error('Failed to load Google script')), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load Google script'));
+    document.head.appendChild(script);
+  }).finally(() => {
+    // Allow retry on next mount if the script failed.
+    if (!window.google?.accounts?.id) gsiLoadPromise = null;
+  });
+
+  return gsiLoadPromise;
+}
 
 export default function Login() {
   const {dispatch} = useStore();
@@ -15,6 +46,10 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [googleInitError, setGoogleInitError] = useState<string | null>(null);
+  const googleBtnRef = useRef<HTMLDivElement | null>(null);
+  const googleRenderedRef = useRef(false);
+  const googleClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '').trim();
   
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +66,64 @@ export default function Login() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (!googleClientId) return;
+    if (googleRenderedRef.current) return;
+
+    let alive = true;
+    setGoogleInitError(null);
+
+    loadGoogleIdentityServices()
+      .then(() => {
+        if (!alive) return;
+        const gsi = window.google?.accounts?.id;
+        if (!gsi) throw new Error('Google Identity Services not available');
+        if (!googleBtnRef.current) return;
+
+        gsi.initialize({
+          client_id: googleClientId,
+          callback: async (resp: any) => {
+            const credential = resp?.credential;
+            if (typeof credential !== 'string' || !credential) {
+              setError('Google 登录失败：缺少 credential。');
+              return;
+            }
+
+            setError(null);
+            setLoading(true);
+            try {
+              const me = await AuthApi.loginWithGoogle(credential);
+              dispatch({ type: 'SET_AUTH_USER', user: me });
+              navigate(from, { replace: true });
+            } catch (err: any) {
+              setError(err?.body?.message ?? err?.message ?? 'Google 登录失败。');
+            } finally {
+              setLoading(false);
+            }
+          },
+        });
+
+        gsi.renderButton(googleBtnRef.current, {
+          theme: 'outline',
+          size: 'large',
+          shape: 'pill',
+          text: 'continue_with',
+          logo_alignment: 'left',
+          width: 384,
+        });
+
+        googleRenderedRef.current = true;
+      })
+      .catch((err) => {
+        if (!alive) return;
+        setGoogleInitError(err?.message ?? 'Google 登录初始化失败。');
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [dispatch, from, googleClientId, navigate]);
   
   return (
     <div className="auth-wrap min-h-screen bg-[#0b1220]">
@@ -103,6 +196,28 @@ export default function Login() {
                 {loading ? 'Signing in…' : 'Sign in'}
               </button>
             </form>
+
+            {googleClientId ? (
+              <div className="mt-8 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-px flex-1 bg-white/10" />
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/35">
+                    Or
+                  </div>
+                  <div className="h-px flex-1 bg-white/10" />
+                </div>
+
+                {googleInitError ? (
+                  <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                    {googleInitError}
+                  </div>
+                ) : (
+                  <div className="flex justify-center">
+                    <div ref={googleBtnRef} />
+                  </div>
+                )}
+              </div>
+            ) : null}
           </div>
         </div>
         

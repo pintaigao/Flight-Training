@@ -31,6 +31,12 @@ export async function login(dto: LoginDto): Promise<AuthUser> {
   return coerceAuthUser(res.data);
 }
 
+export async function loginWithGoogle(credential: string): Promise<AuthUser> {
+  const res = await http.post<AuthPayload>('/auth/google', { credential });
+  persistJwtAccessToken(res.data);
+  return coerceAuthUser(res.data);
+}
+
 export async function logout(): Promise<void> {
   await http.post('/auth/logout');
   clearAccessToken();
