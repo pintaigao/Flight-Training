@@ -85,6 +85,22 @@ export default function Flights() {
     }
   }
   
+  const onDeleteConfirm = async () => {
+    if (!deleteId) return;
+    setDeleteError(null);
+    setDeleting(true);
+    try {
+      await FlightApi.deleteFlight(deleteId);
+      setDeleteId(null);
+      // optimistic local update
+      dispatch({type: 'DELETE_FLIGHT', id: deleteId});
+    } catch (e: any) {
+      setDeleteError(e?.body?.message || e?.message || 'Failed to delete flight');
+    } finally {
+      setDeleting(false);
+    }
+  }
+  
   return (
     <div className="flightsPage space-y-6">
       <div className="flightsHead flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
@@ -168,21 +184,7 @@ export default function Flights() {
           if (deleting) return;
           setDeleteId(null);
         }}
-        onConfirm={async () => {
-          if (!deleteId) return;
-          setDeleteError(null);
-          setDeleting(true);
-          try {
-            await FlightApi.deleteFlight(deleteId);
-            setDeleteId(null);
-            // optimistic local update
-            dispatch({type: 'DELETE_FLIGHT', id: deleteId});
-          } catch (e: any) {
-            setDeleteError(e?.body?.message || e?.message || 'Failed to delete flight');
-          } finally {
-            setDeleting(false);
-          }
-        }}/>
+        onConfirm={onDeleteConfirm}/>
     </div>
   );
 }

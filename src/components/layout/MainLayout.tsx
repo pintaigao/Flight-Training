@@ -22,6 +22,7 @@ export default function MainLayout() {
     if (state.flights.flightIds.length) return;
     
     let cancelled = false;
+    
     FlightApi.getFlights().then((flights) => {
       if (cancelled) return;
       dispatch({type: 'SET_FLIGHTS', flights});

@@ -1,4 +1,4 @@
-import { clearAccessToken, http, setAccessToken } from './client';
+import { AUTH_API_URL, clearAccessToken, http, setAccessToken } from './client';
 import { graphql } from './graphql.client';
 import type { AuthPayload, AuthUser, LoginDto, RegisterDto } from '@/lib/types/auth';
 
@@ -20,25 +20,25 @@ function persistJwtAccessToken(data: { accessToken?: unknown }) {
 }
 
 export async function register(payload: RegisterDto): Promise<AuthUser> {
-  const res = await http.post<AuthPayload>('/auth/register', payload);
+  const res = await http.post<AuthPayload>(`${AUTH_API_URL}/auth/register`, payload);
   persistJwtAccessToken(res.data);
   return coerceAuthUser(res.data);
 }
 
 export async function login(dto: LoginDto): Promise<AuthUser> {
-  const res = await http.post<AuthPayload>('/auth/login', dto);
+  const res = await http.post<AuthPayload>(`${AUTH_API_URL}/auth/login`, dto);
   persistJwtAccessToken(res.data);
   return coerceAuthUser(res.data);
 }
 
 export async function loginWithGoogle(credential: string): Promise<AuthUser> {
-  const res = await http.post<AuthPayload>('/auth/google', { credential });
+  const res = await http.post<AuthPayload>(`${AUTH_API_URL}/auth/google`, { credential });
   persistJwtAccessToken(res.data);
   return coerceAuthUser(res.data);
 }
 
 export async function logout(): Promise<void> {
-  await http.post('/auth/logout');
+  await http.post(`${AUTH_API_URL}/auth/logout`);
   clearAccessToken();
 }
 
@@ -49,6 +49,6 @@ export async function getProfile(): Promise<AuthUser> {
     return coerceAuthUser(data.profile);
   }
   
-  const res = await http.get<AuthUser>('/auth/profile', {timeout: 5000});
+  const res = await http.get<AuthUser>(`${AUTH_API_URL}/auth/profile`, {timeout: 5000});
   return coerceAuthUser(res.data);
 }

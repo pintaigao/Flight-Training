@@ -153,9 +153,7 @@ export default function ImportFlightDataModal({open, items, onClose}: { open: bo
     const next = initItems(items);
     setBatchItems(next);
     setSelectedId(next[0]?.id ?? null);
-    setInitialConfigById(
-      Object.fromEntries(next.map((it) => [it.id, pickConfig(it)])),
-    );
+    setInitialConfigById(Object.fromEntries(next.map((it) => [it.id, pickConfig(it)])));
   }, [open, items]);
   
   function updateItem(id: string, patch: Partial<BatchItem>) {
@@ -214,7 +212,7 @@ export default function ImportFlightDataModal({open, items, onClose}: { open: bo
     selected && selected.run.status === 'success' ? selected.run.flightId : null;
   
   if (!open || !items) return null;
-
+  
   async function validateAll(current: BatchItem[]) {
     let ok = true;
     const next = current.map((it) => {
@@ -238,14 +236,14 @@ export default function ImportFlightDataModal({open, items, onClose}: { open: bo
       }
       return {...it, validationError: null};
     });
-
+    
     const updated: BatchItem[] = [];
     for (const it of next) {
       if (!it.enabled || !it.parse.ok || it.run.status === 'success') {
         updated.push(it);
         continue;
       }
-
+      
       const candidate = allFlights.find(
         (f) => (f.trackMeta as any)?.originalFilename === it.originalFilename,
       );
@@ -253,13 +251,13 @@ export default function ImportFlightDataModal({open, items, onClose}: { open: bo
         updated.push(it);
         continue;
       }
-
+      
       // If attaching to the same flight that already has the file, allow it.
       if (it.mode === 'existing' && it.selectedExistingId === candidate.id) {
         updated.push(it);
         continue;
       }
-
+      
       const existingSha = (candidate.trackMeta as any)?.rawSha256;
       if (typeof existingSha === 'string' && existingSha) {
         let sha = shaByItemId[it.id];
@@ -273,14 +271,14 @@ export default function ImportFlightDataModal({open, items, onClose}: { open: bo
           continue;
         }
       }
-
+      
       ok = false;
       updated.push({
         ...it,
         validationError: `Duplicate KML: already imported to flight ${candidate.id}`,
       });
     }
-
+    
     return {ok, items: updated};
   }
   
