@@ -4,10 +4,8 @@ import type { TokenPayload } from '@/lib/types/api';
 // Prefer same-origin requests by default (works with Vite dev proxy and typical deployments).
 // If your API is hosted on a different origin, set `VITE_API_URL`.
 const API_ORIGIN = import.meta.env.VITE_API_URL ?? '';
-const AUTH_API_ORIGIN = import.meta.env.VITE_AUTH_API_URL ?? API_ORIGIN;
 const API_PREFIX = '/api/v1';
 export const API_URL = API_ORIGIN ? `${API_ORIGIN}${API_PREFIX}` : API_PREFIX;
-export const AUTH_API_URL = AUTH_API_ORIGIN ? `${AUTH_API_ORIGIN}${API_PREFIX}` : API_PREFIX;
 
 let accessToken: string | null = null;
 let refreshPromise: Promise<string> | null = null;
@@ -68,7 +66,7 @@ export const http = axios.create({
 
 export async function refreshAccessToken(): Promise<string> {
   const res = await axios.post<TokenPayload>(
-    `${AUTH_API_URL}/auth/refresh`,
+    `${API_URL}/auth/refresh`,
     null,
     {withCredentials: true, validateStatus: () => true},
   );

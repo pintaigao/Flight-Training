@@ -41,26 +41,37 @@ Flights/comments are stored in `localStorage` for now (so your notes persist).
 
 ## Backend auth
 
-This app supports both session cookies and `AUTH_MODE=jwt` (access token + refresh cookie).
+This app supports both session cookies and `AUTH_MODE=jwt` directly against `Flight-Training-Server`.
 
 ### API origin (dev)
 
-By default, the frontend calls the API under `/api/v1` on the same origin. For local dev, set:
+By default, the frontend calls the API under `/api/v1` on the same origin. In this repo, local development uses a single env file:
 
 ```bash
-VITE_API_URL=http://localhost:3000
+/.env.development.local
 ```
 
-In this repo, it already exists in `.env.development.local`.
+Recommended contents:
 
-Endpoints expected:
+```bash
+VITE_AUTH_MODE=session
+VITE_API_URL=http://localhost:3000
+VITE_GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
+```
 
-- `POST /auth/register` -> returns `{ id, email }` and sets cookies
-- `POST /auth/login` -> returns `{ id, email }` and sets cookies
+`VITE_AUTH_MODE` must match `Flight-Training-Server` `AUTH_MODE`:
+
+- `session` -> browser uses server session cookies
+- `jwt` -> browser uses server-issued access token plus refresh cookie
+
+Endpoints expected from `Flight-Training-Server`:
+
+- `POST /auth/register` -> returns `{ id, email }` and in jwt mode also returns `accessToken`
+- `POST /auth/login` -> returns `{ id, email }` and in jwt mode also returns `accessToken`
 - `POST /auth/google` -> returns `{ id, email }` (and `accessToken` in jwt mode)
 - `POST /auth/logout` -> clears cookies
 - `GET /auth/profile` -> returns `{ id, email }` if logged in
-- `POST /auth/refresh` (optional) -> refresh cookies
+- `POST /auth/refresh` -> returns `{ accessToken }` in jwt mode
 
 ### Google login
 

@@ -1,6 +1,5 @@
 import type { Feature, LineString } from 'geojson';
 import { http } from './client';
-import { graphql } from './graphql.client';
 import type { Flight, FlightListItem, FlightTrackSource, GetFlightTrackResponse, TrackSample } from '@/lib/types/flight';
 
 function normalizeFlightListItem(flight: FlightListItem): FlightListItem {
@@ -13,32 +12,6 @@ function normalizeFlightListItem(flight: FlightListItem): FlightListItem {
 }
 
 export function getFlights() {
-  const transport = import.meta.env.VITE_API_TRANSPORT ?? 'rest';
-  if (transport === 'graphql') {
-    return graphql<{ flights: FlightListItem[] }>(
-      `query {
-        flights {
-          id
-          dateISO
-          startTimeISO
-          endTimeISO
-          aircraftTail
-          from
-          to
-          durationMin
-          description
-          tags
-          comments
-          track
-          trackSource
-          trackMeta
-        }
-      }`,
-    ).then((data) =>
-      data.flights.map(normalizeFlightListItem),
-    );
-  }
-
   return http
     .get<FlightListItem[]>('/flight')
     .then((res) => res.data.map(normalizeFlightListItem));
