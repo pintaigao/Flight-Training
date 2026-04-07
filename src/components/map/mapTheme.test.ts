@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_LIGHT_TILE_LAYER,
+  getCursorTone,
   getMarkerTone,
   getTrackLineStyle,
 } from './mapTheme';
@@ -23,5 +24,13 @@ describe('map theme', () => {
   it('keeps start and end markers in restrained grayscale tones', () => {
     expect(getMarkerTone('start')).toBe('start');
     expect(getMarkerTone('end')).toBe('end');
+  });
+
+  it('exposes a restrained cursor tone for replay mode', () => {
+    expect(getCursorTone()).toEqual({
+      dot: '#1f232b',
+      plane: '#303845',
+      label: '#202734',
+    });
   });
 });

@@ -233,7 +233,7 @@ export default function FlightDetail() {
           )}
           
           {chartPlacement === 'overlay' && hasChart && (
-            <div className="flightDetail-chartOverlay pointer-events-none absolute inset-x-4 bottom-4 z-[2000] overflow-hidden rounded-2xl border border-[var(--border)] bg-[color:rgba(10,16,28,0.55)] shadow-[var(--shadow)] backdrop-blur">
+            <div className="flightDetail-chartOverlay pointer-events-none absolute inset-x-4 bottom-4 z-[2000] overflow-hidden rounded-2xl border border-[color:rgba(18,26,44,0.10)] bg-[color:rgba(255,255,255,0.8)] shadow-[0_18px_32px_rgba(32,39,52,0.12)] backdrop-blur">
               <div className="flightDetail-chartOverlayInner pointer-events-auto">
                 <TrackChart
                   samples={samples}

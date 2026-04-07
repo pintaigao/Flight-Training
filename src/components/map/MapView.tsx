@@ -1,10 +1,23 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { MapContainer, TileLayer, GeoJSON, useMap, Marker } from 'react-leaflet';
+import {
+  CircleMarker,
+  GeoJSON,
+  MapContainer,
+  Marker,
+  TileLayer,
+  useMap,
+} from 'react-leaflet';
 import type { Feature, FeatureCollection, LineString } from 'geojson';
 import L from 'leaflet';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Plane } from 'lucide-react';
 import type { MapViewProps } from '@/lib/types/flight';
+import {
+  DEFAULT_LIGHT_TILE_LAYER,
+  getCursorTone,
+  getMarkerTone,
+  getTrackLineStyle,
+} from './mapTheme';
 import './MapView.scss';
 
 function FitBounds({feature}: { feature?: Feature<LineString> }) {
@@ -68,9 +81,10 @@ function CursorMarker({
   lines: string[];
   headingDeg?: number | null;
 }) {
-	const icon = useMemo(() => {
-	  const safeLines = (lines ?? []).filter(Boolean).slice(0, 4);
-	  const heading = Number.isFinite(headingDeg as any) ? Number(headingDeg) : 0;
+  const icon = useMemo(() => {
+    const safeLines = (lines ?? []).filter(Boolean).slice(0, 4);
+    const heading = Number.isFinite(headingDeg as any) ? Number(headingDeg) : 0;
+    const tone = getCursorTone();
     const esc = (s: string) =>
       s
         .replace(/&/g, '&amp;')
@@ -81,14 +95,17 @@ function CursorMarker({
       .map((l) => `<div class="cursor-label-line">${esc(l)}</div>`)
       .join('');
 
-	  const svg = renderToStaticMarkup(
-	    <Plane size={18} strokeWidth={2} aria-hidden="true" />,
-	  );
+    const svg = renderToStaticMarkup(
+      <Plane size={18} strokeWidth={2} aria-hidden="true" />,
+    );
 
-	  const html = `
-	      <div class="cursor-marker" style="--heading:${heading}deg">
-	        <div class="cursor-dot"></div>
-	        <div class="cursor-plane">${svg}</div>
+    const html = `
+      <div
+        class="cursor-marker"
+        style="--heading:${heading}deg;--cursor-dot:${tone.dot};--cursor-plane:${tone.plane};--cursor-label:${tone.label}"
+      >
+        <div class="cursor-dot"></div>
+        <div class="cursor-plane">${svg}</div>
         <div class="cursor-label">${labelHtml}</div>
       </div>
     `;
@@ -102,6 +119,50 @@ function CursorMarker({
   }, [headingDeg, lines]);
 
   return <Marker position={[cursor.lat, cursor.lng]} icon={icon} />;
+}
+
+function StartEndMarkers({ feature }: { feature?: Feature<LineString> }) {
+  const endpoints = useMemo(() => {
+    const coords = feature?.geometry.coordinates ?? [];
+    if (coords.length < 2) return null;
+
+    const [startLng, startLat] = coords[0];
+    const [endLng, endLat] = coords[coords.length - 1];
+
+    return {
+      start: { lat: startLat, lng: startLng },
+      end: { lat: endLat, lng: endLng },
+    };
+  }, [feature]);
+
+  if (!endpoints) return null;
+
+  return (
+    <>
+      <CircleMarker
+        center={[endpoints.start.lat, endpoints.start.lng]}
+        radius={5}
+        pathOptions={{
+          className: `map-point map-point--${getMarkerTone('start')}`,
+          color: '#202734',
+          weight: 1.2,
+          fillColor: '#f7f5f1',
+          fillOpacity: 1,
+        }}
+      />
+      <CircleMarker
+        center={[endpoints.end.lat, endpoints.end.lng]}
+        radius={5}
+        pathOptions={{
+          className: `map-point map-point--${getMarkerTone('end')}`,
+          color: '#202734',
+          weight: 1.2,
+          fillColor: '#202734',
+          fillOpacity: 1,
+        }}
+      />
+    </>
+  );
 }
 
 function MapView({
@@ -129,7 +190,7 @@ function MapView({
     (feature: any) => {
       const id = feature?.properties?.id;
       const isSelected = selectedId && id && id === selectedId;
-      return { weight: isSelected ? 4 : 3, opacity: isSelected ? 1 : 0.65 };
+      return getTrackLineStyle(!!isSelected);
     },
     [selectedId],
   );
@@ -155,8 +216,13 @@ function MapView({
         className="map">
         <InvalidateSize invalidateKey={invalidateKey} />
         <TileLayer
-          attribution={showTileAttribution ? '&copy; OpenStreetMap contributors' : ''}
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+          attribution={
+            showTileAttribution ? DEFAULT_LIGHT_TILE_LAYER.attribution : ''
+          }
+          maxZoom={DEFAULT_LIGHT_TILE_LAYER.maxZoom}
+          subdomains={DEFAULT_LIGHT_TILE_LAYER.subdomains}
+          url={DEFAULT_LIGHT_TILE_LAYER.url}
+        />
         
         <GeoJSON
           key={geoJsonKey}
@@ -164,6 +230,8 @@ function MapView({
           style={geoJsonStyle}
           eventHandlers={geoJsonEvents}
         />
+
+        <StartEndMarkers feature={selected?.feature} />
         
         {cursor && cursorLabelLines && cursorLabelLines.length > 0 ? (
           <CursorMarker

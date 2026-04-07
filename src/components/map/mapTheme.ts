@@ -6,6 +6,11 @@ export type MapTileLayerConfig = {
 };
 
 export type MapMarkerTone = 'start' | 'end';
+export type CursorTone = {
+  dot: string;
+  plane: string;
+  label: string;
+};
 
 export const DEFAULT_LIGHT_TILE_LAYER: MapTileLayerConfig = {
   url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
@@ -20,6 +25,7 @@ export function getTrackLineStyle(isSelected: boolean) {
     color: isSelected ? '#1f232b' : '#4d5562',
     weight: isSelected ? 4 : 3,
     opacity: isSelected ? 0.92 : 0.64,
+    dashArray: undefined as string | undefined,
     lineCap: 'round' as const,
     lineJoin: 'round' as const,
   };
@@ -27,4 +33,12 @@ export function getTrackLineStyle(isSelected: boolean) {
 
 export function getMarkerTone(kind: MapMarkerTone): MapMarkerTone {
   return kind;
+}
+
+export function getCursorTone(): CursorTone {
+  return {
+    dot: '#1f232b',
+    plane: '#303845',
+    label: '#202734',
+  };
 }

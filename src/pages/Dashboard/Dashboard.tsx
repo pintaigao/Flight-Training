@@ -128,6 +128,7 @@ export default function Dashboard() {
                   tracks={tracks}
                   selectedId={selected.track?.properties?.id || selected.id}
                   height={240}
+                  showZoomControl={false}
                   onSelect={(trackId) => {
                     const flight = flights.find(
                       (x) =>
