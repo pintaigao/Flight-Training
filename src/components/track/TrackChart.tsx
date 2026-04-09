@@ -3,6 +3,17 @@ import type { TrackChartProps } from '@/lib/types/flight';
 import './TrackChart.scss';
 
 const CHICAGO_TZ = 'America/Chicago';
+const CHART_COLORS = {
+  panelFill: 'rgba(108, 112, 121, 0.22)',
+  panelStroke: 'rgba(255,255,255,0.16)',
+  axis: 'rgba(255,255,255,0.16)',
+  tick: 'rgba(255,255,255,0.82)',
+  bottomTick: 'rgba(255,255,255,0.68)',
+  altitude: 'rgba(24,28,34,0.94)',
+  speed: 'rgba(247,248,250,0.96)',
+  cursor: 'rgba(67,153,255,0.82)',
+  hover: 'rgba(255,255,255,0.18)',
+} as const;
 
 function fmtTime(iso: string) {
   return new Date(iso).toLocaleString('en-US', { timeZone: CHICAGO_TZ });
@@ -195,7 +206,8 @@ export default function TrackChart({
           width={W}
           height={H}
           rx={14}
-          fill="rgba(0,0,0,0.18)"
+          fill={CHART_COLORS.panelFill}
+          stroke={CHART_COLORS.panelStroke}
         />
 
         {/* axes */}
@@ -204,28 +216,28 @@ export default function TrackChart({
           y1={padT}
           x2={padL}
           y2={H - padB}
-          stroke="rgba(255,255,255,0.18)"
+          stroke={CHART_COLORS.axis}
         />
         <line
           x1={W - padR}
           y1={padT}
           x2={W - padR}
           y2={H - padB}
-          stroke="rgba(255,255,255,0.18)"
+          stroke={CHART_COLORS.axis}
         />
         <line
           x1={padL}
           y1={H - padB}
           x2={W - padR}
           y2={H - padB}
-          stroke="rgba(255,255,255,0.18)"
+          stroke={CHART_COLORS.axis}
         />
 
         {/* ticks */}
         <text
           x={padL - 8}
           y={padT + 10}
-          fill="rgba(255,255,255,0.60)"
+          fill={CHART_COLORS.tick}
           fontSize="11"
           textAnchor="end">
           {fmtNum(altMax, 0)}
@@ -233,7 +245,7 @@ export default function TrackChart({
         <text
           x={padL - 8}
           y={H - padB}
-          fill="rgba(255,255,255,0.60)"
+          fill={CHART_COLORS.tick}
           fontSize="11"
           textAnchor="end">
           {fmtNum(altMin, 0)}
@@ -241,14 +253,14 @@ export default function TrackChart({
         <text
           x={W - padR + 8}
           y={padT + 10}
-          fill="rgba(255,255,255,0.60)"
+          fill={CHART_COLORS.tick}
           fontSize="11">
           {fmtNum(gsMax, 0)}
         </text>
         <text
           x={W - padR + 8}
           y={H - padB}
-          fill="rgba(255,255,255,0.60)"
+          fill={CHART_COLORS.tick}
           fontSize="11">
           {fmtNum(gsMin, 0)}
         </text>
@@ -257,14 +269,18 @@ export default function TrackChart({
         <path
           d={altPath}
           fill="none"
-          stroke="rgba(120,255,120,0.95)"
-          strokeWidth="2"
+          stroke={CHART_COLORS.altitude}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2.1"
         />
         <path
           d={gsPath}
           fill="none"
-          stroke="rgba(255,236,120,0.95)"
-          strokeWidth="2"
+          stroke={CHART_COLORS.speed}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2.1"
         />
 
         {/* cursor */}
@@ -273,8 +289,8 @@ export default function TrackChart({
           y1={padT}
           x2={cursorX}
           y2={H - padB}
-          stroke="rgba(58,169,255,0.8)"
-          strokeWidth="2"
+          stroke={CHART_COLORS.cursor}
+          strokeWidth="1.5"
         />
 
         {/* hover */}
@@ -284,7 +300,7 @@ export default function TrackChart({
             y1={padT}
             x2={hoverX}
             y2={H - padB}
-            stroke="rgba(255,255,255,0.20)"
+            stroke={CHART_COLORS.hover}
             strokeWidth="1"
           />
         )}
@@ -293,7 +309,7 @@ export default function TrackChart({
         <text
           x={leftLabelX}
           y={labelY}
-          fill="rgba(120,255,120,0.95)"
+          fill={CHART_COLORS.altitude}
           fontSize="12"
           fontWeight="800"
           textAnchor={leftLabelAnchor as any}>
@@ -302,7 +318,7 @@ export default function TrackChart({
         <text
           x={rightLabelX}
           y={labelY}
-          fill="rgba(255,236,120,0.95)"
+          fill={CHART_COLORS.speed}
           fontSize="12"
           fontWeight="800"
           textAnchor={rightLabelAnchor as any}>
@@ -310,13 +326,13 @@ export default function TrackChart({
         </text>
 
         {/* bottom labels */}
-        <text x={padL} y={H - 8} fill="rgba(255,255,255,0.55)" fontSize="11">
+        <text x={padL} y={H - 8} fill={CHART_COLORS.bottomTick} fontSize="11">
           {fmtTime(samples[0].t)}
         </text>
         <text
           x={W - padR}
           y={H - 8}
-          fill="rgba(255,255,255,0.55)"
+          fill={CHART_COLORS.bottomTick}
           fontSize="11"
           textAnchor="end">
           {fmtTime(samples[n - 1].t)}

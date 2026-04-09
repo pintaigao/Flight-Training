@@ -51,7 +51,7 @@ export default function MainLayout() {
             <Menu size={18} aria-hidden="true"/>
           </button>
         )}
-        <div className={['private-inner w-full', isWorkspacePage ? 'h-full max-w-none' : 'mx-auto max-w-6xl'].join(' ')}>
+        <div className={['private-inner w-full', isWorkspacePage ? 'h-full max-w-none' : 'mx-auto max-w-8xl'].join(' ')}>
           <Outlet/>
         </div>
       </main>

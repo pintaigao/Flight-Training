@@ -233,7 +233,7 @@ export default function FlightDetail() {
           )}
           
           {chartPlacement === 'overlay' && hasChart && (
-            <div className="flightDetail-chartOverlay pointer-events-none absolute inset-x-4 bottom-4 z-[2000] overflow-hidden rounded-2xl border border-[color:rgba(18,26,44,0.10)] bg-[color:rgba(255,255,255,0.8)] shadow-[0_18px_32px_rgba(32,39,52,0.12)] backdrop-blur">
+            <div className="flightDetail-chartOverlay pointer-events-none absolute inset-x-4 bottom-4 z-[2000] overflow-hidden rounded-[1.4rem] border border-[color:rgba(255,255,255,0.16)] bg-[color:rgba(108,112,121,0.08)] shadow-[0_14px_24px_rgba(32,39,52,0.14)] backdrop-blur-md">
               <div className="flightDetail-chartOverlayInner pointer-events-auto">
                 <TrackChart
                   samples={samples}
@@ -247,7 +247,7 @@ export default function FlightDetail() {
         </div>
         
         {chartPlacement === 'below' && hasChart && (
-          <div className="flightDetail-chartBelow overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--panel)] shadow-[var(--shadow)] lg:h-[220px] lg:shrink-0">
+          <div className="flightDetail-chartBelow overflow-hidden rounded-[1.4rem] border border-[color:rgba(255,255,255,0.16)] bg-[color:rgba(108,112,121,0.10)] shadow-[0_14px_24px_rgba(32,39,52,0.12)] backdrop-blur-md lg:h-[220px] lg:shrink-0">
             <TrackChart
               samples={samples}
               cursorIdx={cursorIdx}

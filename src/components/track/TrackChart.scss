@@ -1,8 +1,13 @@
 .track-chart {
   width: 100%;
   position: relative;
+  overflow: hidden;
+  border-radius: 18px;
   user-select: none;
   touch-action: none;
+  isolation: isolate;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 
   .track-chart-readout {
     position: absolute;
@@ -13,11 +18,12 @@
     gap: 6px;
     padding: $u1 $u1;
     border-radius: $u2;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(10, 16, 28, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(108, 112, 121, 0.12);
     backdrop-filter: blur($u1);
     pointer-events: none;
     font-size: 12px;
+    color: rgba(255, 255, 255, 0.84);
     line-height: 1.25;
     max-width: min(320px, calc(100% - #{$u4}));
   }

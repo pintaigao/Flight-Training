@@ -5,8 +5,8 @@ import MapView from '@/components/map/MapView';
 import './Dashboard.scss';
 
 export default function Dashboard() {
-  const { state, dispatch } = useStore();
-
+  const {state, dispatch} = useStore();
+  
   const flights = useMemo(
     () =>
       state.flights.flightIds.map((id) => state.flights.flightsById[id]),
@@ -17,11 +17,9 @@ export default function Dashboard() {
   const last30Hours = (
     flights.slice(0, 3).reduce((s, f) => s + f.durationMin, 0) / 60
   ).toFixed(1);
-
-  const selected = state.flights.selectedFlightId
-    ? state.flights.flightsById[state.flights.selectedFlightId]
-    : null;
-
+  
+  const selected = state.flights.selectedFlightId ? state.flights.flightsById[state.flights.selectedFlightId] : null;
+  
   const tracks = useMemo(
     () =>
       flights
@@ -34,7 +32,7 @@ export default function Dashboard() {
         })),
     [flights],
   );
-
+  
   return (
     <div className="dashboard space-y-6">
       <div className="dashboard-head flex items-end justify-between gap-4">
@@ -47,7 +45,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-
+      
       <div className="dashboard-stats grid grid-cols-2 gap-4 lg:grid-cols-4">
         <div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
           <div className="muted text-sm text-[var(--muted)]">Total Hours</div>
@@ -77,7 +75,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-
+      
       <div className="dashboard-panels grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
           <div className="card-title text-base font-bold">Recent Flights</div>
@@ -87,7 +85,7 @@ export default function Dashboard() {
                 key={f.id}
                 to={`/flights/${f.id}`}
                 className="row dashboard-recentRow flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--panel2)] px-3 py-2 hover:bg-[color:var(--panel)]"
-                onClick={() => dispatch({ type: 'SELECT_FLIGHT', id: f.id })}>
+                onClick={() => dispatch({type: 'SELECT_FLIGHT', id: f.id})}>
                 <div className="dashboard-recentMain">
                   <div className="dashboard-recentRoute">
                     {f.from} → {f.to}
@@ -106,48 +104,48 @@ export default function Dashboard() {
             )}
           </div>
         </div>
-
-        <div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
-          <div className="card-title text-base font-bold">
-            Continue Your Last Flight
-          </div>
-          {selected ? (
-            <>
-              <div className="muted mt-1 text-sm text-[var(--muted)]">
-                {selected.dateISO} — {selected.from} → {selected.to}
-              </div>
-              <div className="dashboard-ctaRow">
-                <Link
-                  className="btn-primary inline-flex h-11 items-center justify-center rounded-xl bg-[var(--accent)] px-4 font-semibold text-white hover:bg-[var(--accent2)]"
-                  to={`/flights/${selected.id}`}>
-                  Resume Entry
-                </Link>
-              </div>
-              <div className="dashboard-mapWrap mt-4 overflow-hidden rounded-2xl border border-[var(--border)]">
-                <MapView
-                  tracks={tracks}
-                  selectedId={selected.track?.properties?.id || selected.id}
-                  height={240}
-                  showZoomControl={false}
-                  onSelect={(trackId) => {
-                    const flight = flights.find(
-                      (x) =>
-                        (x.track?.properties as any)?.id === trackId ||
-                        x.id === trackId,
-                    );
-                    if (flight)
-                      dispatch({ type: 'SELECT_FLIGHT', id: flight.id });
-                  }}
-                  showTileAttribution={false}
-                />
-              </div>
-            </>
-          ) : (
-            <div className="dashboard-empty muted mt-3 text-sm text-[var(--muted)]">
-              No flights yet.
-            </div>
-          )}
-        </div>
+        
+        {/*<div className="card rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">*/}
+        {/*  <div className="card-title text-base font-bold">*/}
+        {/*    Continue Your Last Flight*/}
+        {/*  </div>*/}
+        {/*  {selected ? (*/}
+        {/*    <>*/}
+        {/*      <div className="muted mt-1 text-sm text-[var(--muted)]">*/}
+        {/*        {selected.dateISO} — {selected.from} → {selected.to}*/}
+        {/*      </div>*/}
+        {/*      <div className="dashboard-ctaRow">*/}
+        {/*        <Link*/}
+        {/*          className="btn-primary inline-flex h-11 items-center justify-center rounded-xl bg-[var(--accent)] px-4 font-semibold text-white hover:bg-[var(--accent2)]"*/}
+        {/*          to={`/flights/${selected.id}`}>*/}
+        {/*          Resume Entry*/}
+        {/*        </Link>*/}
+        {/*      </div>*/}
+        {/*      <div className="dashboard-mapWrap mt-4 overflow-hidden rounded-2xl border border-[var(--border)]">*/}
+        {/*        <MapView*/}
+        {/*          tracks={tracks}*/}
+        {/*          selectedId={selected.track?.properties?.id || selected.id}*/}
+        {/*          height={240}*/}
+        {/*          showZoomControl={false}*/}
+        {/*          onSelect={(trackId) => {*/}
+        {/*            const flight = flights.find(*/}
+        {/*              (x) =>*/}
+        {/*                (x.track?.properties as any)?.id === trackId ||*/}
+        {/*                x.id === trackId,*/}
+        {/*            );*/}
+        {/*            if (flight)*/}
+        {/*              dispatch({ type: 'SELECT_FLIGHT', id: flight.id });*/}
+        {/*          }}*/}
+        {/*          showTileAttribution={false}*/}
+        {/*        />*/}
+        {/*      </div>*/}
+        {/*    </>*/}
+        {/*  ) : (*/}
+        {/*    <div className="dashboard-empty muted mt-3 text-sm text-[var(--muted)]">*/}
+        {/*      No flights yet.*/}
+        {/*    </div>*/}
+        {/*  )}*/}
+        {/*</div>*/}
       </div>
     </div>
   );
