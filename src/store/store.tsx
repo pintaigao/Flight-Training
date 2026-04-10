@@ -1,15 +1,33 @@
 import React, { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
-import type { Store } from '@/lib/types/store';
 import type { AppState } from '@/lib/types/state';
-import { rootReducer } from './rootReducer';
-import { initState } from './initialState';
+import type { Action } from '@/lib/types/actions';
+import type { Store } from '@/lib/types/store';
+import { authReducer } from './auth/reducer';
+import { flightsReducer } from './flights/reducer';
+import { uiReducer } from './ui/reducer';
+import { initialAuthState } from "@/store/auth/initial";
+import { initialFlightsState } from "@/store/flights/initial";
+import { initialUiState } from "@/store/ui/initial";
 
 const STORAGE_KEY = 'flightlog.Modal.v1';
 
-const StoreContext = createContext<Store | null>(null);
+function rootReducer(state: AppState, action: Action): AppState {
+  return {
+    auth: authReducer(state.auth, action),
+    flights: flightsReducer(state.flights, action),
+    ui: uiReducer(state.ui, action),
+  };
+}
 
 function loadInitialState(): AppState {
-  const base = initState();
+  // Initial State
+  const base = {
+    auth: initialAuthState,
+    flights: initialFlightsState,
+    ui: initialUiState,
+  };
+  
+  
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return base;
@@ -25,12 +43,15 @@ function loadInitialState(): AppState {
   }
 }
 
+// 主体
+const StoreContext = createContext<Store | null>(null);
+
 export function StoreProvider({children}: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(rootReducer, undefined, loadInitialState);
   
   useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify({ui: state.ui}))}, [state.ui]);
   
-  const value = useMemo(() => ({state, dispatch}), [state]);
+  const value = useMemo(() => ({state, dispatch}), [state, dispatch]);
   return (
     <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
   );
