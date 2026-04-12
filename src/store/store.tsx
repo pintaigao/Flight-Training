@@ -27,7 +27,6 @@ function loadInitialState(): AppState {
     ui: initialUiState,
   };
   
-  
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return base;
@@ -47,10 +46,10 @@ function loadInitialState(): AppState {
 const StoreContext = createContext<Store | null>(null);
 
 export function StoreProvider({children}: { children: React.ReactNode }) {
+  // Extract State and Dispatch from useReducer
   const [state, dispatch] = useReducer(rootReducer, undefined, loadInitialState);
-  
   useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify({ui: state.ui}))}, [state.ui]);
-  
+  // Return them as value
   const value = useMemo(() => ({state, dispatch}), [state, dispatch]);
   return (
     <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
